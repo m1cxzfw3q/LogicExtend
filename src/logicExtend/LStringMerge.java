@@ -4,7 +4,6 @@ import arc.scene.ui.layout.Table;
 import mindustry.logic.*;
 
 public class LStringMerge {
-    @LEMain.RegisterStatement("stringmerge")
     public static class StringMergeStatement extends LStatement {
         public String output = "result", p1 = "a", p2 = "b";
 

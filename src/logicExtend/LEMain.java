@@ -11,10 +11,4 @@ public class LEMain extends Mod {
     public LEMain() {
 
     }
-
-    @Target(ElementType.TYPE)
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface RegisterStatement{
-        String value();
-    }
 }
