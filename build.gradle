@@ -17,7 +17,7 @@ java{
 
 ext{
     //the build number that this mod is made for
-    mindustryVersion = 'v150.1'
+    mindustryVersion = 'v151.1'
     jabelVersion = "93fde537c7"
     //windows sucks
     isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
@@ -76,7 +76,7 @@ jar{
     }
 
     from(projectDir){
-        include "mod.hjson"
+        include "mod.json"
     }
 
     from("assets/"){
