@@ -44,7 +44,7 @@ public class LStringMerge {
 
         @Override
         public void run(LExecutor exec) {
-            Object targetObj = output.obj();
+            output.setobj(p1.obj().toString() + p2.obj().toString());
         }
     }
 }
