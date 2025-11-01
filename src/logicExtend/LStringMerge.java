@@ -6,7 +6,7 @@ import mindustry.logic.*;
 
 public class LStringMerge {
     public static class StringMergeStatement extends LStatement {
-        public String output = "result", p1 = "a", p2 = "b";
+        public String output = "result", p1 = "\"a\"", p2 = "\"b\"";
 
         @Override
         public void build(Table table) {
@@ -41,7 +41,7 @@ public class LStringMerge {
 
         @Override
         public void write(StringBuilder builder) {
-            builder.append("stringmerge ").append(output).append(" ").append(p1).append(" ").append(p2);
+            builder.append(output).append(" ").append(p1).append(" ").append(p2);
         }
     }
 
