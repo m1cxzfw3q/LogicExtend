@@ -1,14 +1,14 @@
 package logicExtend;
 
+import mindustry.logic.LAssembler;
+import mindustry.logic.LStatement;
 import mindustry.mod.Mod;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 public class LEMain extends Mod {
-    public LEMain() {
+    public LEMain() {}
 
+    @Override
+    public void loadContent() {
+        LStringMerge.load();
     }
 }

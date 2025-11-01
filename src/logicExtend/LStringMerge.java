@@ -1,6 +1,9 @@
 package logicExtend;
 
+import arc.func.Func;
+import arc.func.Prov;
 import arc.scene.ui.layout.Table;
+import mindustry.gen.LogicIO;
 import mindustry.logic.*;
 
 public class LStringMerge {
@@ -46,5 +49,10 @@ public class LStringMerge {
         public void run(LExecutor exec) {
             output.setobj(p1.obj().toString() + p2.obj().toString());
         }
+    }
+
+    public static void load() {
+        LAssembler.customParsers.put("stringmerge", params -> new StringMergeStatement());//ai写的史，能跑就行
+        LogicIO.allStatements.add(StringMergeStatement::new);
     }
 }
