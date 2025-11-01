@@ -1,5 +1,6 @@
 package logicExtend;
 
+import arc.func.Func;
 import arc.scene.ui.layout.Table;
 import mindustry.gen.LogicIO;
 import mindustry.logic.*;
@@ -33,8 +34,18 @@ public class LStringMerge {
 
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
         public static void create() {
-            LAssembler.customParsers.put("stringmerge", params -> new StringMergeStatement());
-            LogicIO.allStatements.add(StringMergeStatement::new);
+            LAssembler.customParsers.put("stringmerge", params -> {
+                StringMergeStatement stmt = new StringMergeStatement();
+                if(params.length >= 1) stmt.output = params[0];
+                if(params.length >= 2) stmt.p1 = params[1];
+                if(params.length >= 3) stmt.p2 = params[2];
+                return stmt;
+            });
+        }
+
+        @Override
+        public void write(StringBuilder builder) {
+            builder.append("stringmerge ").append(output).append(" ").append(p1).append(" ").append(p2);
         }
     }
 
