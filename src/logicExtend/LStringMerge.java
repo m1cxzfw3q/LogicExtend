@@ -38,6 +38,11 @@ public class LStringMerge {
             });
             LogicIO.allStatements.add(StringMergeStatement::new);
         }
+
+        @Override
+        public void write(StringBuilder builder) {
+            builder.append("stringmerge ").append(output).append(" ").append(p1).append(" ").append(p2);
+        }
     }
 
     public static class LStringMergeI implements LExecutor.LInstruction {
