@@ -1,6 +1,5 @@
 package logicExtend;
 
-import arc.func.Func;
 import arc.scene.ui.layout.Table;
 import mindustry.gen.LogicIO;
 import mindustry.logic.*;
@@ -58,8 +57,6 @@ public class LStringMerge {
             this.p1 = p1;
             this.p2 = p2;
         }
-
-        public LStringMergeI() {}
 
         @Override
         public void run(LExecutor exec) {
