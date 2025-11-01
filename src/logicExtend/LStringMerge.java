@@ -11,13 +11,9 @@ public class LStringMerge {
         @Override
         public void build(Table table) {
             field(table, output, str -> output = str);
-
             table.add(" = ");
-
             field(table, p1, str -> p1 = str);
-
             table.add(" + ");
-
             field(table, p2, str -> p2 = str);
         }
 
