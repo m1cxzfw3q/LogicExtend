@@ -47,6 +47,7 @@ public class LStringMerge {
 
     public static class LStringMergeI implements LExecutor.LInstruction {
         public LVar output, p1, p2;
+        private static final int MAX_LENGTH = 220;
 
         public LStringMergeI(LVar output, LVar p1, LVar p2) {
             this.output = output;
@@ -56,11 +57,9 @@ public class LStringMerge {
 
         @Override
         public void run(LExecutor exec) {
-            try {
-                if (!output.constant) {
-                    output.setobj(LEStringExtend.safeToString(p1) + LEStringExtend.safeToString(p2));
-                }
-            } catch (Exception ignore) {}
+            String str = LEStringExtend.safeToString(p1) + LEStringExtend.safeToString(p2);
+            if (str.length() > MAX_LENGTH) str = str.substring(0, MAX_LENGTH);
+            output.setobj(str);
         }
     }
 }
