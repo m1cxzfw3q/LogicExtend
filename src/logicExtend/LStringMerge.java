@@ -56,7 +56,10 @@ public class LStringMerge {
 
         @Override
         public void run(LExecutor exec) {
-            output.setobj(p1.obj().toString() + p2.obj().toString());
+            if (p1.obj().toString() == null && p2.obj().toString() == null) output.setnum(0);
+            else if (p1.obj().toString() == null) output.setobj(p2.obj().toString());
+            else if (p2.obj().toString() == null) output.setobj(p1.obj().toString());
+            else output.setobj(p1.obj().toString() + p2.obj().toString());
         }
     }
 }
