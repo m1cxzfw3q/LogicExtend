@@ -57,7 +57,7 @@ public class LStringMerge {
 
         @Override
         public void run(LExecutor exec) {
-            String str = LEStringExtend.safeToString(p1) + LEStringExtend.safeToString(p2);
+            String str = LEExtend.safeToString(p1) + LEExtend.safeToString(p2);
             if (str.length() > MAX_LENGTH) str = str.substring(0, MAX_LENGTH);
             output.setobj(str);
         }

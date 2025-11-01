@@ -2,7 +2,7 @@ package logicExtend;
 
 import mindustry.logic.LVar;
 
-public class LEStringExtend {
+public class LEExtend {
     public static String safeToString(LVar var) {
         if (var == null) {
             return "null";
@@ -10,7 +10,7 @@ public class LEStringExtend {
         Object obj = var.obj();
         if (obj == null) {
             if (!var.isobj) {
-                return String.valueOf(var.num()).replace(".0", "");
+                return String.valueOf(Math.floor(var.num()));
             }
             return "null";
         }

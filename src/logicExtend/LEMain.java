@@ -8,5 +8,7 @@ public class LEMain extends Mod {
     @Override
     public void loadContent() {
         LStringMerge.StringMergeStatement.create();
+        LAmmo.CreateAmmoStatement.create();
+        LAmmo.SetAmmoStatement.create();
     }
 }
