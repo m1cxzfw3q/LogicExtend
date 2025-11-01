@@ -31,8 +31,9 @@ public class LStringMerge {
             return LCategory.operation;
         }
 
+        /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
         public static void create() {
-            LAssembler.customParsers.put("stringmerge", params -> new StringMergeStatement());//ai写的史，能跑就行
+            LAssembler.customParsers.put("stringmerge", params -> new StringMergeStatement());
             LogicIO.allStatements.add(StringMergeStatement::new);
         }
     }
