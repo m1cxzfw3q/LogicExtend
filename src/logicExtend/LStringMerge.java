@@ -58,13 +58,7 @@ public class LStringMerge {
         public void run(LExecutor exec) {
             try {
                 if (!output.constant) {
-                    if (p1.isobj && p2.isobj) {
-                        output.setobj(p1.obj().toString() + p2.obj().toString());
-                    } else if (p1.isobj && !Double.isNaN(p2.num())) {
-                        output.setobj(p1.obj().toString() + p2.num());
-                    } else if (!Double.isNaN(p1.num()) && p2.isobj) {
-                        output.setobj(p1.num() + p2.obj().toString());
-                    } else output.setobj(p1.num() + p2.num());
+                    output.setobj(LEStringExtend.safeToString(p1) + LEStringExtend.safeToString(p2));
                 }
             } catch (Exception ignore) {}
         }
