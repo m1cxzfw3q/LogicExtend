@@ -41,6 +41,7 @@ public class LStringMerge {
                 if(params.length >= 3) stmt.p2 = params[2];
                 return stmt;
             });
+            LogicIO.allStatements.add(StringMergeStatement::new);
         }
 
         @Override
