@@ -31,9 +31,9 @@ public class LStringMerge {
         public static void create() {
             LAssembler.customParsers.put("stringmerge", params -> {
                 StringMergeStatement stmt = new StringMergeStatement();
-                if(params.length >= 2) stmt.output = params[1];
-                if(params.length >= 3) stmt.p1 = params[2];
-                if(params.length >= 4) stmt.p2 = params[3];
+                if(params.length >= 1) stmt.output = params[0];
+                if(params.length >= 2) stmt.p1 = params[1];
+                if(params.length >= 3) stmt.p2 = params[2];
                 return stmt;
             });
             LogicIO.allStatements.add(StringMergeStatement::new);
