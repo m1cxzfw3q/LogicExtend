@@ -20,23 +20,18 @@ public class LAmmo {
 
     public static class CreateAmmoStatement extends LStatement {
         public LogicAmmoType type = LogicAmmoType.BasicBulletType;
-        public String id = "0", damage = "20", speed = "20";
+        public String id = "0";
 
         @Override
         public void build(Table table) {
             button(table, table);
             table.add("id");
             field(table, id, str -> id = str);
-            table.add("speed/range");
-            field(table, speed, str -> speed = str);
-            table.add("damage");
-            field(table, damage, str -> damage = str);
-
         }
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return new CreateAmmoI(type, builder.var(id), builder.var(damage), builder.var(speed));
+            return new CreateAmmoI(type, builder.var(id));
         }
 
         @Override
@@ -50,8 +45,6 @@ public class LAmmo {
                 CreateAmmoStatement stmt = new CreateAmmoStatement();
                 if (params.length >= 2) stmt.type = LogicAmmoType.valueOf(params[1]);
                 if (params.length >= 3) stmt.id = params[2];
-                if (params.length >= 4) stmt.speed = params[3];
-                if (params.length >= 5) stmt.damage = params[4];
                 return stmt;
             });
             LogicIO.allStatements.add(CreateAmmoStatement::new);
@@ -59,7 +52,7 @@ public class LAmmo {
 
         @Override
         public void write(StringBuilder builder) {
-            builder.append("createammo ").append(type).append(" ").append(id).append(" ").append(speed).append(" ").append(damage);
+            builder.append("createammo ").append(type).append(" ").append(id);
         }
 
         void rebuild(Table table){
@@ -73,8 +66,8 @@ public class LAmmo {
                 b.clicked(() -> showSelect(b, LogicAmmoType.all, type, o -> {
                     type = o;
                     rebuild(parent);
-                }, 4, c -> c.width(64f)));
-            }, Styles.logict, () -> {}).size(64f, 40f).pad(4f).color(table.color);
+                }, 4, c -> c.width(90f)));
+            }, Styles.logict, () -> {}).size(90f, 40f).pad(4f).color(table.color);
         }
     }
 
@@ -102,12 +95,18 @@ public class LAmmo {
                 field(table, owner, str -> owner = str);
                 table.row();
                 table.add("x ");
-                field(table, x, str -> x = str);
+                field(table, x, str -> x = str);x
                 table.add(" y ");
                 field(table, y, str -> y = str);
                 table.add(" rotation ");
                 field(table, rot, str -> rot = str);
             }
+        }
+
+
+        @Override
+        public LCategory category() {
+            return LCategory.world;
         }
 
         @Override
@@ -150,30 +149,28 @@ public class LAmmo {
                 b.clicked(() -> showSelect(b, AmmoOp.all, op, o -> {
                     op = o;
                     rebuild(parent);
-                }, 4, c -> c.width(64f)));
-            }, Styles.logict, () -> {}).size(64f, 40f).pad(4f).color(table.color);
+                }, 4, c -> c.width(70f)));
+            }, Styles.logict, () -> {}).size(70f, 40f).pad(4f).color(table.color);
         }
 
         void KButton(Table table, Table parent){
             table.button(b -> {
-                b.label(() -> op.name);
+                b.label(() -> set.name);
                 b.clicked(() -> showSelect(b, AmmoSet.all, set, o -> {
                     set = o;
                     rebuild(parent);
-                }, 4, c -> c.width(64f)));
-            }, Styles.logict, () -> {}).size(64f, 40f).pad(4f).color(table.color);
+                }, 4, c -> c.width(100f)));
+            }, Styles.logict, () -> {}).size(100f, 40f).pad(4f).color(table.color);
         }
     }
 
     public static class CreateAmmoI implements LExecutor.LInstruction {
         public LogicAmmoType type;
-        public LVar id, damage, speed;
+        public LVar id;
 
-        public CreateAmmoI(LogicAmmoType type, LVar id, LVar damage, LVar speed) {
+        public CreateAmmoI(LogicAmmoType type, LVar id) {
             this.id = id;
             this.type = type;
-            this.damage = damage;
-            this.speed = speed;
         }
 
         @Override
