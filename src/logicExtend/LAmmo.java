@@ -1,8 +1,11 @@
 package logicExtend;
 
+import arc.math.geom.Vec2;
 import arc.scene.ui.layout.Table;
 import arc.struct.IntMap;
 import mindustry.entities.bullet.*;
+import mindustry.game.Team;
+import mindustry.gen.Entityc;
 import mindustry.gen.LogicIO;
 import mindustry.logic.*;
 import mindustry.ui.Styles;
@@ -13,6 +16,7 @@ import static mindustry.Vars.net;
 
 public class LAmmo {
     public static IntMap<BulletType> ammos = IntMap.of();
+    public static IntMap<Team> ammoTeams = IntMap.of();
 
     public static class CreateAmmoStatement extends LStatement {
         public LogicAmmoType type = LogicAmmoType.BasicBulletType;
@@ -77,7 +81,8 @@ public class LAmmo {
     public static class SetAmmoStatement extends LStatement {
         public AmmoOp op = AmmoOp.set;
         public AmmoSet set = AmmoSet.damage;
-        public String id = "0", value = "20";
+        public String id = "0", value = "20", owner = "@this",
+        x = "0", y = "0", rot = "0";
 
         @Override
         public void build(Table table) {
@@ -92,11 +97,22 @@ public class LAmmo {
                 table.add(" value ");
                 field(table, value, str -> value = str);
             }
+            if (op == AmmoOp.create) {
+                table.add(" owner ");
+                field(table, owner, str -> owner = str);
+                table.row();
+                table.add("x ");
+                field(table, x, str -> x = str);
+                table.add(" y ");
+                field(table, y, str -> y = str);
+                table.add(" rotation ");
+                field(table, rot, str -> rot = str);
+            }
         }
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return new SetAmmoI(op, set, builder.var(id), builder.var(value));
+            return new SetAmmoI(op, set, builder.var(id), builder.var(value), builder.var(owner), builder.var(x), builder.var(y), builder.var(rot));
         }
 
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
@@ -107,6 +123,10 @@ public class LAmmo {
                 if (params.length >= 4) stmt.set = AmmoSet.valueOf(params[4]);
                 if (params.length >= 3) stmt.id = params[2];
                 if (params.length >= 4) stmt.value = params[3];
+                if (params.length >= 5) stmt.owner = params[4];
+                if (params.length >= 6) stmt.x = params[5];
+                if (params.length >= 7) stmt.y = params[6];
+                if (params.length >= 8) stmt.rot = params[7];
                 return stmt;
             });
             LogicIO.allStatements.add(SetAmmoStatement::new);
@@ -114,7 +134,9 @@ public class LAmmo {
 
         @Override
         public void write(StringBuilder builder) {
-            builder.append("setammo ").append(op).append(" ").append(set).append(" ").append(id).append(" ").append(value);
+            builder.append("setammo ").append(op).append(" ").append(set).append(" ")
+                    .append(id).append(" ").append(value).append(" ").append(owner)
+                    .append(x).append(" ").append(y).append(" ").append(rot);
         }
 
         void rebuild(Table table){
@@ -165,18 +187,32 @@ public class LAmmo {
     public static class SetAmmoI implements LExecutor.LInstruction {
         public AmmoOp op;
         public AmmoSet set;
-        public LVar id, value;
+        public LVar id, value, owner, x, y, rot;
 
-        public SetAmmoI(AmmoOp op, AmmoSet set, LVar id, LVar value) {
+        public SetAmmoI(AmmoOp op, AmmoSet set, LVar id, LVar value, LVar owner, LVar x, LVar y, LVar rot) {
             this.op = op;
             this.set = set;
             this.id = id;
             this.value = value;
+            this.owner = owner;
+            this.x = x;
+            this.y = y;
+            this.rot = rot;
         }
 
         @Override
         public void run(LExecutor exec) {
-
+            if (op == AmmoOp.remove) {
+                if (op.aop1 != null) {
+                    op.aop1.get(id.numi());
+                }
+            } else if (op == AmmoOp.create) {
+                if (op.aop4 != null) {
+                    op.aop4.get(owner.building(), id.numi(), ammoTeams.get(id.numi()), new Vec2(x.numf(), y.numf()), rot.num());
+                }
+            } else if (op.aosp3 != null) {
+                op.aosp3.get(set, id.num(), value.num());
+            }
         }
     }
 
@@ -208,7 +244,8 @@ public class LAmmo {
     public enum AmmoOp {
         remove("remove", a -> ammos.remove((int) a)),
         set("set", (a, b, c) -> a.aSet.get(ammos.get((int) b), (float) c)),
-        create("create", (a, b, c) -> ammos.get((int) a).create(, ), true)
+        create("create", (a, b, c, d, e) ->
+                ammos.get((int) b).create(a, c, d.x, d.y, (float) e))
 
         ;
 
@@ -216,56 +253,40 @@ public class LAmmo {
 
         public final String name;
         public final AmmoOp1 aop1;
-        public final AmmoOp2 aop2;
         public final AmmoSetOp3 aosp3;
-        public final AmmoOp3 aop3;
+        public final AmmoOp4 aop4;
 
         AmmoOp(String name, AmmoOp1 aop1) {
             this.name = name;
             this.aop1 = aop1;
-            this.aop2 = null;
             this.aosp3 = null;
-            this.aop3 = null;
-        }
-
-        AmmoOp(String name, AmmoOp2 aop2) {
-            this.name = name;
-            this.aop1 = null;
-            this.aop2 = aop2;
-            this.aosp3 = null;
-            this.aop3 = null;
+            this.aop4 = null;
         }
 
         AmmoOp(String name, AmmoSetOp3 aop3) {
             this.name = name;
             this.aop1 = null;
-            this.aop2 = null;
             this.aosp3 = aop3;
-            this.aop3 = null;
+            this.aop4 = null;
         }
 
-        AmmoOp(String name, AmmoOp3 aop3, boolean ignored) {
+        AmmoOp(String name, AmmoOp4 aop4) {
             this.name = name;
             this.aop1 = null;
-            this.aop2 = null;
             this.aosp3 = null;
-            this.aop3 = aop3;
+            this.aop4 = aop4;
         }
 
         interface AmmoOp1 {
             void get(double a);
         }
 
-        interface AmmoOp2 {
-            void get(Object a, double b);
-        }
-
         interface AmmoSetOp3 {
             void get(AmmoSet a, double b, double c);
         }
 
-        interface AmmoOp3 {
-            void get(Object a, double b, double c);
+        interface AmmoOp4 {
+            void get(Entityc a, double b, Team c, Vec2 d, double e);
         }
     }
 
