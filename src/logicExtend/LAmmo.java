@@ -269,9 +269,16 @@ public class LAmmo {
 
     public enum AmmoOp {
         remove("remove", a -> ammos.remove((int) a)),
-        set("set", (a, b, c) -> a.aSet.get(ammos.get((int) b), (float) c)),
-        create("create", (a, b, c, d, e) ->
-                ammos.get((int) b).create(a, c, d.x * 8, d.y * 8, (float) e))
+        set("set", (a, b, c) -> {
+            if (ammos.get((int) b) != null) try {
+                a.aSet.get(ammos.get((int) b), (float) c);
+            } catch (Exception ignored) {}
+        }),
+        create("create", (a, b, c, d, e) -> {
+            if (ammos.get((int) b) != null) try {
+                ammos.get((int) b).create(a, c, d.x * 8, d.y * 8, (float) e);
+            } catch (Exception ignored) {}
+        })
 
         ;
 
@@ -362,6 +369,10 @@ public class LAmmo {
         lightningAngle("lightningAngle", (a, b) -> a.lightningAngle = b),
 
         rotateSpeed("rotateSpeed", (a, b) -> a.rotateSpeed = b),
+
+        length("laserLength", (a, b) -> {
+            if (a instanceof LaserBulletType) ((LaserBulletType) a).length = b;
+        })
         ;
 
         public static final AmmoSet[] all = values();
