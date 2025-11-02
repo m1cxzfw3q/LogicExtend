@@ -92,8 +92,19 @@ public class LAmmo {
             table.add("id#");
             LEExtend.field(table, id, str -> id = str, 75f);
             if (op == AmmoOp.set) {
-                table.add(" value ");
-                LEExtend.field(table, value, str -> value = str, 90f);
+                if (set.isObj2) {
+                    table.add(" R ");
+                    LEExtend.field(table, value, str -> value = str, 90f);
+                    table.add("G ");
+                    LEExtend.field(table, x, str -> x = str, 90f);
+                    table.add("B ");
+                    LEExtend.field(table, y, str -> y = str, 90f);
+                    table.add("A ");
+                    LEExtend.field(table, rot, str -> rot = str, 90f);
+                } else {
+                    table.add(" value ");
+                    LEExtend.field(table, value, str -> value = str, 90f);
+                }
             }
             if (op == AmmoOp.create) {
                 table.add(" team ");
@@ -219,9 +230,9 @@ public class LAmmo {
                 if (op.aop4 != null) {
                     op.aop4.get(value.building(), id.numi(), Team.get(team.numi()), new Vec2(x.numf(), y.numf()), rot.num());
                 }
-            } else if (op.aosp3 != null) {
-                op.aosp3.get(set, id.num(), value.num());
-            }
+            } else if (set.isObj2){
+                if (op.aopb3 != null) op.aopb3.get(set, id.num(), Color.rgb(value.numi(), x.numi(), y.numi()).a(rot.numi()));
+            } else if (op.aosp3 != null) op.aosp3.get(set, id.num(), value.num());
         }
     }
 
@@ -273,6 +284,11 @@ public class LAmmo {
                 a.aSet.get(ammos.get((int) b), (float) c);
             } catch (Exception ignored) {}
         }),
+        color("color", (a, b, c) -> {
+            if (ammos.get((int) b) != null) try {
+                a.aSetObj.get(ammos.get((int) b), c, 1);
+            } catch (Exception ignored) {}
+        }, 1),
         create("create", (a, b, c, d, e) -> {
             if (ammos.get((int) b) != null) try {
                 ammos.get((int) b).create(a, c, d.x * 8, d.y * 8, (float) e);
@@ -286,6 +302,7 @@ public class LAmmo {
         public final String name;
         public final AmmoOp1 aop1;
         public final AmmoSetOp3 aosp3;
+        public final AmmoSetOpObj3 aopb3;
         public final AmmoOp4 aop4;
 
         AmmoOp(String name, AmmoOp1 aop1) {
@@ -293,6 +310,7 @@ public class LAmmo {
             this.aop1 = aop1;
             this.aosp3 = null;
             this.aop4 = null;
+            this.aopb3 = null;
         }
 
         AmmoOp(String name, AmmoSetOp3 aop3) {
@@ -300,6 +318,15 @@ public class LAmmo {
             this.aop1 = null;
             this.aosp3 = aop3;
             this.aop4 = null;
+            this.aopb3 = null;
+        }
+
+        AmmoOp(String name, AmmoSetOpObj3 aopb3, int ignored) {
+            this.name = name;
+            this.aop1 = null;
+            this.aosp3 = null;
+            this.aop4 = null;
+            this.aopb3 = aopb3;
         }
 
         AmmoOp(String name, AmmoOp4 aop4) {
@@ -307,6 +334,7 @@ public class LAmmo {
             this.aop1 = null;
             this.aosp3 = null;
             this.aop4 = aop4;
+            this.aopb3 = null;
         }
 
         interface AmmoOp1 {
@@ -315,6 +343,10 @@ public class LAmmo {
 
         interface AmmoSetOp3 {
             void get(AmmoSet a, double b, double c);
+        }
+
+        interface AmmoSetOpObj3 {
+            void get(AmmoSet a, double b, Color c);
         }
 
         interface AmmoOp4 {
@@ -404,11 +436,11 @@ public class LAmmo {
 
         despawnHit("despawnHit", (a, b) -> a.despawnHit = b >= 1),
 
-        hitColor("hitColor", (a, b) -> a.hitColor = Color.valueOf(b), 1),
-        trailColor("trailColor", (a, b) -> , 1),
-        suppressColor("suppressColor", (a, b) -> , 1),
-        lightningColor("lightningColor", (a, b) -> , 1),
-        lightColor("lightColor", (a, b) -> , 1),
+        hitColor("hitColor", (a, b, i) -> a.hitColor = Color.valueOf(b.toString()), 1),
+        trailColor("trailColor", (a, b, i) -> a.trailColor = Color.valueOf(b.toString()), 1),
+        suppressColor("suppressColor", (a, b, i) -> a.suppressColor = Color.valueOf(b.toString()), 1),
+        lightningColor("lightningColor", (a, b, i) -> a.lightningColor = Color.valueOf(b.toString()), 1),
+        lightColor("lightColor", (a, b, i) -> a.lightColor = Color.valueOf(b.toString()), 1),
 
         ;
 
@@ -429,7 +461,7 @@ public class LAmmo {
             this.name = name;
             this.aSet = null;
             this.aSetObj = aSet;
-            this.isObj2 = false;
+            this.isObj2 = true;
         }
 
         interface AmmoSet2 {
@@ -437,7 +469,7 @@ public class LAmmo {
         }
 
         interface AmmoSetObj2 {
-            void get(BulletType a, Object b);
+            void get(BulletType a, Object b, int ignored);
         }
     }
 }
