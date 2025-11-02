@@ -1,5 +1,6 @@
 package logicExtend;
 
+import arc.Core;
 import arc.math.geom.Vec2;
 import arc.scene.ui.layout.Table;
 import arc.struct.IntMap;
@@ -226,13 +227,29 @@ public class LAmmo {
     }
 
     public enum LogicAmmoType {
-        BasicBullet("BasicBullet", BasicBulletType::new),
-        BombBullet("BombBullet", BombBulletType::new),
+        BasicBullet("BasicBullet", () -> new BasicBulletType() {{
+            sprite = "bullet";
+            backRegion = Core.atlas.find(sprite + "-back");
+            frontRegion = Core.atlas.find(sprite);
+        }}),
+        BombBullet("BombBullet", () -> new BombBulletType() {{
+            sprite = "shell";
+            backRegion = Core.atlas.find(sprite + "-back");
+            frontRegion = Core.atlas.find(sprite);
+        }}),
         LaserBullet("LaserBullet", LaserBulletType::new),
         LightningBullet("LightningBullet", LightningBulletType::new),
-        MissileBullet("MissileBullet", MissileBulletType::new),
+        MissileBullet("MissileBullet", () -> new MissileBulletType() {{
+            sprite = "missile";
+            backRegion = Core.atlas.find(sprite + "-back");
+            frontRegion = Core.atlas.find(sprite);
+        }}),
         FireBullet("FireBullet", FireBulletType::new),
-        ArtilleryBullet("ArtilleryBullet", ArtilleryBulletType::new),
+        ArtilleryBullet("ArtilleryBullet",  () -> new ArtilleryBulletType() {{
+            sprite = "shell";
+            backRegion = Core.atlas.find(sprite + "-back");
+            frontRegion = Core.atlas.find(sprite);
+        }}),
 
         ;
 
