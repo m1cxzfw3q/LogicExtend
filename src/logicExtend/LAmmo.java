@@ -88,9 +88,9 @@ public class LAmmo {
                 table.add(" ");
                 KButton(table, table);
             }
-            table.add(" id#");
-            field(table, id, str -> id = str);
-            if (op != AmmoOp.remove) {
+            table.add("id#");
+            LEExtend.field(table, id, str -> id = str, 75f);
+            if (op == AmmoOp.set) {
                 table.add(" value ");
                 field(table, value, str -> value = str);
             }
@@ -104,6 +104,7 @@ public class LAmmo {
                 field(table, x, str -> x = str);
                 table.add(" y ");
                 field(table, y, str -> y = str);
+                table.row();
                 table.add(" rotation ");
                 field(table, rot, str -> rot = str);
             }
@@ -145,9 +146,9 @@ public class LAmmo {
 
         @Override
         public void write(StringBuilder builder) {
-            builder.append("setammo ").append(op).append(" ").append(set).append(" ")
-                    .append(id).append(" ").append(value).append(" ").append(owner).append(" ")
-                    .append(x).append(" ").append(y).append(" ").append(rot);
+            builder.append("setammo ").append(op).append(" ").append(set).append(" ").append(id)
+                    .append(" ").append(value).append(" ").append(team).append(" ").append(owner)
+                    .append(" ").append(x).append(" ").append(y).append(" ").append(rot);
         }
 
         void rebuild(Table table){
