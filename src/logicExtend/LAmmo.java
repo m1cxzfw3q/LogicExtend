@@ -384,9 +384,7 @@ public class LAmmo {
         }),
 
         fragBullet("fragBullet", (a, b) -> {
-            if (ammos.get((int) b) != null && ammos.get((int) b) != a) try {
-                a.fragBullet = ammos.get((int) b);
-            } catch (Exception ignored) {}
+            if (ammos.get((int) b) != null && ammos.get((int) b) != a) a.fragBullet = ammos.get((int) b);
         }),
         fragBullets("fragBullets", (a, b) -> a.fragBullets = (int) b),
         pierceFragCap("pierceFragCap", (a, b) -> a.pierceFragCap = (int) b),
