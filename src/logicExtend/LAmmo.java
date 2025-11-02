@@ -1,6 +1,7 @@
 package logicExtend;
 
 import arc.Core;
+import arc.graphics.Color;
 import arc.math.geom.Vec2;
 import arc.scene.ui.layout.Table;
 import arc.struct.IntMap;
@@ -340,6 +341,7 @@ public class LAmmo {
         shieldDamageMultiplier("shieldDamageMultiplier", (a, b) -> a.shieldDamageMultiplier = b),
 
         splashDamage("splashDamage", (a, b) -> a.splashDamage = b),
+        splashDamageRadius("splashDamageRadius", (a, b) -> a.splashDamageRadius = b),
         splashDamagePierce("splashDamagePierce", (a, b) -> a.splashDamagePierce = b >= 1),
 
         knockback("knockback", (a, b) -> a.knockback = b),
@@ -400,19 +402,42 @@ public class LAmmo {
         fragOnAbsorb("fragOnAbsorb", (a, b) -> a.fragOnAbsorb = b >= 1),
         fragOnHit("fragOnHit", (a, b) -> a.fragOnHit = b >= 1),
 
+        despawnHit("despawnHit", (a, b) -> a.despawnHit = b >= 1),
+
+        hitColor("hitColor", (a, b) -> a.hitColor = Color.valueOf(b), 1),
+        trailColor("trailColor", (a, b) -> , 1),
+        suppressColor("suppressColor", (a, b) -> , 1),
+        lightningColor("lightningColor", (a, b) -> , 1),
+        lightColor("lightColor", (a, b) -> , 1),
+
         ;
 
         public static final AmmoSet[] all = values();
 
         public final String name;
         public final AmmoSet2 aSet;
+        public final AmmoSetObj2 aSetObj;
+        public final boolean isObj2;
         AmmoSet(String name, AmmoSet2 aSet) {
             this.name = name;
             this.aSet = aSet;
+            this.aSetObj = null;
+            this.isObj2 = false;
+        }
+
+        AmmoSet(String name, AmmoSetObj2 aSet, int ignored) {
+            this.name = name;
+            this.aSet = null;
+            this.aSetObj = aSet;
+            this.isObj2 = false;
         }
 
         interface AmmoSet2 {
             void get(BulletType a, float b);
+        }
+
+        interface AmmoSetObj2 {
+            void get(BulletType a, Object b);
         }
     }
 }
