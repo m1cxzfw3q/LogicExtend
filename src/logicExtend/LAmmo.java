@@ -18,7 +18,7 @@ public class LAmmo {
     public static IntMap<BulletType> ammos = IntMap.of();
 
     public static class CreateAmmoStatement extends LStatement {
-        public LogicAmmoType type = LogicAmmoType.BasicBulletType;
+        public LogicAmmoType type = LogicAmmoType.BasicBullet;
         public String id = "0";
 
         @Override
@@ -227,13 +227,13 @@ public class LAmmo {
     }
 
     public enum LogicAmmoType {
-        BasicBulletType("BasicBullet", BasicBulletType::new),
-        BombBulletType("BombBullet", BombBulletType::new),
-        LaserBulletType("LaserBullet", LaserBulletType::new),
-        LightningBulletType("LightningBullet", LightningBulletType::new),
-        MissileBulletType("MissileBullet", MissileBulletType::new),
-        FireBulletType("FireBullet", FireBulletType::new),
-        ArtilleryBulletType("ArtilleryBulletType", ArtilleryBulletType::new),
+        BasicBullet("BasicBullet", BasicBulletType::new),
+        BombBullet("BombBullet", BombBulletType::new),
+        LaserBullet("LaserBullet", LaserBulletType::new),
+        LightningBullet("LightningBullet", LightningBulletType::new),
+        MissileBullet("MissileBullet", MissileBulletType::new),
+        FireBullet("FireBullet", FireBulletType::new),
+        ArtilleryBullet("ArtilleryBulletType", ArtilleryBulletType::new),
 
         ;
 
