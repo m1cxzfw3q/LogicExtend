@@ -16,7 +16,6 @@ import static mindustry.Vars.net;
 
 public class LAmmo {
     public static IntMap<BulletType> ammos = IntMap.of();
-    public static IntMap<Team> ammoTeams = IntMap.of();
 
     public static class CreateAmmoStatement extends LStatement {
         public LogicAmmoType type = LogicAmmoType.BasicBulletType;
