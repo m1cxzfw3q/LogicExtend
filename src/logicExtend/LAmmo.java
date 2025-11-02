@@ -97,7 +97,7 @@ public class LAmmo {
                 table.add(" team ");
                 LEExtend.field(table, team, str -> team = str, 90f);
                 table.add(" owner ");
-                field(table, owner, str -> owner = str);
+                LEExtend.field(table, value, str -> value = str, 90f);
                 table.row();
                 table.add(" x ");
                 LEExtend.field(table, x, str -> x = str, 75f);
