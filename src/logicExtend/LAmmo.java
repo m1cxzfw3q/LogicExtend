@@ -96,17 +96,17 @@ public class LAmmo {
             }
             if (op == AmmoOp.create) {
                 table.add(" team ");
-                field(table, team, str -> team = str);
+                LEExtend.field(table, team, str -> team = str, 100f);
                 table.row();
                 table.add(" owner ");
                 field(table, owner, str -> owner = str);
-                table.add("x ");
-                field(table, x, str -> x = str);
+                table.add(" x ");
+                LEExtend.field(table, x, str -> x = str, 75f);
                 table.add(" y ");
-                field(table, y, str -> y = str);
+                LEExtend.field(table, y, str -> y = str, 75f);
                 table.row();
                 table.add(" rotation ");
-                field(table, rot, str -> rot = str);
+                LEExtend.field(table, rot, str -> rot = str, 75f);
             }
         }
 
