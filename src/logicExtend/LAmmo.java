@@ -39,6 +39,11 @@ public class LAmmo {
             return LCategory.world;
         }
 
+        @Override
+        public boolean privileged(){
+            return true;
+        }
+
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
         public static void create() {
             LAssembler.customParsers.put("createammo", params -> {
@@ -103,6 +108,10 @@ public class LAmmo {
             }
         }
 
+        @Override
+        public boolean privileged(){
+            return true;
+        }
 
         @Override
         public LCategory category() {
