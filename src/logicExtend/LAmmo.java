@@ -99,13 +99,13 @@ public class LAmmo {
                 LEExtend.field(table, value, str -> value = str, 90f);
             } else if (op == AmmoOp.color) {
                 table.add(" R ");
-                LEExtend.field(table, value, str -> value = str, 90f);
-                table.add("G ");
-                LEExtend.field(table, x, str -> x = str, 90f);
-                table.add("B ");
-                LEExtend.field(table, y, str -> y = str, 90f);
-                table.add("A ");
-                LEExtend.field(table, rot, str -> rot = str, 90f);
+                LEExtend.field(table, value, str -> value = str, 80f);
+                table.add(" G ");
+                LEExtend.field(table, x, str -> x = str, 80f);
+                table.add(" B ");
+                LEExtend.field(table, y, str -> y = str, 80f);
+                table.add(" A ");
+                LEExtend.field(table, rot, str -> rot = str, 80f);
             }
             if (op == AmmoOp.create) {
                 table.add(" team ");
