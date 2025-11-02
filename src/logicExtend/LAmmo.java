@@ -70,8 +70,8 @@ public class LAmmo {
                 b.clicked(() -> showSelect(b, LogicAmmoType.all, type, o -> {
                     type = o;
                     rebuild(parent);
-                }, 4, c -> c.width(90f)));
-            }, Styles.logict, () -> {}).size(90f, 40f).pad(4f).color(table.color);
+                }, 4, c -> c.width(130f)));
+            }, Styles.logict, () -> {}).size(130f, 40f).pad(4f).color(table.color);
         }
     }
 
