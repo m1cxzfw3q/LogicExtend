@@ -158,8 +158,8 @@ public class LAmmo {
                 b.clicked(() -> showSelect(b, AmmoOp.all, op, o -> {
                     op = o;
                     rebuild(parent);
-                }, 4, c -> c.width(70f)));
-            }, Styles.logict, () -> {}).size(70f, 40f).pad(4f).color(table.color);
+                }, 4, c -> c.width(75f)));
+            }, Styles.logict, () -> {}).size(75f, 40f).pad(4f).color(table.color);
         }
 
         void KButton(Table table, Table parent){
@@ -168,8 +168,8 @@ public class LAmmo {
                 b.clicked(() -> showSelect(b, AmmoSet.all, set, o -> {
                     set = o;
                     rebuild(parent);
-                }, 4, c -> c.width(100f)));
-            }, Styles.logict, () -> {}).size(100f, 40f).pad(4f).color(table.color);
+                }, 4, c -> c.width(220f)));
+            }, Styles.logict, () -> {}).size(220f, 40f).pad(4f).color(table.color);
         }
     }
 
