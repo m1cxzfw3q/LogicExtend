@@ -244,8 +244,8 @@ public class LAmmo {
                 if (op.aop4 != null) {
                     op.aop4.get(value.building(), id.numi(), Team.get(team.numi()), new Vec2(x.numf(), y.numf()), rot.num());
                 }
-            } else if (set.isObj2){
-                if (op.aopb3 != null) op.aopb3.get(col, id.num(), Color.rgb(value.numi(), x.numi(), y.numi()).a(rot.numi()));
+            } else if (set.isObj2 && op.aopb3 != null) {
+                op.aopb3.get(col, id.num(), Color.rgb(value.numi(), x.numi(), y.numi()).a(rot.numi()));
             } else if (op.aosp3 != null) op.aosp3.get(set, id.num(), value.num());
         }
     }
