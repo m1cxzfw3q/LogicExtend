@@ -85,18 +85,17 @@ public class LAmmo {
         public void build(Table table) {
             OpButton(table, table);
             if (op == AmmoOp.set) {
-                table.add(" ");
                 KButton(table, table);
             }
             table.add("id#");
             LEExtend.field(table, id, str -> id = str, 75f);
             if (op == AmmoOp.set) {
                 table.add(" value ");
-                field(table, value, str -> value = str);
+                LEExtend.field(table, value, str -> value = str, 90f);
             }
             if (op == AmmoOp.create) {
                 table.add(" team ");
-                LEExtend.field(table, team, str -> team = str, 100f);
+                LEExtend.field(table, team, str -> team = str, 90f);
                 table.row();
                 table.add(" owner ");
                 field(table, owner, str -> owner = str);
