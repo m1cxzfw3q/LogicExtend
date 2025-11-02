@@ -27,7 +27,7 @@ public class LEExtend {
     }
 
     public static String sanitize(String value){
-        if(value.length() == 0){
+        if(value.isEmpty()){
             return "";
         }else if(value.length() == 1){
             if(value.charAt(0) == '"' || value.charAt(0) == ';' || value.charAt(0) == ' '){
