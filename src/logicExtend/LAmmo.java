@@ -382,6 +382,22 @@ public class LAmmo {
         radius("radius", (a, b) -> {
             if (a instanceof FireBulletType) ((FireBulletType) a).radius = b;
         }),
+
+        fragBullet("fragBullet", (a, b) -> a.fragBullet = ammos.get((int) b)),
+        fragBullets("fragBullets", (a, b) -> a.fragBullets = (int) b),
+        pierceFragCap("pierceFragCap", (a, b) -> a.pierceFragCap = (int) b),
+        fragSpread("fragSpread", (a, b) -> a.fragSpread = b),
+        fragRandomSpread("fragRandomSpread", (a, b) -> a.fragRandomSpread = b),
+        fragAngle("fragAngle", (a, b) -> a.fragAngle = b),
+        fragVelocityMin("fragVelocityMin", (a, b) -> a.fragVelocityMin = b),
+        fragVelocityMax("fragVelocityMax", (a, b) -> a.fragVelocityMax = b),
+        fragLifeMin("fragLifeMin", (a, b) -> a.fragLifeMin = b),
+        fragLifeMax("fragLifeMax", (a, b) -> a.fragLifeMax = b),
+        fragOffsetMin("fragOffsetMin", (a, b) -> a.fragOffsetMin = b),
+        fragOffsetMax("fragOffsetMax", (a, b) -> a.fragOffsetMax = b),
+        fragOnAbsorb("fragOnAbsorb", (a, b) -> a.fragOnAbsorb = b >= 1),
+        fragOnHit("fragOnHit", (a, b) -> a.fragOnHit = b >= 1),
+
         ;
 
         public static final AmmoSet[] all = values();
