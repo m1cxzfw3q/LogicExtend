@@ -196,6 +196,16 @@ public class LAmmo {
         }
 
         @Override
+        public boolean privileged(){
+            return true;
+        }
+
+        @Override
+        public LCategory category() {
+            return LCategory.world;
+        }
+
+        @Override
         public LExecutor.LInstruction build(LAssembler builder) {
             return new SetAmmoColorI(op, builder.var(id), builder.var(r), builder.var(g), builder.var(b), builder.var(a));
         }
