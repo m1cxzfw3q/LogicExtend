@@ -79,7 +79,7 @@ public class LAmmo {
     public static class SetAmmoStatement extends LStatement {
         public AmmoOp op = AmmoOp.set;
         public AmmoSet set = AmmoSet.damage;
-        public String id = "0", value = "20", owner = "@this",
+        public String id = "0", value = "20",
         x = "0", y = "0", rot = "0", team = "@sharded";
 
         @Override
@@ -122,7 +122,7 @@ public class LAmmo {
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
             return new SetAmmoI(op, set, builder.var(id), builder.var(value),
-                    builder.var(owner), builder.var(x), builder.var(y), builder.var(rot), builder.var(team));
+                    builder.var(x), builder.var(y), builder.var(rot), builder.var(team));
         }
 
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
@@ -134,10 +134,9 @@ public class LAmmo {
                 if (params.length >= 4) stmt.id = params[3];
                 if (params.length >= 5) stmt.value = params[4];
                 if (params.length >= 6) stmt.team = params[5];
-                if (params.length >= 7) stmt.owner = params[6];
-                if (params.length >= 8) stmt.x = params[7];
-                if (params.length >= 9) stmt.y = params[8];
-                if (params.length >= 10) stmt.rot = params[9];
+                if (params.length >= 7) stmt.x = params[6];
+                if (params.length >= 8) stmt.y = params[7];
+                if (params.length >= 9) stmt.rot = params[8];
                 return stmt;
             });
             LogicIO.allStatements.add(SetAmmoStatement::new);
@@ -146,8 +145,8 @@ public class LAmmo {
         @Override
         public void write(StringBuilder builder) {
             builder.append("setammo ").append(op).append(" ").append(set).append(" ").append(id)
-                    .append(" ").append(value).append(" ").append(team).append(" ").append(owner)
-                    .append(" ").append(x).append(" ").append(y).append(" ").append(rot);
+                    .append(" ").append(value).append(" ").append(team).append(" ").append(x)
+                    .append(" ").append(y).append(" ").append(rot);
         }
 
         void rebuild(Table table){
@@ -196,14 +195,13 @@ public class LAmmo {
     public static class SetAmmoI implements LExecutor.LInstruction {
         public AmmoOp op;
         public AmmoSet set;
-        public LVar id, value, owner, x, y, rot, team;
+        public LVar id, value, x, y, rot, team;
 
-        public SetAmmoI(AmmoOp op, AmmoSet set, LVar id, LVar value, LVar owner, LVar x, LVar y, LVar rot, LVar team) {
+        public SetAmmoI(AmmoOp op, AmmoSet set, LVar id, LVar value, LVar x, LVar y, LVar rot, LVar team) {
             this.op = op;
             this.set = set;
             this.id = id;
             this.value = value;
-            this.owner = owner;
             this.x = x;
             this.y = y;
             this.rot = rot;
@@ -218,7 +216,7 @@ public class LAmmo {
                 }
             } else if (op == AmmoOp.create) {
                 if (op.aop4 != null) {
-                    op.aop4.get(owner.building(), id.numi(), Team.get(team.numi()), new Vec2(x.numf(), y.numf()), rot.num());
+                    op.aop4.get(value.building(), id.numi(), Team.get(team.numi()), new Vec2(x.numf(), y.numf()), rot.num());
                 }
             } else if (op.aosp3 != null) {
                 op.aosp3.get(set, id.num(), value.num());
@@ -370,7 +368,7 @@ public class LAmmo {
 
         rotateSpeed("rotateSpeed", (a, b) -> a.rotateSpeed = b),
 
-        length("laserLength", (a, b) -> {
+        laserLength("laserLength", (a, b) -> {
             if (a instanceof LaserBulletType) ((LaserBulletType) a).length = b;
         })
         ;
