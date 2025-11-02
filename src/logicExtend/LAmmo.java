@@ -370,7 +370,18 @@ public class LAmmo {
 
         laserLength("laserLength", (a, b) -> {
             if (a instanceof LaserBulletType) ((LaserBulletType) a).length = b;
-        })
+        }),
+
+        width("width", (a, b) -> {
+            if (a instanceof BasicBulletType) ((BasicBulletType) a).width = b;
+            else if (a instanceof LaserBulletType) ((LaserBulletType) a).width = b;
+        }),
+        height("height", (a, b) -> {
+            if (a instanceof BasicBulletType) ((BasicBulletType) a).height = b;
+        }),
+        radius("radius", (a, b) -> {
+            if (a instanceof FireBulletType) ((FireBulletType) a).radius = b;
+        }),
         ;
 
         public static final AmmoSet[] all = values();
