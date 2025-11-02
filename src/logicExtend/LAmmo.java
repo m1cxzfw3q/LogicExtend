@@ -95,7 +95,7 @@ public class LAmmo {
                 field(table, owner, str -> owner = str);
                 table.row();
                 table.add("x ");
-                field(table, x, str -> x = str);x
+                field(table, x, str -> x = str);
                 table.add(" y ");
                 field(table, y, str -> y = str);
                 table.add(" rotation ");
