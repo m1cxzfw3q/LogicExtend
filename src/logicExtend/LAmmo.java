@@ -1,7 +1,6 @@
 package logicExtend;
 
 import arc.Core;
-import arc.graphics.Color;
 import arc.math.geom.Vec2;
 import arc.scene.ui.layout.Table;
 import arc.struct.IntMap;
@@ -172,97 +171,6 @@ public class LAmmo {
                     rebuild(parent);
                 }, 4, c -> c.width(220f)));
             }, Styles.logict, () -> {}).size(220f, 40f).pad(4f).color(table.color);
-        }
-    }
-
-    public static class SetAmmoColorStatement extends LStatement {
-        public AmmoColorOp op = AmmoColorOp.lightColor;
-        public String id = "0", r = "r" , g = "g", b = "b", a = "a";
-
-        @Override
-        public void build(Table table) {
-            OpButton(table, table);
-            table.add("id#");
-            LEExtend.field(table, id, str -> id = str, 75f);
-
-            table.add(" r=");
-            LEExtend.field(table, r, str -> r = str, 75f);
-            table.add(" g=");
-            LEExtend.field(table, g, str -> g = str, 75f);
-            table.add(" b=");
-            LEExtend.field(table, b, str -> b = str, 75f);
-            table.add(" a=");
-            LEExtend.field(table, a, str -> a = str, 75f);
-        }
-
-        @Override
-        public boolean privileged(){
-            return true;
-        }
-
-        @Override
-        public LCategory category() {
-            return LCategory.world;
-        }
-
-        @Override
-        public LExecutor.LInstruction build(LAssembler builder) {
-            return new SetAmmoColorI(op, builder.var(id), builder.var(r), builder.var(g), builder.var(b), builder.var(a));
-        }
-
-        void OpButton(Table table, Table parent){
-            table.button(b -> {
-                b.label(() -> op.name);
-                b.clicked(() -> showSelect(b, AmmoColorOp.all, op, o -> {
-                    op = o;
-                    rebuild(parent);
-                }, 4, c -> c.width(75f)));
-            }, Styles.logict, () -> {}).size(75f, 40f).pad(4f).color(table.color);
-        }
-
-        void rebuild(Table table){
-            table.clearChildren();
-            build(table);
-        }
-
-        /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
-        public static void create() {
-            LAssembler.customParsers.put("setammocolor", params -> {
-                SetAmmoColorStatement stmt = new SetAmmoColorStatement();
-                if (params.length >= 2) stmt.op = AmmoColorOp.valueOf(params[1]);
-                if (params.length >= 3) stmt.id = params[2];
-                if (params.length >= 4) stmt.r = params[3];
-                if (params.length >= 5) stmt.g = params[4];
-                if (params.length >= 6) stmt.b = params[5];
-                if (params.length >= 7) stmt.a = params[6];
-                return stmt;
-            });
-            LogicIO.allStatements.add(SetAmmoColorStatement::new);
-        }
-
-        @Override
-        public void write(StringBuilder builder) {
-            builder.append("setammocolor ").append(op).append(" ").append(id).append(" ").append(r)
-                    .append(" ").append(g).append(" ").append(b).append(" ").append(a);
-        }
-    }
-
-    public static class SetAmmoColorI implements LExecutor.LInstruction {
-        public AmmoColorOp op;
-        public LVar id, r, g, b, a;
-
-        public SetAmmoColorI(AmmoColorOp op, LVar id, LVar r, LVar g, LVar b, LVar a) {
-            this.op = op;
-            this.id = id;
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.a = a;
-        }
-
-        @Override
-        public void run(LExecutor exec) {
-            op.aco.get(ammos.get(id.numi()), Color.rgb(r.numi(), g.numi(), b.numi()).a(a.numi()));
         }
     }
 
@@ -507,28 +415,6 @@ public class LAmmo {
 
         interface AmmoSet2 {
             void get(BulletType a, float b);
-        }
-    }
-
-    public enum AmmoColorOp {
-        hitColor("hitColor", (a, b) -> a.hitColor = b),
-        trailColor("trailColor", (a, b) -> a.trailColor = b),
-        suppressColor("suppressColor", (a, b) -> a.suppressColor = b),
-        lightningColor("lightningColor", (a, b) -> a.lightningColor = b),
-        lightColor("lightColor", (a, b) -> a.lightColor = b);
-
-        public static final AmmoColorOp[] all = values();
-
-        public final AmmoColObj2 aco;
-        public final String name;
-
-        AmmoColorOp(String name, AmmoColObj2 aSet) {
-            this.name = name;
-            this.aco = aSet;
-        }
-
-        interface AmmoColObj2 {
-            void get(BulletType a, Color b);
         }
     }
 }
