@@ -70,8 +70,8 @@ public class LAmmo {
                 b.clicked(() -> showSelect(b, LogicAmmoType.all, type, o -> {
                     type = o;
                     rebuild(parent);
-                }, 4, c -> c.width(130f)));
-            }, Styles.logict, () -> {}).size(130f, 40f).pad(4f).color(table.color);
+                }, 4, c -> c.width(150f)));
+            }, Styles.logict, () -> {}).size(150f, 40f).pad(4f).color(table.color);
         }
     }
 
@@ -232,7 +232,7 @@ public class LAmmo {
         LightningBullet("LightningBullet", LightningBulletType::new),
         MissileBullet("MissileBullet", MissileBulletType::new),
         FireBullet("FireBullet", FireBulletType::new),
-        ArtilleryBullet("ArtilleryBulletType", ArtilleryBulletType::new),
+        ArtilleryBullet("ArtilleryBullet", ArtilleryBulletType::new),
 
         ;
 
