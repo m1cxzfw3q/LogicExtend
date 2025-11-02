@@ -255,7 +255,7 @@ public class LAmmo {
         remove("remove", a -> ammos.remove((int) a)),
         set("set", (a, b, c) -> a.aSet.get(ammos.get((int) b), (float) c)),
         create("create", (a, b, c, d, e) ->
-                ammos.get((int) b).create(a, c, d.x, d.y, (float) e))
+                ammos.get((int) b).create(a, c, d.x * 8, d.y * 8, (float) e))
 
         ;
 
