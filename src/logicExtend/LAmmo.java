@@ -80,7 +80,7 @@ public class LAmmo {
         public AmmoOp op = AmmoOp.set;
         public AmmoSet set = AmmoSet.damage;
         public String id = "0", value = "20", owner = "@this",
-        x = "0", y = "0", rot = "0";
+        x = "0", y = "0", rot = "0", team = "@sharded";
 
         @Override
         public void build(Table table) {
@@ -96,9 +96,11 @@ public class LAmmo {
                 field(table, value, str -> value = str);
             }
             if (op == AmmoOp.create) {
+                table.add(" team ");
+                field(table, team, str -> team = str);
+                table.row();
                 table.add(" owner ");
                 field(table, owner, str -> owner = str);
-                table.row();
                 table.add("x ");
                 field(table, x, str -> x = str);
                 table.add(" y ");
@@ -120,7 +122,8 @@ public class LAmmo {
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return new SetAmmoI(op, set, builder.var(id), builder.var(value), builder.var(owner), builder.var(x), builder.var(y), builder.var(rot));
+            return new SetAmmoI(op, set, builder.var(id), builder.var(value),
+                    builder.var(owner), builder.var(x), builder.var(y), builder.var(rot), builder.var(team));
         }
 
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
@@ -128,13 +131,14 @@ public class LAmmo {
             LAssembler.customParsers.put("setammo", params -> {
                 SetAmmoStatement stmt = new SetAmmoStatement();
                 if (params.length >= 2) stmt.op = AmmoOp.valueOf(params[1]);
-                if (params.length >= 4) stmt.set = AmmoSet.valueOf(params[4]);
-                if (params.length >= 3) stmt.id = params[2];
-                if (params.length >= 4) stmt.value = params[3];
-                if (params.length >= 5) stmt.owner = params[4];
-                if (params.length >= 6) stmt.x = params[5];
-                if (params.length >= 7) stmt.y = params[6];
-                if (params.length >= 8) stmt.rot = params[7];
+                if (params.length >= 3) stmt.set = AmmoSet.valueOf(params[2]);
+                if (params.length >= 4) stmt.id = params[3];
+                if (params.length >= 5) stmt.value = params[4];
+                if (params.length >= 6) stmt.team = params[5];
+                if (params.length >= 7) stmt.owner = params[6];
+                if (params.length >= 8) stmt.x = params[7];
+                if (params.length >= 9) stmt.y = params[8];
+                if (params.length >= 10) stmt.rot = params[9];
                 return stmt;
             });
             LogicIO.allStatements.add(SetAmmoStatement::new);
@@ -143,7 +147,7 @@ public class LAmmo {
         @Override
         public void write(StringBuilder builder) {
             builder.append("setammo ").append(op).append(" ").append(set).append(" ")
-                    .append(id).append(" ").append(value).append(" ").append(owner)
+                    .append(id).append(" ").append(value).append(" ").append(owner).append(" ")
                     .append(x).append(" ").append(y).append(" ").append(rot);
         }
 
@@ -193,9 +197,9 @@ public class LAmmo {
     public static class SetAmmoI implements LExecutor.LInstruction {
         public AmmoOp op;
         public AmmoSet set;
-        public LVar id, value, owner, x, y, rot;
+        public LVar id, value, owner, x, y, rot, team;
 
-        public SetAmmoI(AmmoOp op, AmmoSet set, LVar id, LVar value, LVar owner, LVar x, LVar y, LVar rot) {
+        public SetAmmoI(AmmoOp op, AmmoSet set, LVar id, LVar value, LVar owner, LVar x, LVar y, LVar rot, LVar team) {
             this.op = op;
             this.set = set;
             this.id = id;
@@ -204,6 +208,7 @@ public class LAmmo {
             this.x = x;
             this.y = y;
             this.rot = rot;
+            this.team = team;
         }
 
         @Override
@@ -214,7 +219,7 @@ public class LAmmo {
                 }
             } else if (op == AmmoOp.create) {
                 if (op.aop4 != null) {
-                    op.aop4.get(owner.building(), id.numi(), ammoTeams.get(id.numi()), new Vec2(x.numf(), y.numf()), rot.num());
+                    op.aop4.get(owner.building(), id.numi(), Team.get(team.numi()), new Vec2(x.numf(), y.numf()), rot.num());
                 }
             } else if (op.aosp3 != null) {
                 op.aosp3.get(set, id.num(), value.num());
