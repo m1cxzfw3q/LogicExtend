@@ -80,6 +80,7 @@ public class LAmmo {
     public static class SetAmmoStatement extends LStatement {
         public AmmoOp op = AmmoOp.set;
         public AmmoSet set = AmmoSet.damage;
+        public AmmoColorOp col = AmmoColorOp.lightColor;
         public String id = "0", value = "20",
         x = "0", y = "0", rot = "0", team = "@sharded";
 
@@ -88,23 +89,23 @@ public class LAmmo {
             OpButton(table, table);
             if (op == AmmoOp.set) {
                 KButton(table, table);
+            } else if (op == AmmoOp.color) {
+                K1Button(table, table);
             }
             table.add("id#");
             LEExtend.field(table, id, str -> id = str, 75f);
             if (op == AmmoOp.set) {
-                if (set.isObj2) {
-                    table.add(" R ");
-                    LEExtend.field(table, value, str -> value = str, 90f);
-                    table.add("G ");
-                    LEExtend.field(table, x, str -> x = str, 90f);
-                    table.add("B ");
-                    LEExtend.field(table, y, str -> y = str, 90f);
-                    table.add("A ");
-                    LEExtend.field(table, rot, str -> rot = str, 90f);
-                } else {
-                    table.add(" value ");
-                    LEExtend.field(table, value, str -> value = str, 90f);
-                }
+                table.add(" value ");
+                LEExtend.field(table, value, str -> value = str, 90f);
+            } else if (op == AmmoOp.color) {
+                table.add(" R ");
+                LEExtend.field(table, value, str -> value = str, 90f);
+                table.add("G ");
+                LEExtend.field(table, x, str -> x = str, 90f);
+                table.add("B ");
+                LEExtend.field(table, y, str -> y = str, 90f);
+                table.add("A ");
+                LEExtend.field(table, rot, str -> rot = str, 90f);
             }
             if (op == AmmoOp.create) {
                 table.add(" team ");
@@ -133,7 +134,7 @@ public class LAmmo {
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return new SetAmmoI(op, set, builder.var(id), builder.var(value),
+            return new SetAmmoI(op, set, col,  builder.var(id), builder.var(value),
                     builder.var(x), builder.var(y), builder.var(rot), builder.var(team));
         }
 
@@ -143,12 +144,13 @@ public class LAmmo {
                 SetAmmoStatement stmt = new SetAmmoStatement();
                 if (params.length >= 2) stmt.op = AmmoOp.valueOf(params[1]);
                 if (params.length >= 3) stmt.set = AmmoSet.valueOf(params[2]);
-                if (params.length >= 4) stmt.id = params[3];
-                if (params.length >= 5) stmt.value = params[4];
-                if (params.length >= 6) stmt.team = params[5];
-                if (params.length >= 7) stmt.x = params[6];
-                if (params.length >= 8) stmt.y = params[7];
-                if (params.length >= 9) stmt.rot = params[8];
+                if (params.length >= 4) stmt.col = AmmoColorOp.valueOf(params[3]);
+                if (params.length >= 5) stmt.id = params[4];
+                if (params.length >= 6) stmt.value = params[5];
+                if (params.length >= 7) stmt.team = params[6];
+                if (params.length >= 8) stmt.x = params[7];
+                if (params.length >= 9) stmt.y = params[8];
+                if (params.length >= 10) stmt.rot = params[9];
                 return stmt;
             });
             LogicIO.allStatements.add(SetAmmoStatement::new);
@@ -156,9 +158,9 @@ public class LAmmo {
 
         @Override
         public void write(StringBuilder builder) {
-            builder.append("setammo ").append(op).append(" ").append(set).append(" ").append(id)
-                    .append(" ").append(value).append(" ").append(team).append(" ").append(x)
-                    .append(" ").append(y).append(" ").append(rot);
+            builder.append("setammo ").append(op).append(" ").append(set).append(" ").append(col)
+                    .append(" ").append(id).append(" ").append(value).append(" ").append(team)
+                    .append(" ").append(x).append(" ").append(y).append(" ").append(rot);
         }
 
         void rebuild(Table table){
@@ -185,6 +187,16 @@ public class LAmmo {
                 }, 4, c -> c.width(220f)));
             }, Styles.logict, () -> {}).size(220f, 40f).pad(4f).color(table.color);
         }
+
+        void K1Button(Table table, Table parent){
+            table.button(b -> {
+                b.label(() -> col.name);
+                b.clicked(() -> showSelect(b, AmmoColorOp.all, col, o -> {
+                    col = o;
+                    rebuild(parent);
+                }, 4, c -> c.width(150f)));
+            }, Styles.logict, () -> {}).size(150f, 40f).pad(4f).color(table.color);
+        }
     }
 
     public static class CreateAmmoI implements LExecutor.LInstruction {
@@ -207,9 +219,10 @@ public class LAmmo {
     public static class SetAmmoI implements LExecutor.LInstruction {
         public AmmoOp op;
         public AmmoSet set;
+        public AmmoColorOp col;
         public LVar id, value, x, y, rot, team;
 
-        public SetAmmoI(AmmoOp op, AmmoSet set, LVar id, LVar value, LVar x, LVar y, LVar rot, LVar team) {
+        public SetAmmoI(AmmoOp op, AmmoSet set, AmmoColorOp col, LVar id, LVar value, LVar x, LVar y, LVar rot, LVar team) {
             this.op = op;
             this.set = set;
             this.id = id;
@@ -218,6 +231,7 @@ public class LAmmo {
             this.y = y;
             this.rot = rot;
             this.team = team;
+            this.col = col;
         }
 
         @Override
@@ -231,7 +245,7 @@ public class LAmmo {
                     op.aop4.get(value.building(), id.numi(), Team.get(team.numi()), new Vec2(x.numf(), y.numf()), rot.num());
                 }
             } else if (set.isObj2){
-                if (op.aopb3 != null) op.aopb3.get(set, id.num(), Color.rgb(value.numi(), x.numi(), y.numi()).a(rot.numi()));
+                if (op.aopb3 != null) op.aopb3.get(col, id.num(), Color.rgb(value.numi(), x.numi(), y.numi()).a(rot.numi()));
             } else if (op.aosp3 != null) op.aosp3.get(set, id.num(), value.num());
         }
     }
@@ -286,7 +300,7 @@ public class LAmmo {
         }),
         color("color", (a, b, c) -> {
             if (ammos.get((int) b) != null) try {
-                a.aSetObj.get(ammos.get((int) b), c, 1);
+                a.aco.get(ammos.get((int) b), c, 1);
             } catch (Exception ignored) {}
         }, 1),
         create("create", (a, b, c, d, e) -> {
@@ -346,7 +360,7 @@ public class LAmmo {
         }
 
         interface AmmoSetOpObj3 {
-            void get(AmmoSet a, double b, Color c);
+            void get(AmmoColorOp a, double b, Color c);
         }
 
         interface AmmoOp4 {
@@ -436,39 +450,42 @@ public class LAmmo {
 
         despawnHit("despawnHit", (a, b) -> a.despawnHit = b >= 1),
 
-        hitColor("hitColor", (a, b, i) -> a.hitColor = Color.valueOf(b.toString()), 1),
-        trailColor("trailColor", (a, b, i) -> a.trailColor = Color.valueOf(b.toString()), 1),
-        suppressColor("suppressColor", (a, b, i) -> a.suppressColor = Color.valueOf(b.toString()), 1),
-        lightningColor("lightningColor", (a, b, i) -> a.lightningColor = Color.valueOf(b.toString()), 1),
-        lightColor("lightColor", (a, b, i) -> a.lightColor = Color.valueOf(b.toString()), 1),
-
         ;
 
         public static final AmmoSet[] all = values();
 
         public final String name;
         public final AmmoSet2 aSet;
-        public final AmmoSetObj2 aSetObj;
         public final boolean isObj2;
         AmmoSet(String name, AmmoSet2 aSet) {
             this.name = name;
             this.aSet = aSet;
-            this.aSetObj = null;
             this.isObj2 = false;
-        }
-
-        AmmoSet(String name, AmmoSetObj2 aSet, int ignored) {
-            this.name = name;
-            this.aSet = null;
-            this.aSetObj = aSet;
-            this.isObj2 = true;
         }
 
         interface AmmoSet2 {
             void get(BulletType a, float b);
         }
+    }
 
-        interface AmmoSetObj2 {
+    public enum AmmoColorOp {
+        hitColor("hitColor", (a, b, i) -> a.hitColor = Color.valueOf(b.toString()), 1),
+        trailColor("trailColor", (a, b, i) -> a.trailColor = Color.valueOf(b.toString()), 1),
+        suppressColor("suppressColor", (a, b, i) -> a.suppressColor = Color.valueOf(b.toString()), 1),
+        lightningColor("lightningColor", (a, b, i) -> a.lightningColor = Color.valueOf(b.toString()), 1),
+        lightColor("lightColor", (a, b, i) -> a.lightColor = Color.valueOf(b.toString()), 1);
+
+        public static final AmmoColorOp[] all = values();
+
+        public final AmmoColObj2 aco;
+        public final String name;
+
+        AmmoColorOp(String name, AmmoColObj2 aSet, int ignored) {
+            this.name = name;
+            this.aco = aSet;
+        }
+
+        interface AmmoColObj2 {
             void get(BulletType a, Object b, int ignored);
         }
     }
