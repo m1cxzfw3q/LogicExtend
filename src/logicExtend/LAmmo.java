@@ -300,7 +300,7 @@ public class LAmmo {
         }),
         color("color", (a, b, c) -> {
             if (ammos.get((int) b) != null) try {
-                a.aco.get(ammos.get((int) b), c, 1);
+                a.aco.get(ammos.get((int) b), c);
             } catch (Exception ignored) {}
         }, 1),
         create("create", (a, b, c, d, e) -> {
@@ -469,24 +469,24 @@ public class LAmmo {
     }
 
     public enum AmmoColorOp {
-        hitColor("hitColor", (a, b, i) -> a.hitColor = Color.valueOf(b.toString()), 1),
-        trailColor("trailColor", (a, b, i) -> a.trailColor = Color.valueOf(b.toString()), 1),
-        suppressColor("suppressColor", (a, b, i) -> a.suppressColor = Color.valueOf(b.toString()), 1),
-        lightningColor("lightningColor", (a, b, i) -> a.lightningColor = Color.valueOf(b.toString()), 1),
-        lightColor("lightColor", (a, b, i) -> a.lightColor = Color.valueOf(b.toString()), 1);
+        hitColor("hitColor", (a, b) -> a.hitColor = b),
+        trailColor("trailColor", (a, b) -> a.trailColor = b),
+        suppressColor("suppressColor", (a, b) -> a.suppressColor = b),
+        lightningColor("lightningColor", (a, b) -> a.lightningColor = b),
+        lightColor("lightColor", (a, b) -> a.lightColor = b);
 
         public static final AmmoColorOp[] all = values();
 
         public final AmmoColObj2 aco;
         public final String name;
 
-        AmmoColorOp(String name, AmmoColObj2 aSet, int ignored) {
+        AmmoColorOp(String name, AmmoColObj2 aSet) {
             this.name = name;
             this.aco = aSet;
         }
 
         interface AmmoColObj2 {
-            void get(BulletType a, Object b, int ignored);
+            void get(BulletType a, Color b);
         }
     }
 }
