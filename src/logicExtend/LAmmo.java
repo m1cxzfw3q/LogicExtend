@@ -222,29 +222,13 @@ public class LAmmo {
     }
 
     public enum LogicAmmoType {
-        BasicBullet("BasicBullet", () -> new BasicBulletType() {{
-            sprite = "bullet";
-            backRegion = Core.atlas.find(sprite + "-back");
-            frontRegion = Core.atlas.find(sprite);
-        }}),
-        BombBullet("BombBullet", () -> new BombBulletType() {{
-            sprite = "shell";
-            backRegion = Core.atlas.find(sprite + "-back");
-            frontRegion = Core.atlas.find(sprite);
-        }}),
+        BasicBullet("BasicBullet", () -> LEExtend.load(new BasicBulletType())),
+        BombBullet("BombBullet", () -> LEExtend.load(new BombBulletType())),
         LaserBullet("LaserBullet", LaserBulletType::new),
         LightningBullet("LightningBullet", LightningBulletType::new),
-        MissileBullet("MissileBullet", () -> new MissileBulletType() {{
-            sprite = "missile";
-            backRegion = Core.atlas.find(sprite + "-back");
-            frontRegion = Core.atlas.find(sprite);
-        }}),
+        MissileBullet("MissileBullet", () -> LEExtend.load(new MissileBulletType())),
         FireBullet("FireBullet", FireBulletType::new),
-        ArtilleryBullet("ArtilleryBullet",  () -> new ArtilleryBulletType() {{
-            sprite = "shell";
-            backRegion = Core.atlas.find(sprite + "-back");
-            frontRegion = Core.atlas.find(sprite);
-        }}),
+        ArtilleryBullet("ArtilleryBullet",  () -> LEExtend.load(new ArtilleryBulletType())),
 
         ;
 

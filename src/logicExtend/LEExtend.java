@@ -3,6 +3,7 @@ package logicExtend;
 import arc.func.Cons;
 import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Table;
+import mindustry.entities.bullet.BulletType;
 import mindustry.logic.LVar;
 import mindustry.ui.Styles;
 
@@ -63,5 +64,10 @@ public class LEExtend {
         }
 
         return value;
+    }
+
+    public static BulletType load(BulletType b) {
+        b.load();
+        return b;
     }
 }
