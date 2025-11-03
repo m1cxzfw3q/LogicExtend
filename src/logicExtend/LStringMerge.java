@@ -34,6 +34,7 @@ public class LStringMerge {
                 if (params.length >= 2) stmt.output = params[1];
                 if (params.length >= 3) stmt.p1 = params[2];
                 if (params.length >= 4) stmt.p2 = params[3];
+                stmt.afterRead();
                 return stmt;
             });
             LogicIO.allStatements.add(StringMergeStatement::new);

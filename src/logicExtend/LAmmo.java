@@ -4,6 +4,7 @@ import arc.Core;
 import arc.math.geom.Vec2;
 import arc.scene.ui.layout.Table;
 import arc.struct.IntMap;
+import arc.struct.Seq;
 import mindustry.entities.bullet.*;
 import mindustry.game.Team;
 import mindustry.gen.Entityc;
@@ -50,6 +51,7 @@ public class LAmmo {
                 CreateAmmoStatement stmt = new CreateAmmoStatement();
                 if (params.length >= 2) stmt.type = LogicAmmoType.valueOf(params[1]);
                 if (params.length >= 3) stmt.id = params[2];
+                stmt.afterRead();
                 return stmt;
             });
             LogicIO.allStatements.add(CreateAmmoStatement::new);
@@ -136,6 +138,7 @@ public class LAmmo {
                 if (params.length >= 7) stmt.x = params[6];
                 if (params.length >= 8) stmt.y = params[7];
                 if (params.length >= 9) stmt.rot = params[8];
+                stmt.afterRead();
                 return stmt;
             });
             LogicIO.allStatements.add(SetAmmoStatement::new);
