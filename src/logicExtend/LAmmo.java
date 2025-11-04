@@ -76,6 +76,15 @@ public class LAmmo {
                 }, 4, c -> c.width(150f)));
             }, Styles.logict, () -> {}).size(150f, 40f).pad(4f).color(table.color);
         }
+
+        @Override
+        public LStatement copy(){
+            StringBuilder build = new StringBuilder();
+            write(build);
+            //assume privileged when copying, because there's no way privileged instructions can appear here anyway, and the instructions get validated on load anyway
+            Seq<LStatement> read = LAssembler.read(build.toString(), true);
+            return read.size == 0 ? null : read.first();
+        }
     }
 
     public static class SetAmmoStatement extends LStatement {
@@ -174,6 +183,15 @@ public class LAmmo {
                     rebuild(parent);
                 }, 4, c -> c.width(220f)));
             }, Styles.logict, () -> {}).size(220f, 40f).pad(4f).color(table.color);
+        }
+
+        @Override
+        public LStatement copy(){
+            StringBuilder build = new StringBuilder();
+            write(build);
+            //assume privileged when copying, because there's no way privileged instructions can appear here anyway, and the instructions get validated on load anyway
+            Seq<LStatement> read = LAssembler.read(build.toString(), true);
+            return read.size == 0 ? null : read.first();
         }
     }
 

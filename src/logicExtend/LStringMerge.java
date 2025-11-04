@@ -1,6 +1,7 @@
 package logicExtend;
 
 import arc.scene.ui.layout.Table;
+import arc.struct.Seq;
 import mindustry.gen.LogicIO;
 import mindustry.logic.*;
 
@@ -43,6 +44,15 @@ public class LStringMerge {
         @Override
         public void write(StringBuilder builder) {
             builder.append("stringmerge ").append(output).append(" ").append(p1).append(" ").append(p2);
+        }
+
+        @Override
+        public LStatement copy(){
+            StringBuilder build = new StringBuilder();
+            write(build);
+            //assume privileged when copying, because there's no way privileged instructions can appear here anyway, and the instructions get validated on load anyway
+            Seq<LStatement> read = LAssembler.read(build.toString(), true);
+            return read.size == 0 ? null : read.first();
         }
     }
 

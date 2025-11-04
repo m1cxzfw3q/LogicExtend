@@ -23,7 +23,7 @@ public class LFunction {
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return null;
+            return new LFunctionI(builder.var(functionName));
         }
 
         @Override
@@ -49,11 +49,8 @@ public class LFunction {
     }
 
     public static class LFunctionReturnStatement extends LStatement {
-
         @Override
-        public void build(Table table) {
-
-        }
+        public void build(Table table) {}
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
@@ -67,7 +64,7 @@ public class LFunction {
 
         @Override
         public void write(StringBuilder builder) {
-            builder.append("return ");
+            builder.append("returnfunction");
         }
     }
 
