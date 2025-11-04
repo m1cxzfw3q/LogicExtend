@@ -15,7 +15,7 @@ public class LFunction {
         @Override
         public void build(Table table) {
             table.add("name = ");
-            LEExtend.field(table, name, str -> name = str, 330f);
+            LEExtend.field(table, name, str -> name = str, 550f);
             table.add(" -> ...");
         }
 
@@ -73,6 +73,12 @@ public class LFunction {
             builder.append("returnfunction");
         }
 
+        /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
+        public static void create() {
+            LAssembler.customParsers.put("function", params -> new LFunctionReturnStatement());
+            LogicIO.allStatements.add(LFunctionReturnStatement::new);
+        }
+
         @Override
         public LStatement copy(){
             StringBuilder build = new StringBuilder();
@@ -103,7 +109,18 @@ public class LFunction {
 
         @Override
         public void write(StringBuilder builder) {
-            builder.append("invokefunction ");
+            builder.append("invokefunction ").append(func);
+        }
+
+        /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
+        public static void create() {
+            LAssembler.customParsers.put("function", params -> {
+                LFunctionInvokeStatement stmt = new LFunctionInvokeStatement();
+                if (params.length >= 2) stmt.func = params[1];
+                stmt.afterRead();
+                return stmt;
+            });
+            LogicIO.allStatements.add(LFunctionInvokeStatement::new);
         }
 
         @Override

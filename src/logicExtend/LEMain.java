@@ -10,8 +10,8 @@ public class LEMain extends Mod {
         LStringMerge.StringMergeStatement.create();
         LAmmo.CreateAmmoStatement.create();
         LAmmo.SetAmmoStatement.create();
-        //LFunction.LFunctionStatement.create();
-        //LFunction.LFunctionReturnStatement.create();
-        //LFunction.LFunctionInvokeStatement.create();
+        LFunction.LFunctionStatement.create();
+        LFunction.LFunctionReturnStatement.create();
+        LFunction.LFunctionInvokeStatement.create();
     }
 }
