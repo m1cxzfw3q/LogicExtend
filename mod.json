@@ -4,7 +4,7 @@
   "author": "[[]sky]114514[[]white]",
   "main": "logicExtend.LEMain",
   "description": "A mod that extends logical statements\n 一个扩展了逻辑语句的模组",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "minGameVersion": 151.1,
   "java": true
 }
