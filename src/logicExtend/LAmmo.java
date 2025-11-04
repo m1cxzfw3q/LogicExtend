@@ -81,7 +81,6 @@ public class LAmmo {
         public LStatement copy(){
             StringBuilder build = new StringBuilder();
             write(build);
-            //assume privileged when copying, because there's no way privileged instructions can appear here anyway, and the instructions get validated on load anyway
             Seq<LStatement> read = LAssembler.read(build.toString(), true);
             return read.size == 0 ? null : read.first();
         }
@@ -189,7 +188,6 @@ public class LAmmo {
         public LStatement copy(){
             StringBuilder build = new StringBuilder();
             write(build);
-            //assume privileged when copying, because there's no way privileged instructions can appear here anyway, and the instructions get validated on load anyway
             Seq<LStatement> read = LAssembler.read(build.toString(), true);
             return read.size == 0 ? null : read.first();
         }
