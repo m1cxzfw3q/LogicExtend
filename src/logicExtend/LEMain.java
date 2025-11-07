@@ -1,6 +1,5 @@
 package logicExtend;
 
-import mindustry.gen.LogicIO;
 import mindustry.mod.Mod;
 
 public class LEMain extends Mod {
