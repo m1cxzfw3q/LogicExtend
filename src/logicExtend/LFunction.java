@@ -141,9 +141,7 @@ public class LFunction {
 
         @Override
         public void run(LExecutor exec) {
-            try {
-                map.put(name.obj().toString(), exec.counter.numi() + 1);
-            } catch (Exception ignored) {}
+            map.put(name.obj().toString(), exec.counter.numi() + 1);
         }
     }
 
@@ -152,9 +150,7 @@ public class LFunction {
 
         @Override
         public void run(LExecutor exec) {
-            try {
-                exec.counter.setnum(ctr);
-            } catch (Exception ignored) {}
+            if (ctr > 0) exec.counter.setnum(ctr);
         }
     }
 
@@ -167,10 +163,10 @@ public class LFunction {
 
         @Override
         public void run(LExecutor exec) {
-            try {
+            if (func.obj() != null && map.get(func.obj().toString()) > 0) {
                 ctr = exec.counter.numi();
                 exec.counter.setnum(map.get(func.obj().toString()));
-            } catch (Exception ignored) {}
+            }
         }
     }
 }
