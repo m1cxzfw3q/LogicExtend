@@ -10,7 +10,7 @@ public class LFunction {
     public static ObjectMap<String, Integer> map = ObjectMap.of();
     public static int ctr;
 
-    public static class LFunctionStatement extends LStatement {
+    public static class FunctionStatement extends LStatement {
         public String name = "\"function\"";
 
         @Override
@@ -32,12 +32,12 @@ public class LFunction {
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
         public static void create() {
             LAssembler.customParsers.put("function", params -> {
-                LFunctionStatement stmt = new LFunctionStatement();
+                FunctionStatement stmt = new FunctionStatement();
                 if (params.length >= 2) stmt.name = params[1];
                 stmt.afterRead();
                 return stmt;
             });
-            LogicIO.allStatements.add(LFunctionStatement::new);
+            LogicIO.allStatements.add(FunctionStatement::new);
         }
 
         @Override
@@ -54,7 +54,7 @@ public class LFunction {
         }
     }
 
-    public static class LFunctionReturnStatement extends LStatement {
+    public static class FunctionReturnStatement extends LStatement {
         @Override
         public void build(Table table) {}
 
@@ -75,8 +75,8 @@ public class LFunction {
 
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
         public static void create() {
-            LAssembler.customParsers.put("returnfunction", params -> new LFunctionReturnStatement());
-            LogicIO.allStatements.add(LFunctionReturnStatement::new);
+            LAssembler.customParsers.put("returnfunction", params -> new FunctionReturnStatement());
+            LogicIO.allStatements.add(FunctionReturnStatement::new);
         }
 
         @Override
@@ -88,7 +88,7 @@ public class LFunction {
         }
     }
 
-    public static class LFunctionInvokeStatement extends LStatement {
+    public static class FunctionInvokeStatement extends LStatement {
         public String func = "\"function\"";
 
         @Override
@@ -115,12 +115,12 @@ public class LFunction {
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
         public static void create() {
             LAssembler.customParsers.put("invokefunction ", params -> {
-                LFunctionInvokeStatement stmt = new LFunctionInvokeStatement();
+                FunctionInvokeStatement stmt = new FunctionInvokeStatement();
                 if (params.length >= 2) stmt.func = params[1];
                 stmt.afterRead();
                 return stmt;
             });
-            LogicIO.allStatements.add(LFunctionInvokeStatement::new);
+            LogicIO.allStatements.add(FunctionInvokeStatement::new);
         }
 
         @Override
