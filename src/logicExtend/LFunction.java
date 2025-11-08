@@ -114,7 +114,7 @@ public class LFunction {
 
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
         public static void create() {
-            LAssembler.customParsers.put("invokefunction ", params -> {
+            LAssembler.customParsers.put("invokefunction", params -> {
                 FunctionInvokeStatement stmt = new FunctionInvokeStatement();
                 if (params.length >= 2) stmt.func = params[1];
                 stmt.afterRead();
