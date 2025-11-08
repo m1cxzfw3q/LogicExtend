@@ -14,6 +14,7 @@ public class LFunction {
         public String name = "\"function\"";
 
         public transient LCanvas.StatementElem dest;
+        public int destIndex;
 
         @Override
         public void build(Table table) {
@@ -26,7 +27,7 @@ public class LFunction {
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return new LFunctionI(builder.var(name), dest.index);
+            return new LFunctionI(builder.var(name), destIndex);
         }
 
         @Override
@@ -34,11 +35,19 @@ public class LFunction {
             return LCategoryExt.function;
         }
 
+        @Override
+        public void saveUI(){
+            if(elem != null){
+                destIndex = dest == null ? -1 : dest.parent.getChildren().indexOf(dest);
+            }
+        }
+
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
         public static void create() {
             LAssembler.customParsers.put("function", params -> {
                 FunctionStatement stmt = new FunctionStatement();
                 if (params.length >= 2) stmt.name = params[1];
+                if (params.length >= 3) stmt.destIndex = Integer.parseInt(params[2]);
                 stmt.afterRead();
                 return stmt;
             });
