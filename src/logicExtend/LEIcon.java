@@ -1,11 +1,11 @@
 package logicExtend;
 
 import arc.scene.style.TextureRegionDrawable;
-import arc.struct.ObjectMap;
 import mindustry.ui.Fonts;
 
+import static mindustry.gen.Icon.icons;
+
 public class LEIcon {
-    public static final ObjectMap<String, TextureRegionDrawable> icons = new ObjectMap<>();
     public static TextureRegionDrawable functionIcon;
     public static void load() {
         functionIcon = Fonts.getGlyph(Fonts.icon, '⒡');
