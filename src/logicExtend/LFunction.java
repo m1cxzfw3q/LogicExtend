@@ -36,16 +36,9 @@ public class LFunction {
         }
 
         @Override
-        public void saveUI(){
-            if(elem != null){
+        public void saveUI() {
+            if (elem != null) {
                 destIndex = dest == null ? -1 : dest.parent.getChildren().indexOf(dest);
-            }
-        }
-
-        @Override
-        public void setupUI(){
-            if(elem != null && destIndex >= 0 && destIndex < elem.parent.getChildren().size){
-                dest = (LCanvas.StatementElem)elem.parent.getChildren().get(destIndex);
             }
         }
 
