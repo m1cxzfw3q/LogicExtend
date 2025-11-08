@@ -13,15 +13,18 @@ public class LFunction {
     public static class FunctionStatement extends LStatement {
         public String name = "\"function\"";
 
+        public transient LCanvas.StatementElem dest;
+
         @Override
         public void build(Table table) {
             table.add("name ");
-            LEExtend.field(table, name, str -> name = str, 550f);
+            LEExtend.field(table, name, str -> name = str, 660f);
+            table.add(new LCanvas.JumpButton(() -> dest, s -> dest = s, this.elem)).size(30).right().padLeft(-8);
         }
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return new LFunctionI(builder.var(name));
+            return new LFunctionI(builder.var(name), dest.index);
         }
 
         @Override
@@ -94,7 +97,7 @@ public class LFunction {
         @Override
         public void build(Table table) {
             table.add("function");
-            LEExtend.field(table, func, str -> func = str, 550f);
+            LEExtend.field(table, func, str -> func = str, 660f);
         }
 
         @Override
@@ -134,14 +137,17 @@ public class LFunction {
 
     public static class LFunctionI implements LExecutor.LInstruction {
         public LVar name;
+        public int index;
 
-        public LFunctionI(LVar name) {
+        public LFunctionI(LVar name, int index) {
             this.name = name;
+            this.index = index;
         }
 
         @Override
         public void run(LExecutor exec) {
             map.put(name.obj().toString(), exec.counter.numi());
+            if (index >= 0) exec.counter.setnum(index);
         }
     }
 
