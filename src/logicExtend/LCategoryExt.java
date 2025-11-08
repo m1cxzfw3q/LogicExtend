@@ -5,5 +5,5 @@ import mindustry.logic.LCategory;
 
 public class LCategoryExt {
     public static final LCategory
-            function = new LCategory("function", Color.valueOf("D34F2E"), LEIcon.functionIcon);
+            function = new LCategory("function", Color.valueOf("EA5833"), LEIcon.functionIcon);
 }
