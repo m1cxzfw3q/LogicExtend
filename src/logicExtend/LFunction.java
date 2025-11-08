@@ -19,6 +19,8 @@ public class LFunction {
         public void build(Table table) {
             table.add("name ");
             LEExtend.field(table, name, str -> name = str, 660f);
+
+            table.add().growX();
             table.add(new LCanvas.JumpButton(() -> dest, s -> dest = s, this.elem)).size(30).right().padLeft(-8);
         }
 
