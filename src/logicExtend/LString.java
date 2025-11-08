@@ -5,7 +5,7 @@ import arc.struct.Seq;
 import mindustry.gen.LogicIO;
 import mindustry.logic.*;
 
-public class LStringMerge {
+public class LString {
     public static class StringMergeStatement extends LStatement {
         public String output = "result", p1 = "\"a\"", p2 = "\"b\"";
 
