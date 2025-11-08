@@ -8,6 +8,7 @@ import mindustry.logic.*;
 
 public class LFunction {
     public static ObjectMap<String, Integer> map = ObjectMap.of();
+    public static int ctr;
 
     public static class LFunctionStatement extends LStatement {
         public String name = "\"function\"";
@@ -59,7 +60,7 @@ public class LFunction {
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return null;
+            return new LFunctionReturnI();
         }
 
         @Override
@@ -88,7 +89,7 @@ public class LFunction {
     }
 
     public static class LFunctionInvokeStatement extends LStatement {
-        public String func = "function";
+        public String func = "\"function\"";
 
         @Override
         public void build(Table table) {
@@ -98,7 +99,7 @@ public class LFunction {
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return null;
+            return new LFunctionInvokeI(builder.var(func));
         }
 
         @Override
@@ -140,23 +141,30 @@ public class LFunction {
 
         @Override
         public void run(LExecutor exec) {
-            map.put(name.obj().toString(), exec.counter.numi());
+            map.put(name.obj().toString(), exec.counter.numi() + 1);
         }
     }
 
     public static class LFunctionReturnI implements LExecutor.LInstruction {
+        public LFunctionReturnI() {}
 
         @Override
         public void run(LExecutor exec) {
-
+            exec.counter.numval = ctr;
         }
     }
 
     public static class LFunctionInvokeI implements LExecutor.LInstruction {
+        public LVar func;
+
+        public LFunctionInvokeI(LVar func) {
+            this.func = func;
+        }
 
         @Override
         public void run(LExecutor exec) {
-
+            ctr = exec.counter.numi();
+            exec.counter.numval = map.get(func.obj().toString());
         }
     }
 }
