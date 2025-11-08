@@ -42,6 +42,13 @@ public class LFunction {
             }
         }
 
+        @Override
+        public void setupUI(){
+            if(elem != null && destIndex >= 0 && destIndex < elem.parent.getChildren().size){
+                dest = (LCanvas.StatementElem)elem.parent.getChildren().get(destIndex);
+            }
+        }
+
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
         public static void create() {
             LAssembler.customParsers.put("function", params -> {
