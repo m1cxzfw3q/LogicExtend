@@ -15,7 +15,7 @@ public class LFunction {
 
         @Override
         public void build(Table table) {
-            table.add("name = ");
+            table.add("name ");
             LEExtend.field(table, name, str -> name = str, 550f);
         }
 
@@ -141,7 +141,9 @@ public class LFunction {
 
         @Override
         public void run(LExecutor exec) {
-            map.put(name.obj().toString(), exec.counter.numi() + 1);
+            try {
+                map.put(name.obj().toString(), exec.counter.numi() + 1);
+            } catch (Exception ignored) {}
         }
     }
 
@@ -150,7 +152,9 @@ public class LFunction {
 
         @Override
         public void run(LExecutor exec) {
-            exec.counter.numval = ctr;
+            try {
+                exec.counter.setnum(ctr);
+            } catch (Exception ignored) {}
         }
     }
 
@@ -163,8 +167,10 @@ public class LFunction {
 
         @Override
         public void run(LExecutor exec) {
-            ctr = exec.counter.numi();
-            exec.counter.numval = map.get(func.obj().toString());
+            try {
+                ctr = exec.counter.numi();
+                exec.counter.setnum(map.get(func.obj().toString()));
+            } catch (Exception ignored) {}
         }
     }
 }
