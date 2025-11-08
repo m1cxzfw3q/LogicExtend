@@ -141,7 +141,7 @@ public class LFunction {
 
         @Override
         public void run(LExecutor exec) {
-            map.put(name.obj().toString(), exec.counter.numi() + 1);
+            map.put(name.obj().toString(), exec.counter.numi());
         }
     }
 
