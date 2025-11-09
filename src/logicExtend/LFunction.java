@@ -39,7 +39,7 @@ public class LFunction {
                 }
             });
 
-            table.image(new TextureRegion(Core.atlas.find("function_base")));
+            table.image(new TextureRegion(Core.atlas.find("logic-extend-function_base")));
         }
 
         @Override
