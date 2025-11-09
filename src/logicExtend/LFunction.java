@@ -1,5 +1,7 @@
 package logicExtend;
 
+import arc.Core;
+import arc.scene.ui.Label;
 import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
@@ -23,6 +25,15 @@ public class LFunction {
 
             table.add().growX();
             table.add(new LCanvas.JumpButton(() -> dest, s -> dest = s, this.elem)).size(30).right().padLeft(-8);
+
+            Core.app.post(() -> {
+                if(table.parent != null){
+                    Label title = table.parent.find("statement-name");
+                    if(title != null){
+                        title.update(() -> title.setText((dest != null ? name() + " -> " + dest.index : name())));
+                    }
+                }
+            });
         }
 
         @Override
@@ -63,7 +74,7 @@ public class LFunction {
 
         @Override
         public void write(StringBuilder builder) {
-            builder.append("function ").append(name);
+            builder.append("function ").append(name).append(" ").append(destIndex);
         }
 
         @Override
