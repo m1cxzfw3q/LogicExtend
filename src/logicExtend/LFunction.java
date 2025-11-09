@@ -1,10 +1,14 @@
 package logicExtend;
 
 import arc.Core;
+import arc.files.Fi;
+import arc.graphics.Texture;
+import arc.graphics.g2d.TextureRegion;
 import arc.scene.ui.Label;
 import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
+import mindustry.Vars;
 import mindustry.gen.LogicIO;
 import mindustry.logic.*;
 
@@ -34,6 +38,8 @@ public class LFunction {
                     }
                 }
             });
+
+            table.image(new TextureRegion(Core.atlas.find("function_base")));
         }
 
         @Override
