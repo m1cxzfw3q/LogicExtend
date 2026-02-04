@@ -1,6 +1,5 @@
 package logicExtend;
 
-import arc.Core;
 import arc.math.geom.Vec2;
 import arc.scene.ui.layout.Table;
 import arc.struct.IntMap;
@@ -14,6 +13,7 @@ import mindustry.ui.Styles;
 
 import java.util.Objects;
 
+import static logicExtend.LEExtend.*;
 import static mindustry.Vars.net;
 
 public class LAmmo {
@@ -248,6 +248,8 @@ public class LAmmo {
         MissileBullet("MissileBullet", () -> LEExtend.load(new MissileBulletType())),
         FireBullet("FireBullet", FireBulletType::new),
         ArtilleryBullet("ArtilleryBullet",  () -> LEExtend.load(new ArtilleryBulletType())),
+        RailBullet("RailBullet", RailBulletType::new),
+        LiquidBullet("LiquidBullet", () -> LEExtend.load(new LiquidBulletType()))
 
         ;
 
@@ -322,86 +324,94 @@ public class LAmmo {
     }
 
     public enum AmmoSet {
-        damage("damage", (a, b) -> a.damage = b),
-        speed("speed", (a, b) -> a.speed = b),
-        lifetime("lifetime", (a, b) -> a.lifetime = b),
-        hitSize("hitSize", (a, b) -> a.hitSize = b),
+        damage("damage", (a, b) -> a.damage = orFloat(b)),
+        speed("speed", (a, b) -> a.speed = orFloat(b)),
+        lifetime("lifetime", (a, b) -> a.lifetime = orFloat(b)),
+        hitSize("hitSize", (a, b) -> a.hitSize = orFloat(b)),
 
-        pierce("pierce", (a, b) -> a.pierce = b >= 1),
-        pierceBuilding("pierceBuilding", (a, b) -> a.pierceBuilding = b >= 1),
-        pierceArmor("pierceArmor", (a, b) -> a.pierceArmor = b >= 1),
-        pierceCap("pierceCap", (a, b) -> a.pierceCap = (int) b),
-        pierceDamageFactor("pierceDamageFactor", (a, b) -> a.pierceDamageFactor = b),
+        pierce("pierce", (a, b) -> a.pierce = orBoolean(b)),
+        pierceBuilding("pierceBuilding", (a, b) -> a.pierceBuilding = orBoolean(b)),
+        pierceArmor("pierceArmor", (a, b) -> a.pierceArmor = orBoolean(b)),
+        pierceCap("pierceCap", (a, b) -> a.pierceCap = orInt(b)),
+        pierceDamageFactor("pierceDamageFactor", (a, b) -> a.pierceDamageFactor = orFloat(b)),
 
-        maxDamageFraction("maxDamageFraction", (a, b) -> a.maxDamageFraction = b),
-        laserAbsorb("laserAbsorb", (a, b) -> a.laserAbsorb = b >= 1),
+        maxDamageFraction("maxDamageFraction", (a, b) -> a.maxDamageFraction = orFloat(b)),
+        laserAbsorb("laserAbsorb", (a, b) -> a.laserAbsorb = orBoolean(b)),
 
-        buildingDamageMultiplier("buildingDamageMultiplier", (a, b) -> a.buildingDamageMultiplier = b),
-        shieldDamageMultiplier("shieldDamageMultiplier", (a, b) -> a.shieldDamageMultiplier = b),
+        buildingDamageMultiplier("buildingDamageMultiplier", (a, b) -> a.buildingDamageMultiplier = orFloat(b)),
+        shieldDamageMultiplier("shieldDamageMultiplier", (a, b) -> a.shieldDamageMultiplier = orFloat(b)),
 
-        splashDamage("splashDamage", (a, b) -> a.splashDamage = b),
-        splashDamageRadius("splashDamageRadius", (a, b) -> a.splashDamageRadius = b),
-        splashDamagePierce("splashDamagePierce", (a, b) -> a.splashDamagePierce = b >= 1),
+        splashDamage("splashDamage", (a, b) -> a.splashDamage = orFloat(b)),
+        splashDamageRadius("splashDamageRadius", (a, b) -> a.splashDamageRadius = orFloat(b)),
+        splashDamagePierce("splashDamagePierce", (a, b) -> a.splashDamagePierce = orBoolean(b)),
 
-        knockback("knockback", (a, b) -> a.knockback = b),
+        knockback("knockback", (a, b) -> a.knockback = orFloat(b)),
 
-        collidesAir("collidesAir", (a, b) -> a.collidesAir = b >= 1),
-        collidesGround("collidesGround", (a, b) -> a.collidesGround = b >= 1),
+        collidesAir("collidesAir", (a, b) -> a.collidesAir = orBoolean(b)),
+        collidesGround("collidesGround", (a, b) -> a.collidesGround = orBoolean(b)),
 
-        reflectable("reflectable", (a, b) -> a.reflectable = b >= 1),
-        absorbable("absorbable", (a, b) -> a.absorbable = b >= 1),
+        reflectable("reflectable", (a, b) -> a.reflectable = orBoolean(b)),
+        absorbable("absorbable", (a, b) -> a.absorbable = orBoolean(b)),
 
-        healPercent("healPercent", (a, b) -> a.healPercent = b),
-        healAmount("healAmount", (a, b) -> a.healAmount = b),
+        healPercent("healPercent", (a, b) -> a.healPercent = orFloat(b)),
+        healAmount("healAmount", (a, b) -> a.healAmount = orFloat(b)),
 
-        makeFire("makeFire", (a, b) -> a.makeFire = b >= 1),
+        makeFire("makeFire", (a, b) -> a.makeFire = orBoolean(b)),
 
-        homingPower("homingPower", (a, b) -> a.homingPower = b),
-        homingRange("homingRange", (a, b) -> a.homingRange = b),
-        homingDelay("homingDelay", (a, b) -> a.homingDelay = b),
+        homingPower("homingPower", (a, b) -> a.homingPower = orFloat(b)),
+        homingRange("homingRange", (a, b) -> a.homingRange = orFloat(b)),
+        homingDelay("homingDelay", (a, b) -> a.homingDelay = orFloat(b)),
 
-        lightning(" lightning", (a, b) -> a. lightning = (int) b),
-        lightningLength("lightningLength", (a, b) -> a.lightningLength = (int) b),
-        lightningLengthRand("lightningLengthRand", (a, b) -> a.lightningLengthRand = (int) b),
-        lightningDamage("lightningDamage", (a, b) -> a.lightningDamage = b),
-        lightningCone("lightningCone", (a, b) -> a.lightningCone = b),
-        lightningAngle("lightningAngle", (a, b) -> a.lightningAngle = b),
+        lightning(" lightning", (a, b) -> a. lightning = orInt(b)),
+        lightningLength("lightningLength", (a, b) -> a.lightningLength = orInt(b)),
+        lightningLengthRand("lightningLengthRand", (a, b) -> a.lightningLengthRand = orInt(b)),
+        lightningDamage("lightningDamage", (a, b) -> a.lightningDamage = orFloat(b)),
+        lightningCone("lightningCone", (a, b) -> a.lightningCone = orFloat(b)),
+        lightningAngle("lightningAngle", (a, b) -> a.lightningAngle = orFloat(b)),
 
-        rotateSpeed("rotateSpeed", (a, b) -> a.rotateSpeed = b),
+        rotateSpeed("rotateSpeed", (a, b) -> a.rotateSpeed = orFloat(b)),
 
         laserLength("laserLength", (a, b) -> {
-            if (a instanceof LaserBulletType) ((LaserBulletType) a).length = b;
+            if (a instanceof LaserBulletType q) q.length = orFloat(b);
         }),
 
         width("width", (a, b) -> {
-            if (a instanceof BasicBulletType) ((BasicBulletType) a).width = b;
-            else if (a instanceof LaserBulletType) ((LaserBulletType) a).width = b;
+            if (a instanceof BasicBulletType q) q.width = orFloat(b);
+            else if (a instanceof LaserBulletType q) q.width = orFloat(b);
         }),
         height("height", (a, b) -> {
-            if (a instanceof BasicBulletType) ((BasicBulletType) a).height = b;
+            if (a instanceof BasicBulletType q) q.height = orFloat(b);
         }),
         radius("radius", (a, b) -> {
-            if (a instanceof FireBulletType) ((FireBulletType) a).radius = b;
+            if (a instanceof FireBulletType q) q.radius = orFloat(b);
         }),
 
         fragBullet("fragBullet", (a, b) -> {
             if (ammos.get((int) b) != null && ammos.get((int) b) != a) a.fragBullet = ammos.get((int) b);
         }),
-        fragBullets("fragBullets", (a, b) -> a.fragBullets = (int) b),
-        pierceFragCap("pierceFragCap", (a, b) -> a.pierceFragCap = (int) b),
-        fragSpread("fragSpread", (a, b) -> a.fragSpread = b),
-        fragRandomSpread("fragRandomSpread", (a, b) -> a.fragRandomSpread = b),
-        fragAngle("fragAngle", (a, b) -> a.fragAngle = b),
-        fragVelocityMin("fragVelocityMin", (a, b) -> a.fragVelocityMin = b),
-        fragVelocityMax("fragVelocityMax", (a, b) -> a.fragVelocityMax = b),
-        fragLifeMin("fragLifeMin", (a, b) -> a.fragLifeMin = b),
-        fragLifeMax("fragLifeMax", (a, b) -> a.fragLifeMax = b),
-        fragOffsetMin("fragOffsetMin", (a, b) -> a.fragOffsetMin = b),
-        fragOffsetMax("fragOffsetMax", (a, b) -> a.fragOffsetMax = b),
-        fragOnAbsorb("fragOnAbsorb", (a, b) -> a.fragOnAbsorb = b >= 1),
-        fragOnHit("fragOnHit", (a, b) -> a.fragOnHit = b >= 1),
+        fragBullets("fragBullets", (a, b) -> a.fragBullets = orInt(b)),
+        pierceFragCap("pierceFragCap", (a, b) -> a.pierceFragCap = orInt(b)),
+        fragSpread("fragSpread", (a, b) -> a.fragSpread = orFloat(b)),
+        fragRandomSpread("fragRandomSpread", (a, b) -> a.fragRandomSpread = orFloat(b)),
+        fragAngle("fragAngle", (a, b) -> a.fragAngle = orFloat(b)),
 
-        despawnHit("despawnHit", (a, b) -> a.despawnHit = b >= 1),
+        fragVelocityMin("fragVelocityMin", (a, b) -> a.fragVelocityMin = orFloat(b)),
+        fragVelocityMax("fragVelocityMax", (a, b) -> a.fragVelocityMax = orFloat(b)),
+        fragLifeMin("fragLifeMin", (a, b) -> a.fragLifeMin = orFloat(b)),
+        fragLifeMax("fragLifeMax", (a, b) -> a.fragLifeMax = orFloat(b)),
+        fragOffsetMin("fragOffsetMin", (a, b) -> a.fragOffsetMin = orFloat(b)),
+        fragOffsetMax("fragOffsetMax", (a, b) -> a.fragOffsetMax = orFloat(b)),
+
+        fragOnAbsorb("fragOnAbsorb", (a, b) -> a.fragOnAbsorb = orBoolean(b)),
+
+        fragOnHit("fragOnHit", (a, b) -> a.fragOnHit = orBoolean(b)),
+        despawnHit("despawnHit", (a, b) -> a.despawnHit = orBoolean(b)),
+
+        liquid("liquid", (a, b) -> {
+            if (a instanceof LiquidBulletType q) q.liquid = orLiquid(b);
+        })
+
+
 
         ;
 
@@ -417,7 +427,7 @@ public class LAmmo {
         }
 
         interface AmmoSet2 {
-            void get(BulletType a, float b);
+            void get(BulletType a, Object b);
         }
     }
 }

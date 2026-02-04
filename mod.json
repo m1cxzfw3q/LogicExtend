@@ -1,11 +1,12 @@
 {
-  "displayName": "LogicExtend - 逻辑扩展",
+  "displayName": "Logic Extend",
+  "subtitle": "-逻辑扩展",
   "name": "logic-extend",
   "author": "[[]sky]114514[[]white]",
   "main": "logicExtend.LEMain",
-  "description": "A mod that extends logical statements\n 一个扩展了逻辑语句的模组",
-  "version": "0.0.3",
-  "minGameVersion": 151.1,
+  "description": "让逻辑再次伟大！\nMake Logic Great Again!",
+  "version": "0.0.4",
+  "minGameVersion": 154,
   "java": true,
   "repo": "m1cxzfw3q/LogicExtend/"
 }
