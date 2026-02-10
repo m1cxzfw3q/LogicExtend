@@ -6,7 +6,7 @@
   "main": "logicExtend.LEMain",
   "description": "让逻辑再次伟大！\nMake Logic Great Again!",
   "version": "0.0.4",
-  "minGameVersion": 154,
+  "minGameVersion": 155,
   "java": true,
   "repo": "m1cxzfw3q/LogicExtend/"
 }
