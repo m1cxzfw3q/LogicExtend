@@ -21,12 +21,10 @@ public class LEMain extends Mod {
 
         Locale locale = new Locale("sorter", "sorter", "sorter");
         //sorter
-        if(locale.toString().equals("sorter")){
-            I18NBundle defBundle = I18NBundle.createBundle(Core.files.internal("bundles/bundle_zh_CN"));
-            String router = Character.toString(Iconc.blockSorter);
-            for(String s : bundle.getKeys()){
-                bundle.getProperties().put(s, Strings.stripColors(defBundle.get(s)).replaceAll("\\S", router));
-            }
+        I18NBundle defBundle = I18NBundle.createBundle(Core.files.internal("bundles/bundle_zh_CN"), locale);
+        String router = Character.toString(Iconc.blockSorter);
+        for(String s : bundle.getKeys()){
+            bundle.getProperties().put(s, Strings.stripColors(defBundle.get(s)).replaceAll("\\S", router));
         }
     }
 }
