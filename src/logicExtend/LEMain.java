@@ -19,9 +19,8 @@ public class LEMain extends Mod {
         LAmmo.CreateAmmoStatement.create();
         LAmmo.SetAmmoStatement.create();
 
-        Locale locale = new Locale("sorter", "sorter", "sorter");
-        //sorter
-        I18NBundle defBundle = I18NBundle.createBundle(Core.files.internal("bundles/bundle_zh_CN"), locale);
+        I18NBundle defBundle = I18NBundle.createBundle(Core.files.internal("bundles/bundle_zh_CN"),
+                new Locale("sorter", "sorter", "sorter"));
         String router = Character.toString(Iconc.blockSorter);
         for(String s : bundle.getKeys()){
             bundle.getProperties().put(s, Strings.stripColors(defBundle.get(s)).replaceAll("\\S", router));
