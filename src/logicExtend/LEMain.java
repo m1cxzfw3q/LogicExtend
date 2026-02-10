@@ -19,7 +19,7 @@ public class LEMain extends Mod {
         LAmmo.CreateAmmoStatement.create();
         LAmmo.SetAmmoStatement.create();
 
-        Locale locale = new Locale("sorter");
+        Locale locale = new Locale("sorter", "sorter", "sorter");
         //sorter
         if(locale.toString().equals("sorter")){
             I18NBundle defBundle = I18NBundle.createBundle(Core.files.internal("bundles/bundle_zh_CN"));
