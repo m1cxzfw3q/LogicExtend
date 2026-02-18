@@ -49,7 +49,7 @@ public class LVarOperation {
             public void run(LExecutor exec) {
                 if (to.obj() instanceof LogicBlock.LogicBuild logic) {
                     if (logic.executor.optionalVar(name.toString()) != null && logic.executor.optionalVar(name.toString()).obj() == value.obj()) return;
-                    LVar[] vara = logic.executor.vars, newVars = new LVar[logic.executor.vars.length];
+                    LVar[] vara = logic.executor.vars, newVars = new LVar[logic.executor.vars.length + 1];
                     LVar var = new LVar(name.toString());
                     var.set(value);
                     newVars[newVars.length - 1] = var;
