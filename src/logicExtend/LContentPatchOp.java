@@ -103,8 +103,12 @@ public class LContentPatchOp {
         apply("apply", (str, s) -> {
             if(!patches.containsKey(str))throw new RuntimeException("apply data patch cannot be empty!");
             patches.get(str).remove(string -> string.split(":")[0].equals("name"));
+            StringBuilder builder = new StringBuilder();
+            for (String content : patches.get(str).add("name: \"Processor#"+str+"\"").toArray()) {
+                builder.append(content).append("\n");
+            }
             try {
-                Vars.state.patcher.apply(patches.get(str).add("name: \"Processor#"+str+"\""));
+                Vars.state.patcher.apply(new Seq<>(new String[]{builder.toString()}));
             } catch (Exception e) {
                 Log.warn(String.valueOf(e));
             }
