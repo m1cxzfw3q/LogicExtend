@@ -15,7 +15,7 @@ public class LVarOperation {
             table.add("target");
             field(table, to, str -> to = str);
             table.add("varName = ");
-            field(table, name, str -> name = str);
+            field(table, name, str -> name = str).left();
             table.row().add("value = ");
             LEExtend.field(table, value, str -> value = str, 800);
         }
