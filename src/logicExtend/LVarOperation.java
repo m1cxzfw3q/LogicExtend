@@ -45,9 +45,7 @@ public class LVarOperation {
 
             @Override
             public void run(LExecutor exec) {
-                if (to.obj() instanceof LogicBlock.LogicBuild logic
-                        && (logic.executor.optionalVar(name.toString()) != null && logic.executor.optionalVar(name.toString()).obj() != value.obj())
-                ) {
+                if (to.obj() instanceof LogicBlock.LogicBuild logic && (logic.executor.optionalVar(name.toString()) != null && logic.executor.optionalVar(name.toString()).obj() != value.obj())) {
                     Seq<LVar> seq = new Seq<>(logic.executor.vars);
                     LVar var = new LVar(name.toString());
                     var.set(value);
