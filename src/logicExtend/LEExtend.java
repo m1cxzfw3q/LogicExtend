@@ -7,8 +7,6 @@ import mindustry.entities.bullet.BulletType;
 import mindustry.logic.LVar;
 import mindustry.ui.Styles;
 
-import java.util.Arrays;
-
 public class LEExtend {
     public static String safeToString(LVar var) {
         if (var == null) {
