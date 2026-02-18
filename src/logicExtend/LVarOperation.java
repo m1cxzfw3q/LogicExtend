@@ -50,12 +50,11 @@ public class LVarOperation {
             public void run(LExecutor exec) {
                 if (to.obj() instanceof LogicBlock.LogicBuild logic) {
                     if (logic.executor.optionalVar(name.toString()) != null && logic.executor.optionalVar(name.toString()).obj() == value.obj()) return;
-                    LVar[] vara = logic.executor.vars;
-                    Seq<LVar> seq = new Seq<>(logic.executor.vars);
+                    LVar[] vara = logic.executor.vars, newVars = new LVar[logic.executor.vars.length];
                     LVar var = new LVar(name.toString());
                     var.set(value);
-                    seq.add(var);
-                    logic.executor.vars = seq.toArray();
+                    newVars[newVars.length - 1] = var;
+                    logic.executor.vars = newVars;
                     ObjectIntMap<String> get = Reflect.<ObjectIntMap<String>>get(LExecutor.class, logic.executor, "nameMap").copy();
                     get.put(name.toString(), vara.length + 1);
                     Reflect.set(LExecutor.class, logic.executor, "nameMap", get);
