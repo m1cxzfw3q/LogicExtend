@@ -16,7 +16,7 @@ public class LContentPatchOp {
 
     public static class PatchOpStatement extends LStatement {
         public SetOp op = SetOp.create;
-        public String name = "\"patch0\"", content = "\"unit.dagger.name: 'DAGGER'\"";
+        public String name = "\"patch0\"", content = "\"unit.dagger.localizedName: 'DAGGER!'\"";
 
         @Override
         public void build(Table table) {
@@ -28,10 +28,10 @@ public class LContentPatchOp {
                 }, 4, c -> c.width(150f)));
             }, Styles.logict, () -> {}).size(150f, 40f).pad(4f).color(table.color);
             table.add("name = ");
-            field(table, name, str -> name = str);
+            field(table, name, str -> name = str).left();
             if (op == SetOp.addPatch) {
                 table.row().add("addContent = ");
-                LEExtend.field(table, content, str -> content = str, 300);
+                LEExtend.field(table, content, str -> content = str, 800);
             }
         }
 
@@ -101,10 +101,9 @@ public class LContentPatchOp {
         create("create", (str, s) -> patches.put(str, new Seq<>())),
         addPatch("addPatch", (str, s) -> (patches.containsKey(str) ? patches.get(str) : new Seq<String>()).add(s)),
         apply("apply", (str, s) -> {
-            if(!patches.containsKey(str))throw new RuntimeException("apply data patch cannot be empty!");
-            patches.get(str).remove(string -> string.split(":")[0].equals("name"));
+            patches.get(str).remove(string -> Objects.equals(string.split(":")[0], "name"));
             StringBuilder builder = new StringBuilder();
-            for (String content : patches.get(str).add("name: \"Processor#"+str+"\"").toArray()) {
+            for (String content : patches.get(str).add("name: \"Processor#"+str+"\"")) {
                 builder.append(content).append("\n");
             }
             try {

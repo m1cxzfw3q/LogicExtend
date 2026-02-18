@@ -17,7 +17,7 @@ public class LVarOperation {
             table.add("varName = ");
             field(table, name, str -> name = str);
             table.row().add("value = ");
-            LEExtend.field(table, value, str -> value = str, 400);
+            LEExtend.field(table, value, str -> value = str, 800);
         }
 
         @Override
