@@ -7,6 +7,7 @@ import arc.util.Log;
 import mindustry.Vars;
 import mindustry.gen.LogicIO;
 import mindustry.logic.*;
+import mindustry.mod.DataPatcher;
 import mindustry.ui.Styles;
 
 import java.util.Objects;
@@ -16,7 +17,7 @@ public class LContentPatchOp {
 
     public static class PatchOpStatement extends LStatement {
         public SetOp op = SetOp.create;
-        public String name = "\"patch0\"", content = "\"unit.dagger.localizedName: 'DAGGER!'\"";
+        public String name = "\"patch0\"", arg = "\"unit.dagger.localizedName: 'DAGGER!'\"";
 
         @Override
         public void build(Table table) {
@@ -27,17 +28,21 @@ public class LContentPatchOp {
                     rebuild(table);
                 }, 4, c -> c.width(150f)));
             }, Styles.logict, () -> {}).size(150f, 40f).pad(4f).color(table.color);
-            table.add("name = ").left();
+            table.add("name").left();
             field(table, name, str -> name = str).left();
             if (op == SetOp.addPatch) {
-                table.row().add("addContent = ");
-                LEExtend.field(table, content, str -> content = str, 800);
+                table.row().add("addContent");
+                LEExtend.field(table, arg, str -> arg = str, 800);
+            }
+            if (op == SetOp.clone) {
+                table.add("to");
+                field(table, arg, str -> arg = str);
             }
         }
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return new PatchOpI(op, builder.var(name), builder.var(content));
+            return new PatchOpI(op, builder.var(name), builder.var(arg));
         }
 
         void rebuild(Table table){
@@ -57,7 +62,7 @@ public class LContentPatchOp {
 
         @Override
         public void write(StringBuilder builder) {
-            LEExtend.appendLStmt(builder, "patchset", op.displayName, name, content);
+            LEExtend.appendLStmt(builder, "patchset", op.displayName, name, arg);
         }
 
         public static class PatchOpI implements LExecutor.LInstruction {
@@ -81,7 +86,7 @@ public class LContentPatchOp {
                 PatchOpStatement stmt = new PatchOpStatement();
                 if (params.length >= 2) stmt.op = SetOp.valueOf(params[1]);
                 if (params.length >= 3) stmt.name = params[2];
-                if (params.length >= 4) stmt.content = params[3];
+                if (params.length >= 4) stmt.arg = params[3];
                 stmt.afterRead();
                 return stmt;
             });
@@ -116,7 +121,12 @@ public class LContentPatchOp {
         remove("remove", (str, s) -> {
             Vars.state.patcher.patches.removeAll(cp -> Objects.equals(cp.name, "Processor#" + str));
             patches.remove(str);
-        });
+        }),
+        clone("clone", (str, s) -> {
+            DataPatcher.PatchSet p = Vars.state.patcher.patches.select(patch -> Objects.equals(patch.name, str)).get(0);
+            patches.put(s, new Seq<>(new String[]{p.patch}));
+        })
+        ;
 
         public final String displayName;
         public final Op op;
