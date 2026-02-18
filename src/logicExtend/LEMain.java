@@ -10,5 +10,8 @@ public class LEMain extends Mod {
         LString.StringMergeStatement.create();
         LAmmo.CreateAmmoStatement.create();
         LAmmo.SetAmmoStatement.create();
+        //LNetwork.load();
+        LContentPatchOp.PatchOpStatement.create();
+        LVarOperation.AddVarStatement.create();
     }
 }

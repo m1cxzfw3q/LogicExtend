@@ -43,7 +43,7 @@ public class LString {
 
         @Override
         public void write(StringBuilder builder) {
-            builder.append("stringmerge ").append(output).append(" ").append(p1).append(" ").append(p2);
+            LEExtend.appendLStmt(builder, "stringmerge", output, p1, p2);
         }
 
         @Override
@@ -57,7 +57,7 @@ public class LString {
 
     public static class LStringMergeI implements LExecutor.LInstruction {
         public LVar output, p1, p2;
-        private static final int MAX_LENGTH = 220;
+        static final int MAX_LENGTH = 220;
 
         public LStringMergeI(LVar output, LVar p1, LVar p2) {
             this.output = output;

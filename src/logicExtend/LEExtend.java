@@ -3,16 +3,9 @@ package logicExtend;
 import arc.func.Cons;
 import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Table;
-import arc.util.Strings;
-import mindustry.content.Items;
-import mindustry.content.Liquids;
 import mindustry.entities.bullet.BulletType;
 import mindustry.logic.LVar;
-import mindustry.type.Item;
-import mindustry.type.Liquid;
 import mindustry.ui.Styles;
-
-import static mindustry.Vars.content;
 
 public class LEExtend {
     public static String safeToString(LVar var) {
@@ -78,24 +71,10 @@ public class LEExtend {
         return b;
     }
 
-    public static boolean orBoolean(Object obj) {
-        return obj instanceof Boolean b ? b : obj instanceof Number n ? n.doubleValue() != 0 :
-                obj instanceof String s && (s.equals("true") || s.equals("yes") || s.equals("1") || s.equals("on"));
-    }
-
-    public static int orInt(Object obj) {
-        return obj instanceof Integer i ? i : (int) (obj instanceof String s ? Strings.parseInt(s) : obj instanceof Double d ? d : 0);
-    }
-
-    public static float orFloat(Object obj) {
-        return obj instanceof Float f ? f : obj instanceof String s ? Strings.parseFloat(s) : 0;
-    }
-
-    public static Item orItem(Object obj) {
-        return obj instanceof Item it ? it : obj instanceof String s ? content.item(s) : obj instanceof Integer i ? content.item(i) : Items.copper;
-    }
-
-    public static Liquid orLiquid(Object obj) {
-        return obj instanceof Liquid it ? it : obj instanceof String s ? content.liquid(s) : obj instanceof Integer i ? content.liquid(i) : Liquids.water;
+    public static void appendLStmt(StringBuilder str, String name, String... appends) {
+        str.append(name);
+        for (String s : appends) {
+            str.append(" ").append(s);
+        }
     }
 }
