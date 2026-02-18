@@ -102,8 +102,9 @@ public class LContentPatchOp {
         addPatch("addPatch", (str, s) -> (patches.containsKey(str) ? patches.get(str) : new Seq<String>()).add(s)),
         apply("apply", (str, s) -> {
             patches.get(str).remove(string -> Objects.equals(string.split(":")[0], "name"));
+            patches.get(str).add("name: \"Processor#"+str+"\"");
             StringBuilder builder = new StringBuilder();
-            for (String content : patches.get(str).add("name: \"Processor#"+str+"\"")) {
+            for (String content : patches.get(str)) {
                 builder.append(content).append("\n");
             }
             try {
