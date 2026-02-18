@@ -2,7 +2,6 @@ package logicExtend;
 
 import arc.scene.ui.layout.Table;
 import arc.struct.ObjectIntMap;
-import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Reflect;
 import mindustry.gen.LogicIO;
