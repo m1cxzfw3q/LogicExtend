@@ -12,9 +12,9 @@ public class LVarOperation {
 
         @Override
         public void build(Table table) {
-            table.add("target");
-            field(table, to, str -> to = str);
-            table.add("varName = ");
+            table.add("target").left();
+            field(table, to, str -> to = str).left();
+            table.add("varName = ").left();
             field(table, name, str -> name = str).left();
             table.row().add("value = ");
             LEExtend.field(table, value, str -> value = str, 800);

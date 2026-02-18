@@ -27,7 +27,7 @@ public class LContentPatchOp {
                     rebuild(table);
                 }, 4, c -> c.width(150f)));
             }, Styles.logict, () -> {}).size(150f, 40f).pad(4f).color(table.color);
-            table.add("name = ");
+            table.add("name = ").left();
             field(table, name, str -> name = str).left();
             if (op == SetOp.addPatch) {
                 table.row().add("addContent = ");
