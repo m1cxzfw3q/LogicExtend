@@ -52,7 +52,7 @@ public class LVarOperation {
                     LVar[] vara = logic.executor.vars, newVars = new LVar[logic.executor.vars.length + 1];
                     LVar var = new LVar(name.toString());
                     var.set(value);
-                    newVars[newVars.length - 1] = var;
+                    newVars[logic.executor.vars.length] = var;
                     logic.executor.vars = newVars;
                     ObjectIntMap<String> get = Reflect.<ObjectIntMap<String>>get(LExecutor.class, logic.executor, "nameMap").copy();
                     get.put(name.toString(), vara.length + 1);
