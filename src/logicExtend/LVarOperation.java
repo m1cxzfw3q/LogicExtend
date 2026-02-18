@@ -1,6 +1,7 @@
 package logicExtend;
 
 import arc.scene.ui.layout.Table;
+import arc.struct.Seq;
 import mindustry.gen.LogicIO;
 import mindustry.logic.*;
 import mindustry.world.blocks.logic.LogicBlock;
@@ -44,7 +45,13 @@ public class LVarOperation {
 
             @Override
             public void run(LExecutor exec) {
-                if (to.obj() instanceof LogicBlock.LogicBuild logic) logic.executor.optionalVar(name.obj().toString()).set(value);
+                if (to.obj() instanceof LogicBlock.LogicBuild logic) {
+                    Seq<LVar> seq = new Seq<>(logic.executor.vars);
+                    LVar var = new LVar(name.toString());
+                    var.set(value);
+                    seq.add(var);
+                    logic.executor.vars = seq.toArray();
+                }
             }
         }
 
