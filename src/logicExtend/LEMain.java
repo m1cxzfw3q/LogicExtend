@@ -12,5 +12,6 @@ public class LEMain extends Mod {
         LAmmo.SetAmmoStatement.create();
         //LNetwork.load();
         LContentPatchOp.PatchOpStatement.create();
+        LVarOperation.AddVarStatement.create();
     }
 }
