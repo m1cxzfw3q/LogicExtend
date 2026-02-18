@@ -113,7 +113,10 @@ public class LContentPatchOp {
                 Log.warn(String.valueOf(e));
             }
         }),
-        remove("remove", (str, s) -> Vars.state.patcher.patches.removeAll(cp -> Objects.equals(cp.name, str)));
+        remove("remove", (str, s) -> {
+            Vars.state.patcher.patches.removeAll(cp -> Objects.equals(cp.name, "Processor#" + str));
+            patches.remove(str);
+        });
 
         public final String displayName;
         public final Op op;
