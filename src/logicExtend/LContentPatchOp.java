@@ -12,6 +12,8 @@ import mindustry.ui.Styles;
 
 import java.util.Objects;
 
+import static mindustry.Vars.net;
+
 public class LContentPatchOp {
     public static ObjectMap<String, Seq<String>> patches = new ObjectMap<>();
 
@@ -77,6 +79,7 @@ public class LContentPatchOp {
 
             @Override
             public void run(LExecutor exec) {
+                if(net.client()) return;
                 op.op.get(LEExtend.safeToString(name), LEExtend.safeToString(content));
             }
         }
