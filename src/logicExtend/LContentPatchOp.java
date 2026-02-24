@@ -19,7 +19,7 @@ public class LContentPatchOp {
 
     public static class PatchOpStatement extends LStatement {
         public SetOp op = SetOp.create;
-        public String name = "\"patch0\"", arg = "\"unit.dagger.localizedName: 'DAGGER!'\"";
+        public String name = "\"patch0\"", arg = "";
 
         @Override
         public void build(Table table) {
@@ -34,10 +34,12 @@ public class LContentPatchOp {
             field(table, name, str -> name = str).left();
             if (op == SetOp.addPatch) {
                 table.row().add("addContent");
+                arg = "\"unit.dagger.localizedName: 'DAGGER!'\"";
                 LEExtend.field(table, arg, str -> arg = str, 800);
             }
             if (op == SetOp.clone) {
                 table.add("to");
+                arg = "\"patch1\"";
                 field(table, arg, str -> arg = str);
             }
         }
