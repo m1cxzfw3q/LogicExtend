@@ -7,7 +7,7 @@ public class LEMain extends Mod {
 
     @Override
     public void loadContent() {
-        LString.StringMergeStatement.create();
+        LString.StringOpStatement.create();
         LAmmo.CreateAmmoStatement.create();
         LAmmo.SetAmmoStatement.create();
         //LNetwork.load();

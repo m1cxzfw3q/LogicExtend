@@ -6,7 +6,7 @@ import mindustry.gen.LogicIO;
 import mindustry.logic.*;
 
 public class LString {
-    public static class StringMergeStatement extends LStatement {
+    public static class StringOpStatement extends LStatement {
         public String output = "result", p1 = "\"a\"", p2 = "\"b\"";
 
         @Override
@@ -20,7 +20,7 @@ public class LString {
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return new LStringMergeI(builder.var(output), builder.var(p1), builder.var(p2));
+            return new StringOpI(builder.var(output), builder.var(p1), builder.var(p2));
         }
 
         @Override
@@ -30,20 +30,20 @@ public class LString {
 
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
         public static void create() {
-            LAssembler.customParsers.put("stringmerge", params -> {
-                StringMergeStatement stmt = new StringMergeStatement();
+            LAssembler.customParsers.put("stringop", params -> {
+                StringOpStatement stmt = new StringOpStatement();
                 if (params.length >= 2) stmt.output = params[1];
                 if (params.length >= 3) stmt.p1 = params[2];
                 if (params.length >= 4) stmt.p2 = params[3];
                 stmt.afterRead();
                 return stmt;
             });
-            LogicIO.allStatements.add(StringMergeStatement::new);
+            LogicIO.allStatements.add(StringOpStatement::new);
         }
 
         @Override
         public void write(StringBuilder builder) {
-            LEExtend.appendLStmt(builder, "stringmerge", output, p1, p2);
+            LEExtend.appendLStmt(builder, "stringop", output, p1, p2);
         }
 
         @Override
@@ -55,11 +55,11 @@ public class LString {
         }
     }
 
-    public static class LStringMergeI implements LExecutor.LInstruction {
+    public static class StringOpI implements LExecutor.LInstruction {
         public LVar output, p1, p2;
         static final int MAX_LENGTH = 220;
 
-        public LStringMergeI(LVar output, LVar p1, LVar p2) {
+        public StringOpI(LVar output, LVar p1, LVar p2) {
             this.output = output;
             this.p1 = p1;
             this.p2 = p2;
@@ -70,6 +70,23 @@ public class LString {
             String str = LEExtend.safeToString(p1) + LEExtend.safeToString(p2);
             if (str.length() > MAX_LENGTH) str = str.substring(0, MAX_LENGTH);
             output.setobj(str);
+        }
+    }
+
+    public enum StringOp {
+        add("+", (p1, p2) -> p1 + p2),
+        split("split", String::split),
+
+        ;
+        public final String name;
+        public final StringOpFunc op;
+        StringOp(String str, StringOpFunc op) {
+            name = str;
+            this.op = op;
+        }
+
+        interface StringOpFunc {
+            Object get(String p1, String p2);
         }
     }
 }
