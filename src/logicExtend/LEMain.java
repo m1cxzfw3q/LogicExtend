@@ -10,7 +10,7 @@ public class LEMain extends Mod {
         LString.StringOpStatement.create();
         LAmmo.CreateAmmoStatement.create();
         LAmmo.SetAmmoStatement.create();
-        //LNetwork.load();
+        LNetwork.load();
         LContentPatchOp.PatchOpStatement.create();
     }
 }
