@@ -42,6 +42,7 @@ public class LNetwork {
                     table.row();
                 }
                 int fI = i;
+                table.add(func.display[i]);
                 field(table, args[i], str -> args[fI] = str);
             }
             table.row();
@@ -114,7 +115,7 @@ public class LNetwork {
     }
 
     public enum CallPacketEnum {
-        AdminRequest(4, in -> {
+        AdminRequest(4, new String[]{"player", "other", "action", "params"}, in -> {
             if (Vars.net.server() || !Vars.net.active()) {
                 NetServer.adminRequest(
                         in[0].obj() != null && in[0].obj() instanceof Unit u ? u.getPlayer() : placeholder,
@@ -138,14 +139,16 @@ public class LNetwork {
 
         public final int argsLen;
         public final CallPacketFunc func;
+        public final String[] display;
 
-        CallPacketEnum(int len, CallPacketFunc func) {
+        CallPacketEnum(int len, String[] paramsText, CallPacketFunc func) {
             argsLen = len;
             this.func = func;
+            display = paramsText;
         }
 
-        interface CallPacketFunc {
-            void get(LVar[] in);
+        public interface CallPacketFunc {
+            void run(LVar[] in);
         }
     }
 }
