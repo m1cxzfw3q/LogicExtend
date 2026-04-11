@@ -2,15 +2,20 @@ package logicExtend;
 
 import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
+import mindustry.Vars;
+import mindustry.core.NetServer;
 import mindustry.gen.*;
 import mindustry.logic.*;
+import mindustry.net.Packets;
 import mindustry.ui.Styles;
 
 import java.util.Arrays;
 
 public class LNetwork {
+    public static final Player placeholder = Player.create();
+
     public static class CallPacketStatement extends LStatement {
-        public CallPacketEnum func;
+        public CallPacketEnum func = CallPacketEnum.AdminRequest;
         public String[] args;
 
         @Override
@@ -110,9 +115,23 @@ public class LNetwork {
 
     public enum CallPacketEnum {
         AdminRequest(4, in -> {
+            if (Vars.net.server() || !Vars.net.active()) {
+                NetServer.adminRequest(
+                        in[0].obj() != null && in[0].obj() instanceof Unit u ? u.getPlayer() : placeholder,
+                        in[1].obj() != null && in[1].obj() instanceof Unit u ? u.getPlayer() : null,
+                        Packets.AdminAction.valueOf(LEExtend.safeToString(in[2])),
+                        in[3].obj()
+                );
+            }
 
+            if (Vars.net.client()) {
+                AdminRequestCallPacket packet = new AdminRequestCallPacket();
+                packet.other = in[1].obj() != null && in[1].obj() instanceof Unit u ? u.getPlayer() : null;
+                packet.action = Packets.AdminAction.valueOf(LEExtend.safeToString(in[2]));
+                packet.params = in[3].obj();
+                Vars.net.send(packet, true);
+            }
         })
-
         ;
 
         public static final CallPacketEnum[] all = values();
