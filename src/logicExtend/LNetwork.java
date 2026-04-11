@@ -1,15 +1,12 @@
 package logicExtend;
 
 import arc.scene.ui.layout.Table;
-import mindustry.gen.AdminRequestCallPacket;
-import mindustry.gen.Player;
-import mindustry.logic.LAssembler;
-import mindustry.logic.LCategory;
-import mindustry.logic.LExecutor;
-import mindustry.logic.LStatement;
-import mindustry.net.Packet;
-import mindustry.net.Packets;
+import arc.struct.Seq;
+import mindustry.gen.*;
+import mindustry.logic.*;
 import mindustry.ui.Styles;
+
+import java.util.Arrays;
 
 public class LNetwork {
     public static class CallPacketStatement extends LStatement {
@@ -22,20 +19,59 @@ public class LNetwork {
         }
 
         public void rebuild(Table table) {
+            args = new String[func.argsLen];
             table.button(b -> {
                 b.label(() -> func.name());
                 b.clicked(() -> showSelect(b, CallPacketEnum.all, func, o -> {
                     func = o;
                     rebuild(table);
                 }, 4, c -> c.width(75f)));
-            }, Styles.logict, () -> {}).size(75f, 40f).pad(4f).color(table.color);
-            table.add(" args = [");
+            }, Styles.logict, () -> {}).size(300f, 40f).pad(4f).color(table.color);
+            table.add("args[");
+            table.row();
+            int rows = 0;
+            for (int i = 0;i < func.argsLen;i++) {
+                rows++;
+                if (rows >= 4) {
+                    rows = 0;
+                    table.row();
+                }
+                int fI = i;
+                field(table, args[i], str -> args[fI] = str);
+            }
+            table.row();
             table.add("]");
         }
 
         @Override
+        public LStatement copy(){
+            StringBuilder build = new StringBuilder();
+            write(build);
+            Seq<LStatement> read = LAssembler.read(build.toString(), true);
+            return read.size == 0 ? null : read.first();
+        }
+
+        /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
+        public static void create() {
+            LAssembler.customParsers.put("callpacket", params -> {
+                CallPacketStatement stmt = new CallPacketStatement();
+                if (params.length >= 2) stmt.func = CallPacketEnum.valueOf(params[1]);
+                if (params.length >= 3) {
+                    stmt.args = Arrays.copyOfRange(params, 3, params.length);
+                }
+                stmt.afterRead();
+                return stmt;
+            });
+            LogicIO.allStatements.add(CallPacketStatement::new);
+        }
+
+        @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return new CallPacketI();
+            LVar[] vars = new LVar[func.argsLen];
+            for (int i = 0;i < func.argsLen;i++) {
+                vars[i] = builder.var(args[i]);
+            }
+            return new CallPacketI(func, vars);
         }
 
         @Override
@@ -45,31 +81,36 @@ public class LNetwork {
 
         @Override
         public void write(StringBuilder builder) {
-            builder.append("callpacket ");
+            builder.append("callpacket");
+            for (String str : args) {
+                builder.append(" ");
+                builder.append(str);
+            }
         }
 
         public static class CallPacketI implements LExecutor.LInstruction {
-            public Packet packet;
-            public Object[] args;
+            public CallPacketEnum func;
+            public LVar[] args;
 
             @Override
             public void run(LExecutor exec) {
 
             }
+
+            public CallPacketI(CallPacketEnum func, LVar[] args) {
+                this.func = func;
+                this.args = args;
+            }
         }
     }
 
     public static void load() {
-
+        CallPacketStatement.create();
     }
 
     public enum CallPacketEnum {
-        AdminRequest(3, in -> {
-            AdminRequestCallPacket out = new AdminRequestCallPacket();
-            out.other = (Player) in[0];
-            out.action = (Packets.AdminAction) in[1];
-            out.params = in[2];
-            return out;
+        AdminRequest(4, in -> {
+
         })
 
         ;
@@ -85,7 +126,7 @@ public class LNetwork {
         }
 
         interface CallPacketFunc {
-            Packet get(Object[] in);
+            void get(LVar[] in);
         }
     }
 }
