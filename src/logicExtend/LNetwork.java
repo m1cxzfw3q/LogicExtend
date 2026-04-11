@@ -37,13 +37,13 @@ public class LNetwork {
             int rows = 0;
             for (int i = 0;i < func.argsLen;i++) {
                 rows++;
-                if (rows >= 4) {
+                if (rows >= 6) {
                     rows = 0;
                     table.row();
                 }
                 int fI = i;
-                table.add(func.display[i]);
-                field(table, args[i], str -> args[fI] = str);
+                table.add(func.display[i]).left();
+                field(table, args[i], str -> args[fI] = str).left();
             }
             table.row();
             table.add("]");
