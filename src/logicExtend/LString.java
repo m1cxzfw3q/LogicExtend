@@ -84,9 +84,9 @@ public class LString {
 
     public enum StringOpType{
         add("+", (a, b, c) -> a + b),
-        has("has", (a, b, c) -> String.valueOf(Objects.equals(a, b))),
+        has("has", (a, b, c) -> Objects.equals(a, b) ? 1 : 0),
 
-        split("split", (a, b, c) -> Arrays.toString(a.split(b))),
+        split("split", (a, b, c) -> a.split(b)),
         substring("substring", (a, b, c) -> {
             try{
                 return a.substring(Strings.parseInt(b), Strings.parseInt(c));
@@ -106,12 +106,12 @@ public class LString {
             this.op = op;
         }
 
-        public String operation(String p1, String p2, String p3) {
+        public Object operation(String p1, String p2, String p3) {
             return op.get(p1, p2, p3);
         }
 
         interface StrOp {
-            String get(String p1, String p2, String p3);
+            Object get(String p1, String p2, String p3);
         }
     }
 
