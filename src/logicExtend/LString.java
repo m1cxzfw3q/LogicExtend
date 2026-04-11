@@ -78,7 +78,7 @@ public class LString {
                     type = o;
                     rebuild(parent);
                 }, 4, c -> c.width(120f)));
-            }, Styles.logict, () -> {}).size(200f, 40f).pad(4f).color(table.color);
+            }, Styles.logict, () -> {}).size(120f, 40f).pad(4f).color(table.color);
         }
     }
 

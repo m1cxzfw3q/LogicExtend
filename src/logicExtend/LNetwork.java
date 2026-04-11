@@ -30,9 +30,9 @@ public class LNetwork {
                 b.clicked(() -> showSelect(b, CallPacketEnum.all, func, o -> {
                     func = o;
                     rebuild(table);
-                }, 4, c -> c.width(75f)));
-            }, Styles.logict, () -> {}).size(300f, 40f).pad(4f).color(table.color);
-            table.add("args[");
+                }, 4, c -> c.width(250f)));
+            }, Styles.logict, () -> {}).size(250f, 40f).pad(4f).color(table.color);
+            table.row().add("args[").left();
             table.row();
             int rows = 0;
             for (int i = 0;i < func.argsLen;i++) {
@@ -46,7 +46,7 @@ public class LNetwork {
                 field(table, args[i], str -> args[fI] = str).left();
             }
             table.row();
-            table.add("]");
+            table.add("]").left();
         }
 
         @Override
@@ -62,9 +62,7 @@ public class LNetwork {
             LAssembler.customParsers.put("callpacket", params -> {
                 CallPacketStatement stmt = new CallPacketStatement();
                 if (params.length >= 2) stmt.func = CallPacketEnum.valueOf(params[1]);
-                if (params.length >= 3) {
-                    stmt.args = Arrays.copyOfRange(params, 3, params.length);
-                }
+                if (params.length >= 3)
                 stmt.afterRead();
                 return stmt;
             });
