@@ -9,8 +9,6 @@ import mindustry.logic.*;
 import mindustry.net.Packets;
 import mindustry.ui.Styles;
 
-import java.util.Arrays;
-
 public class LNetwork {
     public static final Player placeholder = Player.create();
 
@@ -62,7 +60,7 @@ public class LNetwork {
             LAssembler.customParsers.put("callpacket", params -> {
                 CallPacketStatement stmt = new CallPacketStatement();
                 if (params.length >= 2) stmt.func = CallPacketEnum.valueOf(params[1]);
-                if (params.length >= 3)
+                if (params.length > 2) System.arraycopy(params, 2, stmt.args, 0, params.length - 2);
                 stmt.afterRead();
                 return stmt;
             });

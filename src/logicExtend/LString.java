@@ -129,7 +129,14 @@ public class LString {
 
         @Override
         public void run(LExecutor exec) {
-            output.setobj(type.operation(LEExtend.safeToString(p1), LEExtend.safeToString(p2), LEExtend.safeToString(p3)));
+            Object result = type.operation(LEExtend.safeToString(p1), LEExtend.safeToString(p2), LEExtend.safeToString(p3));
+            if (result instanceof Number n) {
+                output.setnum((Double) n);
+            } else if (result instanceof Boolean b) {
+                output.setbool(b);
+            } else {
+                output.setobj(result);
+            }
         }
     }
 }
