@@ -30,7 +30,7 @@ public class LNetwork {
                     rebuild(table);
                 }, 4, c -> c.width(250f)));
             }, Styles.logict, () -> {}).size(250f, 40f).pad(4f).color(table.color);
-            table.row().add("args[").left();
+            table.add("args[").left();
             table.row();
             int rows = 0;
             for (int i = 0;i < func.argsLen;i++) {

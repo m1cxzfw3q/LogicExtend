@@ -131,7 +131,7 @@ public class LString {
         public void run(LExecutor exec) {
             Object result = type.operation(LEExtend.safeToString(p1), LEExtend.safeToString(p2), LEExtend.safeToString(p3));
             if (result instanceof Number n) {
-                output.setnum((Double) n);
+                output.setnum(n.doubleValue());
             } else if (result instanceof Boolean b) {
                 output.setbool(b);
             } else {
