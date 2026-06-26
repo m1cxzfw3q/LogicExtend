@@ -1,5 +1,6 @@
 package logicExtend;
 
+import arc.func.Func3;
 import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
 import arc.util.Strings;
@@ -7,12 +8,11 @@ import mindustry.gen.LogicIO;
 import mindustry.logic.*;
 import mindustry.ui.Styles;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class LString {
     public static class StringOpStatement extends LStatement {
-        public String output = "result", p1 = "\"a\"", p2 = "\"b\"", p3 = "220";
+        public String output = "result", p1 = "\"a\"", p2 = "\"b\"", p3 = "400";
         public StringOpType type = StringOpType.add;
 
         @Override
@@ -84,9 +84,9 @@ public class LString {
 
     public enum StringOpType{
         add("+", (a, b, c) -> a + b),
-        has("has", (a, b, c) -> Objects.equals(a, b) ? 1 : 0),
+        has("has", (a, b, c) -> Objects.equals(a, b)),
 
-        split("split", (a, b, c) -> a.split(b)),
+        split("split", (a, b, c) -> new LogicSeq(a.split(b))),
         substring("substring", (a, b, c) -> {
             try{
                 return a.substring(Strings.parseInt(b), Strings.parseInt(c));
@@ -100,18 +100,14 @@ public class LString {
 
         public static final StringOpType[] all = values();
         public final String symbol;
-        final StrOp op;
-        StringOpType(String symbol, StrOp op) {
+        final Func3<String, String, String, Object> op;
+        StringOpType(String symbol, Func3<String, String, String, Object> op) {
             this.symbol = symbol;
             this.op = op;
         }
 
         public Object operation(String p1, String p2, String p3) {
             return op.get(p1, p2, p3);
-        }
-
-        interface StrOp {
-            Object get(String p1, String p2, String p3);
         }
     }
 

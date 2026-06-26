@@ -1,10 +1,16 @@
 package logicExtend;
 
+import arc.func.*;
 import arc.math.geom.Vec2;
 import arc.scene.ui.layout.Table;
 import arc.struct.IntMap;
+import arc.struct.ObjectMap;
 import arc.struct.Seq;
+import arc.util.Reflect;
+import logicExtend.func.Cons5;
+import logicExtend.func.UnsafeCons3;
 import mindustry.Vars;
+import mindustry.content.Fx;
 import mindustry.entities.bullet.*;
 import mindustry.game.Team;
 import mindustry.gen.Entityc;
@@ -13,12 +19,63 @@ import mindustry.logic.*;
 import mindustry.type.Liquid;
 import mindustry.ui.Styles;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Objects;
 
 import static mindustry.Vars.net;
 
 public class LAmmo {
     public static IntMap<BulletType> ammos = IntMap.of();
+    public static IntMap<Class<? extends BulletType>> ammoClass = IntMap.of();
+
+    public static final ObjectMap<Class<? extends BulletType>, Seq<Field>> fields = new ObjectMap<>();
+
+    {
+        // basic types
+        fields.put(BulletType.class, getFields(BulletType.class));
+        fields.put(BasicBulletType.class, getFields(BasicBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(ContinuousBulletType.class, getFields(ContinuousBulletType.class).add(fields.get(BulletType.class)));
+
+        // empty 这和放滚木有什么区别
+        //fields.put(EmptyBulletType.class, getFields(EmptyBulletType.class));
+
+        // extends BulletType
+        fields.put(MultiBulletType.class, getFields(MultiBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(PointBulletType.class, getFields(PointBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(PointLaserBulletType.class, getFields(PointLaserBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(RailBulletType.class, getFields(RailBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(SapBulletType.class, getFields(SapBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(ShrapnelBulletType.class, getFields(ShrapnelBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(SpaceLiquidBulletType.class, getFields(SpaceLiquidBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(ExplosionBulletType.class, getFields(ExplosionBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(FireBulletType.class, getFields(FireBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(LaserBulletType.class, getFields(LaserBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(LightningBulletType.class, getFields(LightningBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(LiquidBulletType.class, getFields(LiquidBulletType.class).add(fields.get(BulletType.class)));
+
+        // continuous
+        fields.put(ContinuousFlameBulletType.class, getFields(ContinuousFlameBulletType.class).add(fields.get(ContinuousBulletType.class)));
+        fields.put(ContinuousLaserBulletType.class, getFields(ContinuousLaserBulletType.class).add(fields.get(ContinuousBulletType.class)));
+
+        // extends BasicBulletType
+        fields.put(ArtilleryBulletType.class, getFields(ArtilleryBulletType.class).add(fields.get(BasicBulletType.class)));
+        fields.put(BombBulletType.class, getFields(BombBulletType.class).add(fields.get(BasicBulletType.class)));
+        fields.put(EmpBulletType.class, getFields(EmpBulletType.class).add(fields.get(BasicBulletType.class)));
+        fields.put(FlakBulletType.class, getFields(FlakBulletType.class).add(fields.get(BasicBulletType.class)));
+        fields.put(InterceptorBulletType.class, getFields(InterceptorBulletType.class).add(fields.get(BasicBulletType.class)));
+        fields.put(LaserBoltBulletType.class, getFields(LaserBoltBulletType.class).add(fields.get(BasicBulletType.class)));
+        fields.put(MissileBulletType.class, getFields(MissileBulletType.class).add(fields.get(BasicBulletType.class)));
+    }
+
+    public static Seq<Field> getFields(Class<?> clazz) {
+        Seq<Field> result = new Seq<>();
+        for (Field field : clazz.getDeclaredFields()) {
+            if (!Modifier.isPublic(field.getModifiers())) continue;
+            result.add(field);
+        }
+        return result;
+    }
 
     public static class CreateAmmoStatement extends LStatement {
         public LogicAmmoType type = LogicAmmoType.BasicBullet;
@@ -102,9 +159,11 @@ public class LAmmo {
             table.add("id#");
             LEExtend.field(table, id, str -> id = str, 75f);
             if (op == AmmoOp.set) {
+                value = "20";
                 table.add(" value ");
                 LEExtend.field(table, value, str -> value = str, 90f);
             } else if (op == AmmoOp.create) {
+                value = "@this";
                 table.add(" team ");
                 LEExtend.field(table, team, str -> team = str, 90f);
                 table.add(" owner ");
@@ -116,6 +175,14 @@ public class LAmmo {
                 LEExtend.field(table, y, str -> y = str, 75f);
                 table.add(" rotation ");
                 LEExtend.field(table, rot, str -> rot = str, 75f);
+            } else if (op == AmmoOp.has) {
+                value = "result";
+                table.add(" -> ");
+                LEExtend.field(table, value, str -> value = str, 90f);
+            } else if (op == AmmoOp.load) {
+                value = "bullet";
+                table.add(" bullet ");
+                LEExtend.field(table, value, str -> value = str, 90f);
             }
         }
 
@@ -205,18 +272,19 @@ public class LAmmo {
         public void run(LExecutor exec) {
             if(net.client()) return;
 
-            ammos.put(id.numi(), Objects.requireNonNull(type.bull0).get());
+            ammos.put(id.numi(), Objects.requireNonNull(type.bulletFunc).get());
+            ammoClass.put(id.numi(), Objects.requireNonNull(type.bulletFunc).get().getClass());
         }
     }
 
     public static class SetAmmoI implements LExecutor.LInstruction {
         public AmmoOp op;
-        public AmmoSet set;
+        public Field field;
         public LVar id, value, x, y, rot, team;
 
-        public SetAmmoI(AmmoOp op, AmmoSet set, LVar id, LVar value, LVar x, LVar y, LVar rot, LVar team) {
+        public SetAmmoI(AmmoOp op, Field field, LVar id, LVar value, LVar x, LVar y, LVar rot, LVar team) {
             this.op = op;
-            this.set = set;
+            this.field = field;
             this.id = id;
             this.value = value;
             this.x = x;
@@ -227,15 +295,17 @@ public class LAmmo {
 
         @Override
         public void run(LExecutor exec) {
-            if (op == AmmoOp.remove) {
-                if (op.aop1 != null) {
-                    op.aop1.get(id.numi());
+            switch (op) {
+                case remove -> op.c.get(id.num());
+                case create -> op.c5.get(value.building(), id.num(), Team.get(team.numi()), new Vec2(x.numf(), y.numf()), rot.num());
+                case set -> op.c3.get(field, id.num(), value);
+                case has -> value.setbool((boolean) op.f.get(id.num()));
+                case load -> {
+                    if (value.obj() instanceof BulletType b) {
+                        op.c2.get(id.num(), b);
+                    }
                 }
-            } else if (op == AmmoOp.create) {
-                if (op.aop4 != null) {
-                    op.aop4.get(value.building(), id.numi(), Team.get(team.numi()), new Vec2(x.numf(), y.numf()), rot.num());
-                }
-            } else if (op.aosp3 != null) op.aosp3.get(set, id.num(), value);
+            }
         }
     }
 
@@ -255,70 +325,80 @@ public class LAmmo {
         public static final LogicAmmoType[] all = values();
 
         public final String name;
-        public final Bullet0 bull0;
-        LogicAmmoType(String name, Bullet0 bull0) {
+        public final Prov<BulletType> bulletFunc;
+        LogicAmmoType(String name, Prov<BulletType> bulletFunc) {
             this.name = name;
-            this.bull0 = bull0;
-        }
-
-        interface Bullet0 {
-            BulletType get();
+            this.bulletFunc = bulletFunc;
         }
     }
 
     public enum AmmoOp {
-        remove("remove", a -> ammos.remove((int) a)),
-        set("set", (a, b, c) -> {
-            if (ammos.get((int) b) != null) try {
-                a.aSet.get(ammos.get((int) b), c);
-            } catch (Exception ignored) {}
+        remove("remove", (Cons<Double>) a -> ammos.remove(a.intValue())),
+        set("set", (f, d, v) -> {
+            //if (ammos.get(d.intValue()) != null) try {
+
+            //} catch (Exception ignored) {}
         }),
         create("create", (a, b, c, d, e) -> {
-            if (ammos.get((int) b) != null) try {
-                ammos.get((int) b).create(a, c, d.x * 8, d.y * 8, (float) e);
-            } catch (Exception ignored) {}
+            if (ammos.get(b.intValue()) != null) try {
+                ammos.get(b.intValue()).create(a, c, d.x * 8, d.y * 8, e.floatValue());
+            } catch (Exception ignored) {
+            }
+        }),
+        has("has", (Func<Double, Object>) a -> ammos.containsKey(a.intValue())),
+        load("load", (d, b) -> {
+            ammos.put(d.intValue(), b);
+            ammoClass.put(d.intValue(), b.getClass());
         })
-
         ;
 
         public static final AmmoOp[] all = values();
 
         public final String name;
-        public final AmmoOp1 aop1;
-        public final AmmoSetOp3 aosp3;
-        public final AmmoOp4 aop4;
+        public Cons<Double> c = null;
+        public Cons2<Double, BulletType> c2 = null;
+        public Cons3<Field, Double, LVar> c3 = null;
+        public Cons5<Entityc, Double, Team, Vec2, Double> c5 = null;
+        public Func<Double, Object> f = null;
 
-        AmmoOp(String name, AmmoOp1 aop1) {
+        AmmoOp(String name, Cons<Double> c) {
             this.name = name;
-            this.aop1 = aop1;
-            this.aosp3 = null;
-            this.aop4 = null;
+            this.c = c;
         }
 
-        AmmoOp(String name, AmmoSetOp3 aop3) {
+        AmmoOp(String name, Cons2<Double, BulletType> c2) {
             this.name = name;
-            this.aop1 = null;
-            this.aosp3 = aop3;
-            this.aop4 = null;
+            this.c2 = c2;
         }
 
-        AmmoOp(String name, AmmoOp4 aop4) {
+        AmmoOp(String name, Cons3<Field, Double, LVar> c3) {
             this.name = name;
-            this.aop1 = null;
-            this.aosp3 = null;
-            this.aop4 = aop4;
+            this.c3 = c3;
         }
 
-        interface AmmoOp1 {
-            void get(double a);
+        AmmoOp(String name, Cons5<Entityc, Double, Team, Vec2, Double> c5) {
+            this.name = name;
+            this.c5 = c5;
         }
 
-        interface AmmoSetOp3 {
-            void get(AmmoSet a, double b, LVar c);
+        AmmoOp(String name, Func<Double, Object> f) {
+            this.name = name;
+            this.f = f;
         }
+    }
 
-        interface AmmoOp4 {
-            void get(Entityc a, double b, Team c, Vec2 d, double e);
+    public enum TypeSet {
+        intField((b, f, v) -> f.set(b, v.numi())),
+        doubleField((b, f, v) -> f.set(b, v.num())),
+        floatField((b, f, v) -> f.set(b, v.numf())),
+        booleanField((b, f, v) -> f.set(b, v.bool()))//,
+        //effect((b, f, v) -> f.set(b, ))
+        ;
+
+        public final UnsafeCons3<Object, Field, LVar> c;
+
+        TypeSet(UnsafeCons3<Object, Field, LVar> c) {
+            this.c = c;
         }
     }
 
@@ -408,25 +488,26 @@ public class LAmmo {
 
         liquid("liquid", (a, b) -> {
             if (a instanceof LiquidBulletType q) q.liquid = b.isobj ? (Liquid) b.objval : Vars.content.liquid(b.numi());
+        }),
+
+        hitEffect("hitEffect", (a, b) -> {
+            if (b.obj() != null && b.obj() instanceof String s) {
+                try{
+                    a.hitEffect = Reflect.get(Fx.class, s);
+                } catch (Exception ignored) {}
+            }
         })
-
-
 
         ;
 
         public static final AmmoSet[] all = values();
 
         public final String name;
-        public final AmmoSet2 aSet;
-        public final boolean isObj2;
-        AmmoSet(String name, AmmoSet2 aSet) {
-            this.name = name;
-            this.aSet = aSet;
-            this.isObj2 = false;
-        }
+        public final Cons2<BulletType, LVar> c2;
 
-        interface AmmoSet2 {
-            void get(BulletType a, LVar b);
+        AmmoSet(String name, Cons2<BulletType, LVar> c2) {
+            this.name = name;
+            this.c2 = c2;
         }
     }
 }

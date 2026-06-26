@@ -1,5 +1,6 @@
 package logicExtend;
 
+import arc.func.Cons2;
 import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
@@ -30,12 +31,15 @@ public class LContentPatchOp {
                     rebuild(table);
                 }, 4, c -> c.width(150f)));
             }, Styles.logict, () -> {}).size(150f, 40f).pad(4f).color(table.color);
-            table.add("name").left();
-            field(table, name, str -> name = str).left();
+            table.table(Styles.none, t -> {
+                t.setColor(table.color);
+                t.add(" name");
+                field(t, name, str -> name = str).width(200f);
+            });
             if (op == SetOp.addPatch) {
                 table.row().add("addContent");
                 arg = "\"unit.dagger.localizedName: 'DAGGER!'\"";
-                LEExtend.field(table, arg, str -> arg = str, 800);
+                field(table, arg, str -> arg = str).width(600f);
             }
             if (op == SetOp.clone) {
                 table.add("to");
@@ -134,13 +138,10 @@ public class LContentPatchOp {
         ;
 
         public final String displayName;
-        public final Op op;
-        SetOp(String name, Op op) {
+        public final Cons2<String, String> op;
+        SetOp(String name, Cons2<String, String> op) {
             displayName  = name;
             this.op = op;
-        }
-        interface Op {
-            void get(String str, String arg);
         }
     }
 }

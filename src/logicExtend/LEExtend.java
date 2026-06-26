@@ -7,6 +7,8 @@ import mindustry.entities.bullet.BulletType;
 import mindustry.logic.LVar;
 import mindustry.ui.Styles;
 
+import static mindustry.Vars.mods;
+
 public class LEExtend {
     public static String safeToString(LVar var) {
         if (var == null) {
@@ -15,7 +17,7 @@ public class LEExtend {
         Object obj = var.obj();
         if (obj == null) {
             if (!var.isobj) {
-                return String.valueOf(Math.floor(var.num()));
+                return String.valueOf(var.num());
             }
             return "null";
         }
@@ -75,6 +77,14 @@ public class LEExtend {
         str.append(name);
         for (String s : appends) {
             str.append(" ").append(s);
+        }
+    }
+
+    public static Class<?> findClass(String name){
+        try{
+            return Class.forName(name, true, mods.mainLoader());
+        }catch(ClassNotFoundException | NoClassDefFoundError ignored){
+            return null;
         }
     }
 }
