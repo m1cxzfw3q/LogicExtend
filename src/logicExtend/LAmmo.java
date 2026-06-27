@@ -1,91 +1,114 @@
 package logicExtend;
 
+import arc.audio.Sound;
 import arc.func.*;
+import arc.graphics.Color;
+import arc.graphics.g2d.TextureRegion;
+import arc.math.Interp;
 import arc.math.geom.Vec2;
+import arc.scene.style.TextureRegionDrawable;
+import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Table;
 import arc.struct.IntMap;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
+import arc.util.Align;
 import arc.util.Reflect;
 import logicExtend.func.Cons5;
 import logicExtend.func.UnsafeCons3;
 import mindustry.Vars;
 import mindustry.content.Fx;
+import mindustry.entities.Effect;
 import mindustry.entities.bullet.*;
+import mindustry.entities.pattern.ShootPattern;
 import mindustry.game.Team;
-import mindustry.gen.Entityc;
-import mindustry.gen.LogicIO;
+import mindustry.gen.*;
 import mindustry.logic.*;
+import mindustry.type.Item;
 import mindustry.type.Liquid;
+import mindustry.type.StatusEffect;
+import mindustry.type.UnitType;
 import mindustry.ui.Styles;
+import mindustry.world.blocks.defense.turrets.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Objects;
 
-import static mindustry.Vars.net;
+import static mindustry.Vars.*;
 
 public class LAmmo {
     public static IntMap<BulletType> ammos = IntMap.of();
     public static IntMap<Class<? extends BulletType>> ammoClass = IntMap.of();
 
-    public static final ObjectMap<Class<? extends BulletType>, Seq<Field>> fields = new ObjectMap<>();
+    public static final ObjectMap<Class<? extends BulletType>, ObjectMap<String, Field>> fields = new ObjectMap<>();
 
     {
         // basic types
         fields.put(BulletType.class, getFields(BulletType.class));
-        fields.put(BasicBulletType.class, getFields(BasicBulletType.class).add(fields.get(BulletType.class)));
-        fields.put(ContinuousBulletType.class, getFields(ContinuousBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(BasicBulletType.class, getFields(BasicBulletType.class).merge(fields.get(BulletType.class)));
+        fields.put(ContinuousBulletType.class, getFields(ContinuousBulletType.class).merge(fields.get(BulletType.class)));
 
         // empty 这和放滚木有什么区别
         //fields.put(EmptyBulletType.class, getFields(EmptyBulletType.class));
 
         // extends BulletType
-        fields.put(MultiBulletType.class, getFields(MultiBulletType.class).add(fields.get(BulletType.class)));
-        fields.put(PointBulletType.class, getFields(PointBulletType.class).add(fields.get(BulletType.class)));
-        fields.put(PointLaserBulletType.class, getFields(PointLaserBulletType.class).add(fields.get(BulletType.class)));
-        fields.put(RailBulletType.class, getFields(RailBulletType.class).add(fields.get(BulletType.class)));
-        fields.put(SapBulletType.class, getFields(SapBulletType.class).add(fields.get(BulletType.class)));
-        fields.put(ShrapnelBulletType.class, getFields(ShrapnelBulletType.class).add(fields.get(BulletType.class)));
-        fields.put(SpaceLiquidBulletType.class, getFields(SpaceLiquidBulletType.class).add(fields.get(BulletType.class)));
-        fields.put(ExplosionBulletType.class, getFields(ExplosionBulletType.class).add(fields.get(BulletType.class)));
-        fields.put(FireBulletType.class, getFields(FireBulletType.class).add(fields.get(BulletType.class)));
-        fields.put(LaserBulletType.class, getFields(LaserBulletType.class).add(fields.get(BulletType.class)));
-        fields.put(LightningBulletType.class, getFields(LightningBulletType.class).add(fields.get(BulletType.class)));
-        fields.put(LiquidBulletType.class, getFields(LiquidBulletType.class).add(fields.get(BulletType.class)));
+        fields.put(MultiBulletType.class, getFields(MultiBulletType.class).merge(fields.get(BulletType.class)));
+        fields.put(PointBulletType.class, getFields(PointBulletType.class).merge(fields.get(BulletType.class)));
+        fields.put(PointLaserBulletType.class, getFields(PointLaserBulletType.class).merge(fields.get(BulletType.class)));
+        fields.put(RailBulletType.class, getFields(RailBulletType.class).merge(fields.get(BulletType.class)));
+        fields.put(SapBulletType.class, getFields(SapBulletType.class).merge(fields.get(BulletType.class)));
+        fields.put(ShrapnelBulletType.class, getFields(ShrapnelBulletType.class).merge(fields.get(BulletType.class)));
+        fields.put(SpaceLiquidBulletType.class, getFields(SpaceLiquidBulletType.class).merge(fields.get(BulletType.class)));
+        fields.put(ExplosionBulletType.class, getFields(ExplosionBulletType.class).merge(fields.get(BulletType.class)));
+        fields.put(FireBulletType.class, getFields(FireBulletType.class).merge(fields.get(BulletType.class)));
+        fields.put(LaserBulletType.class, getFields(LaserBulletType.class).merge(fields.get(BulletType.class)));
+        fields.put(LightningBulletType.class, getFields(LightningBulletType.class).merge(fields.get(BulletType.class)));
+        fields.put(LiquidBulletType.class, getFields(LiquidBulletType.class).merge(fields.get(BulletType.class)));
 
         // continuous
-        fields.put(ContinuousFlameBulletType.class, getFields(ContinuousFlameBulletType.class).add(fields.get(ContinuousBulletType.class)));
-        fields.put(ContinuousLaserBulletType.class, getFields(ContinuousLaserBulletType.class).add(fields.get(ContinuousBulletType.class)));
+        fields.put(ContinuousFlameBulletType.class, getFields(ContinuousFlameBulletType.class).merge(fields.get(ContinuousBulletType.class)));
+        fields.put(ContinuousLaserBulletType.class, getFields(ContinuousLaserBulletType.class).merge(fields.get(ContinuousBulletType.class)));
 
         // extends BasicBulletType
-        fields.put(ArtilleryBulletType.class, getFields(ArtilleryBulletType.class).add(fields.get(BasicBulletType.class)));
-        fields.put(BombBulletType.class, getFields(BombBulletType.class).add(fields.get(BasicBulletType.class)));
-        fields.put(EmpBulletType.class, getFields(EmpBulletType.class).add(fields.get(BasicBulletType.class)));
-        fields.put(FlakBulletType.class, getFields(FlakBulletType.class).add(fields.get(BasicBulletType.class)));
-        fields.put(InterceptorBulletType.class, getFields(InterceptorBulletType.class).add(fields.get(BasicBulletType.class)));
-        fields.put(LaserBoltBulletType.class, getFields(LaserBoltBulletType.class).add(fields.get(BasicBulletType.class)));
-        fields.put(MissileBulletType.class, getFields(MissileBulletType.class).add(fields.get(BasicBulletType.class)));
+        fields.put(ArtilleryBulletType.class, getFields(ArtilleryBulletType.class).merge(fields.get(BasicBulletType.class)));
+        fields.put(BombBulletType.class, getFields(BombBulletType.class).merge(fields.get(BasicBulletType.class)));
+        fields.put(EmpBulletType.class, getFields(EmpBulletType.class).merge(fields.get(BasicBulletType.class)));
+        fields.put(FlakBulletType.class, getFields(FlakBulletType.class).merge(fields.get(BasicBulletType.class)));
+        fields.put(InterceptorBulletType.class, getFields(InterceptorBulletType.class).merge(fields.get(BasicBulletType.class)));
+        fields.put(LaserBoltBulletType.class, getFields(LaserBoltBulletType.class).merge(fields.get(BasicBulletType.class)));
+        fields.put(MissileBulletType.class, getFields(MissileBulletType.class).merge(fields.get(BasicBulletType.class)));
     }
 
-    public static Seq<Field> getFields(Class<?> clazz) {
-        Seq<Field> result = new Seq<>();
+    public static ObjectMap<String, Field> getFields(Class<?> clazz) {
+        ObjectMap<String, Field> result = new ObjectMap<>();
         for (Field field : clazz.getDeclaredFields()) {
             if (!Modifier.isPublic(field.getModifiers())) continue;
-            result.add(field);
+            result.put(field.getName(), field);
         }
+        result.each((string, field) -> {
+            if (field.getType() == ShootPattern.class || field.getType() == TextureRegion.class) result.remove(string);
+        });
         return result;
     }
 
     public static class CreateAmmoStatement extends LStatement {
-        public LogicAmmoType type = LogicAmmoType.BasicBullet;
+        public LogicAmmoType type = LogicAmmoType.BaseBullet;
         public String id = "0";
 
         @Override
         public void build(Table table) {
             button(table, table);
             table.add("id");
-            field(table, id, str -> id = str);
+            field(table, id, str -> {
+                id = str;
+                try{
+                    if (ammoClass.get(Integer.parseInt(str)) != type.bulletFunc.get().getClass()) {
+                        ammoClass.put(Integer.parseInt(str), type.bulletFunc.get().getClass());
+                    }
+                } catch (NumberFormatException ignore) {}
+            });
         }
 
         @Override
@@ -146,9 +169,22 @@ public class LAmmo {
 
     public static class SetAmmoStatement extends LStatement {
         public AmmoOp op = AmmoOp.set;
-        public AmmoSet set = AmmoSet.damage;
+        public Field field = fields.get(BulletType.class).get("damage");
         public String id = "0", value = "20",
         x = "0", y = "0", rot = "0", team = "@sharded";
+        static Class<? extends BulletType> catched;
+        public Object objVar;
+
+        private static final String[] statusNames = content.statusEffects().select(s -> !s.isHidden()).map(s -> s.name).toArray(String.class);;
+
+        private static final String[] interpNames = getInterpNames();
+
+        public static String[] getInterpNames() {
+            Seq<Field> seq = Seq.with(Interp.class.getFields());
+            Seq<String> outSeq = new Seq<>();
+            seq.each(f -> outSeq.add(f.getName()));
+            return outSeq.toArray(String.class);
+        }
 
         @Override
         public void build(Table table) {
@@ -157,11 +193,85 @@ public class LAmmo {
                 KButton(table, table);
             }
             table.add("id#");
-            LEExtend.field(table, id, str -> id = str, 75f);
+            LEExtend.field(table, id, str -> {
+                id = str;
+                try{
+                    if (ammoClass.get(Integer.parseInt(id)) != catched) {
+                        catched = ammoClass.get(Integer.parseInt(str));
+                    }
+                } catch (NumberFormatException ignore) {}
+            }, 75f);
             if (op == AmmoOp.set) {
-                value = "20";
-                table.add(" value ");
-                LEExtend.field(table, value, str -> value = str, 90f);
+                if (field.getType() == Color.class) {
+                    value = "%ffffff";
+                    fields(table, " color ", x, v -> x = v).width(144f);
+                    col(table, value, res -> {
+                        value = "%" + res.toString().substring(0, res.a >= 1f ? 6 : 8);
+                        build(table);
+                    });
+                } else if (field.getType() == UnitType.class) {
+                    value = "@dagger";
+                    table.add(" unit ");
+                    TextField fielda = field(table, value, str -> value = str).get();
+                    table.button(b -> {
+                        b.image(Icon.pencilSmall);
+                        b.clicked(() -> showSelectTable(b, (t, hide) -> {
+                            t.row();
+                            t.table(i -> {
+                                i.left();
+                                int c = 0;
+                                for(UnitType item : Vars.content.units()){
+                                    if(!item.unlockedNow() || item.isHidden() || !item.logicControllable) continue;
+                                    i.button(new TextureRegionDrawable(item.uiIcon), Styles.flati, iconSmall, () -> {
+                                        value = "@" + item.name;
+                                        fielda.setText(value);
+                                        hide.run();
+                                    }).size(40f);
+
+                                    if(++c % 6 == 0) i.row();
+                                }
+                            }).colspan(3).width(240f).left();
+                        }));
+                    }, Styles.logict, () -> {}).size(40f).padLeft(-2).color(table.color);
+                } else if (field.getType() == Effect.class) {
+                    // object
+                    value = "none";
+                    table.button(b -> {
+                        b.label(() -> value).growX().wrap().labelAlign(Align.center);
+                        b.clicked(() -> LEMain.effects.show(entry -> {
+                            value = entry.name;
+                            build(table);
+                        }));
+                    }, Styles.logict, () -> {}).size(150f, 40f).margin(5f).pad(4f).color(table.color).colspan(2);
+                } else if (field.getType() == Sound.class) {
+                    objVar = Sounds.none;
+                    table.button(Icon.book, Styles.clearNonei, () -> LEMain.sound.select(s -> {
+                        objVar = s;
+                        return true;
+                    })).pad(4f).width(48f).growY();
+                } else if (field.getType() == StatusEffect.class) {
+                    value = "wet";
+                    table.button(b -> {
+                        b.label(() -> value).grow().wrap().labelAlign(Align.center).center();
+                        b.clicked(() -> showSelect(b, statusNames, value, o -> {
+                            value = o;
+                            build(table);
+                        }, 2, c -> c.size(120f, 38f)));
+                    }, Styles.logict, () -> {}).size(120f, 40f).pad(4f).color(table.color);
+                } else if (field.getType() == Interp.class) {
+                    value = "linear";
+                    table.button(b -> {
+                        b.label(() -> value).grow().wrap().labelAlign(Align.center).center();
+                        b.clicked(() -> showSelect(b, interpNames, value, o -> {
+                            value = o;
+                            build(table);
+                        }, 2, c -> c.size(120f, 38f)));
+                    }, Styles.logict, () -> {}).size(120f, 40f).pad(4f).color(table.color);
+                } else {
+                    value = "20";
+                    table.add(" value ");
+                    LEExtend.field(table, value, str -> value = str, 90f);
+                }
             } else if (op == AmmoOp.create) {
                 value = "@this";
                 table.add(" team ");
@@ -180,9 +290,11 @@ public class LAmmo {
                 table.add(" -> ");
                 LEExtend.field(table, value, str -> value = str, 90f);
             } else if (op == AmmoOp.load) {
-                value = "bullet";
-                table.add(" bullet ");
+                value = "@dagger";
+                table.add(" from ");
                 LEExtend.field(table, value, str -> value = str, 90f);
+                table.add(" index ");
+                LEExtend.field(table, x, str -> x = str, 90f);
             }
         }
 
@@ -198,8 +310,8 @@ public class LAmmo {
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return new SetAmmoI(op, set, builder.var(id), builder.var(value),
-                    builder.var(x), builder.var(y), builder.var(rot), builder.var(team));
+            return new SetAmmoI(op, field, builder.var(id), builder.var(value),
+                    builder.var(x), builder.var(y), builder.var(rot), builder.var(team), objVar);
         }
 
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
@@ -207,13 +319,14 @@ public class LAmmo {
             LAssembler.customParsers.put("setammo", params -> {
                 SetAmmoStatement stmt = new SetAmmoStatement();
                 if (params.length >= 2) stmt.op = AmmoOp.valueOf(params[1]);
-                if (params.length >= 3) stmt.set = AmmoSet.valueOf(params[2]);
+                if (params.length >= 3) stmt.field = fields.get(ammoClass.get(Integer.parseInt(params[3]))).get(params[2]);
                 if (params.length >= 4) stmt.id = params[3];
                 if (params.length >= 5) stmt.value = params[4];
                 if (params.length >= 6) stmt.team = params[5];
                 if (params.length >= 7) stmt.x = params[6];
                 if (params.length >= 8) stmt.y = params[7];
                 if (params.length >= 9) stmt.rot = params[8];
+                if (params.length >= 10) stmt.objVar = LEExtend.unserialization(params[9]);
                 stmt.afterRead();
                 return stmt;
             });
@@ -222,7 +335,7 @@ public class LAmmo {
 
         @Override
         public void write(StringBuilder builder) {
-            LEExtend.appendLStmt(builder, "setammo", op.name, set.name, id, value, team, x, y, rot);
+            LEExtend.appendLStmt(builder, "setammo", op.name, field.getName(), id, value, team, x, y, rot, LEExtend.serialization(objVar));
         }
 
         void rebuild(Table table){
@@ -242,9 +355,9 @@ public class LAmmo {
 
         void KButton(Table table, Table parent){
             table.button(b -> {
-                b.label(() -> set.name);
-                b.clicked(() -> showSelect(b, AmmoSet.all, set, o -> {
-                    set = o;
+                b.label(() -> field.getName());
+                b.clicked(() -> showSelect(b, fields.get(ammoClass.get(Integer.parseInt(id))).values().toSeq().toArray(), field, o -> {
+                    field = o;
                     rebuild(parent);
                 }, 4, c -> c.width(220f)));
             }, Styles.logict, () -> {}).size(220f, 40f).pad(4f).color(table.color);
@@ -271,9 +384,7 @@ public class LAmmo {
         @Override
         public void run(LExecutor exec) {
             if(net.client()) return;
-
             ammos.put(id.numi(), Objects.requireNonNull(type.bulletFunc).get());
-            ammoClass.put(id.numi(), Objects.requireNonNull(type.bulletFunc).get().getClass());
         }
     }
 
@@ -281,8 +392,9 @@ public class LAmmo {
         public AmmoOp op;
         public Field field;
         public LVar id, value, x, y, rot, team;
+        public Object objVar;
 
-        public SetAmmoI(AmmoOp op, Field field, LVar id, LVar value, LVar x, LVar y, LVar rot, LVar team) {
+        public SetAmmoI(AmmoOp op, Field field, LVar id, LVar value, LVar x, LVar y, LVar rot, LVar team, Object obj) {
             this.op = op;
             this.field = field;
             this.id = id;
@@ -291,6 +403,7 @@ public class LAmmo {
             this.y = y;
             this.rot = rot;
             this.team = team;
+            objVar = obj;
         }
 
         @Override
@@ -298,49 +411,102 @@ public class LAmmo {
             switch (op) {
                 case remove -> op.c.get(id.num());
                 case create -> op.c5.get(value.building(), id.num(), Team.get(team.numi()), new Vec2(x.numf(), y.numf()), rot.num());
-                case set -> op.c3.get(field, id.num(), value);
+                case set -> op.c4.get(field, id.num(), value, objVar);
                 case has -> value.setbool((boolean) op.f.get(id.num()));
                 case load -> {
-                    if (value.obj() instanceof BulletType b) {
-                        op.c2.get(id.num(), b);
+                    Object fromVal = value.obj();
+                    BulletType type;
+
+                    if(fromVal instanceof UnitType u){
+                        int index = x.numi();
+                        type = index < 0 || index >= u.weapons.size ? null : u.weapons.get(index).bullet;
+                    }else if(fromVal instanceof ItemTurret t){
+                        var item = x.obj() instanceof Item i ? i : null;
+                        type = item == null ? null : t.ammoTypes.get(item);
+                    }else if(fromVal instanceof LiquidTurret t){
+                        var item = x.obj() instanceof Liquid i ? i : null;
+                        type = item == null ? null : t.ammoTypes.get(item);
+                    }else if(fromVal instanceof ContinuousLiquidTurret t){
+                        var item = x.obj() instanceof Liquid i ? i : null;
+                        type = item == null ? null : t.ammoTypes.get(item);
+                    }else if(fromVal instanceof PowerTurret t){
+                        type = t.shootType;
+                    }else if(fromVal instanceof ContinuousTurret t){
+                        type = t.shootType;
+                    }else{
+                        return;
                     }
+
+                    if(type == null) return;
+                    op.c2.get(id.num(), type);
                 }
             }
         }
     }
 
     public enum LogicAmmoType {
-        BasicBullet("BasicBullet", () -> LEExtend.load(new BasicBulletType())),
-        BombBullet("BombBullet", () -> LEExtend.load(new BombBulletType())),
-        LaserBullet("LaserBullet", LaserBulletType::new),
-        LightningBullet("LightningBullet", LightningBulletType::new),
-        MissileBullet("MissileBullet", () -> LEExtend.load(new MissileBulletType())),
-        FireBullet("FireBullet", FireBulletType::new),
-        ArtilleryBullet("ArtilleryBullet",  () -> LEExtend.load(new ArtilleryBulletType())),
-        RailBullet("RailBullet", RailBulletType::new),
-        LiquidBullet("LiquidBullet", () -> LEExtend.load(new LiquidBulletType()))
+        // basic types
+        BaseBullet("BaseBullet", () -> LEExtend.load(new BulletType())),
+        BasicBullet(new BasicBulletType()),
+        ContinuousBullet(new ContinuousBulletType()),
 
+        // empty 这和放滚木有什么区别
+        //EmptyBullet(new EmptyBulletType()),
+
+        // extends BulletType
+        MultiBullet(new MultiBulletType()),
+        PointBullet(new PointBulletType()),
+        PointLaserBullet(new PointLaserBulletType()),
+        RailBullet(new RailBulletType()),
+        SapBullet(new SapBulletType()),
+        ShrapnelBullet(new ShrapnelBulletType()),
+        SpaceLiquidBullet(new SpaceLiquidBulletType()),
+        ExplosionBullet(new ExplosionBulletType()),
+        FireBullet(new FireBulletType()),
+        LaserBullet(new LaserBulletType()),
+        LightningBullet(new LightningBulletType()),
+        LiquidBullet(new LiquidBulletType()),
+
+        // continuous
+        ContinuousFlameBullet(new ContinuousFlameBulletType()),
+        ContinuousLaserBullet(new ContinuousLaserBulletType()),
+
+        // extends BasicBulletType
+        ArtilleryBullet(new ArtilleryBulletType()),
+        BombBullet(new BombBulletType()),
+        EmpBullet(new EmpBulletType()),
+        FlakBullet(new FlakBulletType()),
+        InterceptorBullet(new InterceptorBulletType()),
+        LaserBoltBullet(new LaserBoltBulletType()),
+        MissileBullet(new MissileBulletType()),
         ;
 
         public static final LogicAmmoType[] all = values();
 
         public final String name;
         public final Prov<BulletType> bulletFunc;
+
         LogicAmmoType(String name, Prov<BulletType> bulletFunc) {
             this.name = name;
             this.bulletFunc = bulletFunc;
+        }
+
+        LogicAmmoType(BulletType type) {
+            this.name = type.getClass().getSimpleName().replace("Type", "");
+            this.bulletFunc = () -> LEExtend.load(type.copy());
         }
     }
 
     public enum AmmoOp {
         remove("remove", (Cons<Double>) a -> ammos.remove(a.intValue())),
-        set("set", (f, d, v) -> {
-            //if (ammos.get(d.intValue()) != null) try {
-
-            //} catch (Exception ignored) {}
+        set("set", (f, d, v, obj) -> {
+            if (ammos.containsKey(d.intValue())) try {
+                TypeSet.set(ammos.get(d.intValue()), f, v, obj);
+            } catch (Exception ignored) {}
         }),
         create("create", (a, b, c, d, e) -> {
-            if (ammos.get(b.intValue()) != null) try {
+            if (ammos.containsKey(b.intValue())) try {
+                // TODO 增加更多配置项
                 ammos.get(b.intValue()).create(a, c, d.x * 8, d.y * 8, e.floatValue());
             } catch (Exception ignored) {
             }
@@ -357,7 +523,7 @@ public class LAmmo {
         public final String name;
         public Cons<Double> c = null;
         public Cons2<Double, BulletType> c2 = null;
-        public Cons3<Field, Double, LVar> c3 = null;
+        public Cons4<Field, Double, LVar, Object> c4 = null;
         public Cons5<Entityc, Double, Team, Vec2, Double> c5 = null;
         public Func<Double, Object> f = null;
 
@@ -371,9 +537,9 @@ public class LAmmo {
             this.c2 = c2;
         }
 
-        AmmoOp(String name, Cons3<Field, Double, LVar> c3) {
+        AmmoOp(String name, Cons4<Field, Double, LVar, Object> c4) {
             this.name = name;
-            this.c3 = c3;
+            this.c4 = c4;
         }
 
         AmmoOp(String name, Cons5<Entityc, Double, Team, Vec2, Double> c5) {
@@ -388,126 +554,137 @@ public class LAmmo {
     }
 
     public enum TypeSet {
-        intField((b, f, v) -> f.set(b, v.numi())),
-        doubleField((b, f, v) -> f.set(b, v.num())),
-        floatField((b, f, v) -> f.set(b, v.numf())),
-        booleanField((b, f, v) -> f.set(b, v.bool()))//,
-        //effect((b, f, v) -> f.set(b, ))
-        ;
-
-        public final UnsafeCons3<Object, Field, LVar> c;
-
-        TypeSet(UnsafeCons3<Object, Field, LVar> c) {
-            this.c = c;
-        }
-    }
-
-    public enum AmmoSet {
-        damage("damage", (a, b) -> a.damage = b.numf()),
-        speed("speed", (a, b) -> a.speed = b.numf()),
-        lifetime("lifetime", (a, b) -> a.lifetime = b.numf()),
-        hitSize("hitSize", (a, b) -> a.hitSize = b.numf()),
-
-        pierce("pierce", (a, b) -> a.pierce = b.bool()),
-        pierceBuilding("pierceBuilding", (a, b) -> a.pierceBuilding = b.bool()),
-        pierceArmor("pierceArmor", (a, b) -> a.pierceArmor = b.bool()),
-        pierceCap("pierceCap", (a, b) -> a.pierceCap = b.numi()),
-        pierceDamageFactor("pierceDamageFactor", (a, b) -> a.pierceDamageFactor = b.numf()),
-
-        maxDamageFraction("maxDamageFraction", (a, b) -> a.maxDamageFraction = b.numf()),
-        laserAbsorb("laserAbsorb", (a, b) -> a.laserAbsorb = b.bool()),
-
-        buildingDamageMultiplier("buildingDamageMultiplier", (a, b) -> a.buildingDamageMultiplier = b.numf()),
-        shieldDamageMultiplier("shieldDamageMultiplier", (a, b) -> a.shieldDamageMultiplier = b.numf()),
-
-        splashDamage("splashDamage", (a, b) -> a.splashDamage = b.numf()),
-        splashDamageRadius("splashDamageRadius", (a, b) -> a.splashDamageRadius = b.numf()),
-        splashDamagePierce("splashDamagePierce", (a, b) -> a.splashDamagePierce = b.bool()),
-
-        knockback("knockback", (a, b) -> a.knockback = b.numf()),
-
-        collidesAir("collidesAir", (a, b) -> a.collidesAir = b.bool()),
-        collidesGround("collidesGround", (a, b) -> a.collidesGround = b.bool()),
-
-        reflectable("reflectable", (a, b) -> a.reflectable = b.bool()),
-        absorbable("absorbable", (a, b) -> a.absorbable = b.bool()),
-
-        healPercent("healPercent", (a, b) -> a.healPercent = b.numf()),
-        healAmount("healAmount", (a, b) -> a.healAmount = b.numf()),
-
-        makeFire("makeFire", (a, b) -> a.makeFire = b.bool()),
-
-        homingPower("homingPower", (a, b) -> a.homingPower = b.numf()),
-        homingRange("homingRange", (a, b) -> a.homingRange = b.numf()),
-        homingDelay("homingDelay", (a, b) -> a.homingDelay = b.numf()),
-
-        lightning(" lightning", (a, b) -> a. lightning = b.numi()),
-        lightningLength("lightningLength", (a, b) -> a.lightningLength = b.numi()),
-        lightningLengthRand("lightningLengthRand", (a, b) -> a.lightningLengthRand = b.numi()),
-        lightningDamage("lightningDamage", (a, b) -> a.lightningDamage = b.numf()),
-        lightningCone("lightningCone", (a, b) -> a.lightningCone = b.numf()),
-        lightningAngle("lightningAngle", (a, b) -> a.lightningAngle = b.numf()),
-
-        rotateSpeed("rotateSpeed", (a, b) -> a.rotateSpeed = b.numf()),
-
-        laserLength("laserLength", (a, b) -> {
-            if (a instanceof LaserBulletType q) q.length = b.numf();
+        intF((b, f, v) -> {
+            if (v instanceof LVar var) f.set(b, var.numi());
+        }),
+        doubleF((b, f, v) -> {
+            if (v instanceof LVar var) f.set(b, var.num());
+        }),
+        floatF((b, f, v) -> {
+            if (v instanceof LVar var) f.set(b, var.numf());
+        }),
+        booleanF((b, f, v) -> {
+            if (v instanceof LVar var) f.set(b, var.bool());
         }),
 
-        width("width", (a, b) -> {
-            if (a instanceof BasicBulletType q) q.width = b.numf();
-            else if (a instanceof LaserBulletType q) q.width = b.numf();
+        effectF((b, f, v) -> {
+            if (v instanceof LVar var) {
+                f.set(b, Reflect.get(Fx.class, LEExtend.safeToString(var)));
+            } else if (v instanceof Effect eff) f.set(b, eff);
         }),
-        height("height", (a, b) -> {
-            if (a instanceof BasicBulletType q) q.height = b.numf();
+        soundF((b, f, v) -> {
+            if (v instanceof LVar var) {
+                f.set(b, Reflect.get(Sounds.class, LEExtend.safeToString(var)));
+            } else if (v instanceof Sound s) f.set(b, s);
         }),
-        radius("radius", (a, b) -> {
-            if (a instanceof FireBulletType q) q.radius = b.numf();
+        statusF((b, f, v) -> {
+            if (v instanceof LVar var) {
+                f.set(b, Vars.content.statusEffect(LEExtend.safeToString(var)));
+            } else if (v instanceof StatusEffect effect) f.set(b, effect);
         }),
-
-        fragBullet("fragBullet", (a, b) -> {
-            if (ammos.get(b.numi()) != null && ammos.get(b.numi()) != a) a.fragBullet = ammos.get(b.numi());
+        bulletF((b, f, v) -> {
+            if (v instanceof LVar var) {
+                if (ammos.containsKey(var.numi())) {
+                    f.set(b, ammos.get(var.numi()));
+                } else if (var.obj() instanceof Bullet bullet) {
+                    f.set(b, bullet.type);
+                }
+            }
         }),
-        fragBullets("fragBullets", (a, b) -> a.fragBullets = b.numi()),
-        pierceFragCap("pierceFragCap", (a, b) -> a.pierceFragCap = b.numi()),
-        fragSpread("fragSpread", (a, b) -> a.fragSpread = b.numf()),
-        fragRandomSpread("fragRandomSpread", (a, b) -> a.fragRandomSpread = b.numf()),
-        fragAngle("fragAngle", (a, b) -> a.fragAngle = b.numf()),
+        colorF((b, f, v) -> {
+            if (v instanceof LVar var) {
+                double packed = var.num();
 
-        fragVelocityMin("fragVelocityMin", (a, b) -> a.fragVelocityMin = b.numf()),
-        fragVelocityMax("fragVelocityMax", (a, b) -> a.fragVelocityMax = b.numf()),
-        fragLifeMin("fragLifeMin", (a, b) -> a.fragLifeMin = b.numf()),
-        fragLifeMax("fragLifeMax", (a, b) -> a.fragLifeMax = b.numf()),
-        fragOffsetMin("fragOffsetMin", (a, b) -> a.fragOffsetMin = b.numf()),
-        fragOffsetMax("fragOffsetMax", (a, b) -> a.fragOffsetMax = b.numf()),
+                int value = (int)(Double.doubleToRawLongBits(packed)),
+                        r = ((value & 0xff000000) >>> 24),
+                        g = ((value & 0x00ff0000) >>> 16),
+                        blue = ((value & 0x0000ff00) >>> 8),
+                        a = ((value & 0x000000ff));
 
-        fragOnAbsorb("fragOnAbsorb", (a, b) -> a.fragOnAbsorb = b.bool()),
-
-        fragOnHit("fragOnHit", (a, b) -> a.fragOnHit = b.bool()),
-        despawnHit("despawnHit", (a, b) -> a.despawnHit = b.bool()),
-
-        liquid("liquid", (a, b) -> {
-            if (a instanceof LiquidBulletType q) q.liquid = b.isobj ? (Liquid) b.objval : Vars.content.liquid(b.numi());
+                f.set(b, Color.abgr(r, g, blue, a));
+            } else if (v instanceof Color col) f.set(b, col);
         }),
-
-        hitEffect("hitEffect", (a, b) -> {
-            if (b.obj() != null && b.obj() instanceof String s) {
-                try{
-                    a.hitEffect = Reflect.get(Fx.class, s);
-                } catch (Exception ignored) {}
+        unitF((b, f, v) -> {
+            if (v instanceof LVar var) {
+                if (var.obj() instanceof UnitType unit){
+                    f.set(b, unit);
+                } else f.set(b, Vars.content.unit(LEExtend.safeToString(var)));
+            } else if (v instanceof UnitType type) f.set(b, type);
+        }),
+        interpF((b, f, v) -> {
+            if (v instanceof LVar var) {
+                f.set(b, Reflect.get(Interp.class, LEExtend.safeToString(var)));
+            } else if (v instanceof Interp interp) f.set(b, interp);
+        }),
+        liquidF((b, f, v) -> {
+            if (v instanceof LVar var) {
+                if (var.obj() instanceof Liquid l){
+                    f.set(b, l);
+                } else if (var.obj() instanceof String s) {
+                    f.set(b, Vars.content.liquid(s));
+                } else {
+                    f.set(b, Vars.content.liquid(var.numi()));
+                }
+            } else if (v instanceof Liquid liquid) f.set(b, liquid);
+        }),
+        stringF((b, f, v) -> {
+            if (v instanceof LVar var) {
+                f.set(b, LEExtend.safeToString(var));
+            } else if (v instanceof String s) f.set(b, s);
+        }),
+        bullerArrayF((b, f, v) -> {
+            if (v instanceof LVar var) {
+                if (ammos.containsKey(var.numi())){
+                    BulletType[] old = Reflect.get(f);
+                    BulletType[] add = Arrays.copyOf(old, old.length + 1);
+                    add[add.length - 1] = ammos.get(var.numi());
+                    f.set(b, add);
+                }
+            } else if (v instanceof Bullet s) {
+                BulletType[] old = Reflect.get(f);
+                BulletType[] add = Arrays.copyOf(old, old.length + 1);
+                add[add.length - 1] = s.type;
+                f.set(b, add);
+            } else if (v instanceof LogicSeq seq) {
+                BulletType[] add = new BulletType[seq.size];
+                for (int i = 0; i < seq.size; i++) {
+                    add[i] = ((Bullet)seq.get(i)).type;
+                }
+                f.set(b, add);
             }
         })
-
         ;
 
-        public static final AmmoSet[] all = values();
+        public final UnsafeCons3<BulletType, Field, Object> obj;
 
-        public final String name;
-        public final Cons2<BulletType, LVar> c2;
+        TypeSet(UnsafeCons3<BulletType, Field, Object> c) {
+            obj = c;
+        }
 
-        AmmoSet(String name, Cons2<BulletType, LVar> c2) {
-            this.name = name;
-            this.c2 = c2;
+        public static void set(BulletType bullet, Field field, LVar var, Object obj) {
+            if (bullet != null) {
+                field.setAccessible(true);
+                Class<?> clazz = field.getType();
+                try {
+                    if (clazz == int.class || clazz == Integer.class) TypeSet.intF.obj.get(bullet, field, var);
+                    if (clazz == float.class || clazz == Float.class) TypeSet.floatF.obj.get(bullet, field, var);
+                    if (clazz == double.class || clazz == Double.class) TypeSet.doubleF.obj.get(bullet, field, var);
+                    if (clazz == boolean.class || clazz == Boolean.class) TypeSet.booleanF.obj.get(bullet, field, var);
+
+                    if (clazz == String.class) TypeSet.stringF.obj.get(bullet, field, var);
+
+                    if (clazz == BulletType.class) TypeSet.bulletF.obj.get(bullet, field, var);
+
+                    if (clazz == StatusEffect.class) TypeSet.statusF.obj.get(bullet, field, obj);
+                    if (clazz == UnitType.class) TypeSet.unitF.obj.get(bullet, field, var);
+
+                    if (clazz == Effect.class) TypeSet.effectF.obj.get(bullet, field, obj);
+                    if (clazz == Sound.class) TypeSet.soundF.obj.get(bullet, field, obj);
+                    if (clazz == Color.class) TypeSet.colorF.obj.get(bullet, field, var);
+                    if (clazz == Interp.class) TypeSet.interpF.obj.get(bullet, field, obj);
+                    if (clazz == BulletType[].class) TypeSet.bullerArrayF.obj.get(bullet, field, var);
+                } catch (Exception ignored) {}
+            }
         }
     }
 }

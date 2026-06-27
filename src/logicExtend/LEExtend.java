@@ -1,11 +1,23 @@
 package logicExtend;
 
+import arc.audio.Sound;
 import arc.func.Cons;
+import arc.math.Interp;
 import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Table;
+import arc.util.Reflect;
+import mindustry.Vars;
+import mindustry.ctype.Content;
+import mindustry.ctype.ContentType;
+import mindustry.entities.Effect;
 import mindustry.entities.bullet.BulletType;
+import mindustry.gen.Sounds;
 import mindustry.logic.LVar;
 import mindustry.ui.Styles;
+
+import java.awt.*;
+import java.lang.reflect.Field;
+import java.util.Objects;
 
 import static mindustry.Vars.mods;
 
@@ -85,6 +97,73 @@ public class LEExtend {
             return Class.forName(name, true, mods.mainLoader());
         }catch(ClassNotFoundException | NoClassDefFoundError ignored){
             return null;
+        }
+    }
+
+    public static String serialization(Object obj) {
+        StringBuilder str = new StringBuilder();
+        if (obj == null) {
+            str.append(0);
+        } else if (obj instanceof Number || obj instanceof String) {
+            throw new RuntimeException("content of logical variables should not be processed through logical serialization.");
+        } else if (obj instanceof Content) {
+            str.append(1);
+        } else if (obj instanceof Sound) {
+            str.append(2);
+        } else if (obj instanceof Effect) {
+            str.append(3);
+        } else if (obj instanceof Interp) {
+            str.append(4);
+        }
+        if (obj != null){
+            str.append("#");
+        }
+        if (obj instanceof Content c) {
+            str.append(c.getContentType().ordinal()).append(c.id);
+        } if (obj instanceof Sound s) {
+            str.append(Sounds.getSoundId(s));
+        } if (obj instanceof Effect e) {
+            str.append(e.id);
+        } if (obj instanceof Interp interp) {
+            if (Objects.equals(searchInterp(interp), "fail")) throw new RuntimeException("Interp not found: " + interp);
+            str.append(searchInterp(interp));
+        }
+        return str.toString();
+    }
+
+    public static String searchInterp(Interp input) {
+        try{
+            for (Field field : Interp.class.getFields()) {
+                field.setAccessible(true);
+                if (field.get(null) == input) return field.getName();
+            }
+            return "fail";
+        } catch (IllegalAccessException ignored) {
+            return "fail";
+        }
+    }
+
+    public static Object unserialization(String str) {
+        if (str.charAt(0) == '0') return null;
+        String[] split = str.split("#");
+        switch (Integer.parseInt(split[0])) {
+            case 1 -> {
+                return Vars.content.getByID(ContentType.values()[Integer.parseInt(String.valueOf(split[1].charAt(0)))], Integer.parseInt(split[1].substring(1)));
+            }
+            case 2 -> {
+                return Sounds.getSound(Integer.parseInt(split[1]));
+            }
+            case 3 -> {
+                return Effect.get(Integer.parseInt(split[1]));
+            }
+            case 4 -> {
+                try {
+                    return Reflect.get(Interp.class, split[1]);
+                } catch (RuntimeException e) {
+                    return Interp.linear;
+                }
+            }
+            default -> throw new RuntimeException("Invalid type: "+ split[0]);
         }
     }
 }
