@@ -23,7 +23,7 @@ public class LELCanvas extends LCanvas {
             StatementElem newElem;
             if(st instanceof LStatements.PrintStatement pst && !pst.value.isEmpty()){ //print->代码
                 String code = pst.value.replace("_", " ");
-                Seq<LStatement> lsStatement = LAssembler.read(code, Reflect.get(StatementElem.class, "privileged"));
+                Seq<LStatement> lsStatement = LAssembler.read(code, Reflect.get(LCanvas.class, "privileged"));
                 LStatement stNew = lsStatement.first();
                 if(stNew instanceof LStatements.InvalidStatement){
                     UIExt.announce("[orange]警告：转换失败，请输入正确格式");
