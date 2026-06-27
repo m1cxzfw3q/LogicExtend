@@ -36,8 +36,8 @@ public class LEMain extends Mod {
             Vars.ui.logic = new LELogicDialog();
             effects = new EffectsDialog(getEffectList());
             sound = new SoundSelector();
-            try {
-                if (mdtXMode) Reflect.invoke(Class.forName("mindustryX.features.ui.LogicSupport", true, Vars.mods.mainLoader()), "init");
+            if (mdtXMode) try {
+                Reflect.invoke(Class.forName("mindustryX.features.ui.LogicSupport", true, Vars.mods.mainLoader()), "init");
             } catch (ClassNotFoundException ignored) {}
         });
     }
