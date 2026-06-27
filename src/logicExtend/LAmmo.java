@@ -23,6 +23,7 @@ import mindustry.Vars;
 import mindustry.content.Fx;
 import mindustry.entities.Effect;
 import mindustry.entities.bullet.*;
+import mindustry.entities.part.DrawPart;
 import mindustry.entities.pattern.ShootPattern;
 import mindustry.game.Team;
 import mindustry.gen.*;
@@ -92,7 +93,9 @@ public class LAmmo {
             result.put(field.getName(), field);
         }
         result.each((string, field) -> {
-            if (field.getType() == ShootPattern.class || field.getType() == TextureRegion.class) result.remove(string);
+            if (field.getType() == ShootPattern.class || field.getType() == TextureRegion.class ||
+                    (field.getType() == Seq.class && !field.getName().equals("spawnBullets"))
+            ) result.remove(string);
         });
         return result;
     }
@@ -192,6 +195,7 @@ public class LAmmo {
 
         @Override
         public void build(Table table) {
+            table.clearChildren();
             OpButton(table, table);
             if (op == AmmoOp.set) {
                 KButton(table, table);
@@ -349,17 +353,12 @@ public class LAmmo {
             LEExtend.appendLStmt(builder, "setammo", op.name, field.getName(), id, value, team, x, y, rot, LEExtend.serialization(objVar));
         }
 
-        void rebuild(Table table){
-            table.clearChildren();
-            build(table);
-        }
-
         void OpButton(Table table, Table parent){
             table.button(b -> {
                 b.label(() -> op.name);
                 b.clicked(() -> showSelect(b, AmmoOp.all, op, o -> {
                     op = o;
-                    rebuild(parent);
+                    build(parent);
                 }, 4, c -> c.width(75f)));
             }, Styles.logict, () -> {}).size(75f, 40f).pad(4f).color(table.color);
         }
@@ -376,7 +375,7 @@ public class LAmmo {
                 b.label(() -> field.getName());
                 b.clicked(() -> showSelect(b, fields.get(type).values().toSeq().toArray(Field.class), field, o -> {
                     field = o;
-                    rebuild(parent);
+                    build(parent);
                 }, 4, c -> c.width(300f)));
             }, Styles.logict, () -> {}).size(300f, 40f).pad(4f).color(table.color);
         }
