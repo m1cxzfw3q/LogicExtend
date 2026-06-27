@@ -8,8 +8,8 @@ import arc.scene.actions.*;
 import arc.scene.ui.*;
 import arc.scene.ui.TextButton.*;
 import arc.scene.ui.layout.*;
-import arc.struct.Seq;
 import arc.util.*;
+import logicExtend.mdtX.LELogicSupport;
 import mindustry.core.GameState.*;
 import mindustry.ctype.*;
 import mindustry.game.*;
@@ -424,16 +424,7 @@ public class LELogicDialog extends LogicDialog{
         };
 
         if (LEMain.mdtXMode){
-            Class<?> clazz = LEExtend.findClass("mindustryX.features.ui.LogicSupport");
-            if (clazz != null) {
-                Reflect.invoke(
-                        clazz, "build",
-                        Seq.with(canvas, executor, modified).toArray(),
-                        LCanvas.class, LExecutor.class, Cons.class
-                );
-            } else {
-                throw new RuntimeException("你这X端什么鬼，怎么能没有LogicSupport的，是不是你爆改过了");
-            }
+            LELogicSupport.build(canvas, executor, modified);
         }
         show();
     }

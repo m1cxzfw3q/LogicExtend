@@ -6,6 +6,7 @@ sourceSets.main.java.srcDirs = ["src"]
 
 repositories{
     mavenCentral()
+    maven{ url 'https://www.jitpack.io' }
 
     //Downloads the server-release JAR file from Mindustry releases; does not use any real repository. Surprisingly, this is the most reliable option.
     ivy{
@@ -37,6 +38,7 @@ java{
 ext{
     //the build number that this mod is made for
     mindustryVersion = 'v158'
+    mdtXVersion = 'v2026.02.X28'
     //windows sucks
     isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
     sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
@@ -50,6 +52,7 @@ allprojects{
 
 dependencies{
     compileOnly "Anuken:Mindustry:$mindustryVersion"
+    compileOnly "com.github.TinyLake.MindustryX:core:$mdtXVersion"
     annotationProcessor "Anuken:jabel:v1.0.0"
 }
 
