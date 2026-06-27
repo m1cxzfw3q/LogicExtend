@@ -319,7 +319,11 @@ public class LAmmo {
             LAssembler.customParsers.put("setammo", params -> {
                 SetAmmoStatement stmt = new SetAmmoStatement();
                 if (params.length >= 2) stmt.op = AmmoOp.valueOf(params[1]);
-                if (params.length >= 3) stmt.field = fields.get(ammoClass.get(Integer.parseInt(params[3]))).get(params[2]);
+                if (params.length >= 3) {
+                    if (ammoClass.get(Integer.parseInt(params[3])) != null) {
+                        stmt.field = fields.get(ammoClass.get(Integer.parseInt(params[3]))).get(params[2]);
+                    } else stmt.field = fields.get(BulletType.class).get(params[2]);
+                }
                 if (params.length >= 4) stmt.id = params[3];
                 if (params.length >= 5) stmt.value = params[4];
                 if (params.length >= 6) stmt.team = params[5];
