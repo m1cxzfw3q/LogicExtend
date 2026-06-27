@@ -61,6 +61,16 @@ public class LELCanvas extends LCanvas {
     }
 
     @Override
+    public void add(LStatement statement){
+        statements.addChild(new StatementElem(statement));
+    }
+
+    @Override
+    public void addAt(int at, LStatement statement){
+        statements.addChildAt(at, new StatementElem(statement));
+    }
+
+    @Override
     public String save(){
         Seq<LStatement> st = statements.getChildren().<StatementElem>as().map(s -> s.st);
         st.each(LStatement::saveUI);
@@ -84,6 +94,12 @@ public class LELCanvas extends LCanvas {
         }
 
         this.statements.updateJumpHeights = true;
+    }
+
+    @Override
+    public void clearStatements(){
+        statements.jumps.clear();
+        statements.clearChildren();
     }
 
     public class LEDragLayout extends DragLayout {
