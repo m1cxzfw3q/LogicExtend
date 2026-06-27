@@ -100,7 +100,7 @@ public class LAmmo {
         @Override
         public void build(Table table) {
             button(table, table);
-            table.add("id");
+            table.add(" id#");
             field(table, id, str -> {
                 id = str;
                 try{
@@ -192,7 +192,7 @@ public class LAmmo {
             if (op == AmmoOp.set) {
                 KButton(table, table);
             }
-            table.add("id#");
+            table.add(" id#");
             LEExtend.field(table, id, str -> {
                 id = str;
                 try{
