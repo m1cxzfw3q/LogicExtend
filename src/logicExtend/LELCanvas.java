@@ -180,7 +180,9 @@ public class LELCanvas extends LCanvas {
         public Label addressLabel;
 
         public LEStatementElem(LStatement st) {
-            super(null);
+            super(st);
+            clear();
+
             this.st = st;
             st.elem = this;
 
