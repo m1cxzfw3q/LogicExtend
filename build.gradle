@@ -51,7 +51,7 @@ allprojects{
 }
 
 dependencies{
-    compileOnly "Anuken:Mindustry:$mindustryVersion"
+    //compileOnly "Anuken:Mindustry:$mindustryVersion"
     compileOnly "com.github.TinyLake.MindustryX:core:$mdtXVersion"
     annotationProcessor "Anuken:jabel:v1.0.0"
 }
