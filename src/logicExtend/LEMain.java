@@ -49,7 +49,7 @@ public class LEMain extends Mod {
     );
 
     public static Seq<Sound> soundList;
-    public static Seq<LogicFx.EffectEntry> effectList = new Seq<>();
+    public static Seq<LogicFx.EffectEntry> effectList;
 
     public static Seq<Sound> getSoundList() {
         if (soundList == null){
@@ -60,7 +60,8 @@ public class LEMain extends Mod {
     }
 
     public static Seq<LogicFx.EffectEntry> getEffectList() {
-        if (effectList.isEmpty()){
+        if (effectList == null){
+            effectList = new Seq<>();
             effectList.add((Seq<? extends LogicFx.EffectEntry>) LogicFx.entries());
             ObjectMap<String, Effect> map = getKeyEntryMap(Effect.class, Fx.class);
             map.each((k, v) -> effectList.add(new LogicFx.EffectEntry(v)));
