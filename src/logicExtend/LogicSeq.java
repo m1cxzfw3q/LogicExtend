@@ -14,13 +14,16 @@ public class LogicSeq extends Seq<Object> implements LReadable, LWritable {
 
     @Override
     public boolean readable(LExecutor exec) {
-        return isEmpty();
+        return !isEmpty();
     }
 
     @Override
     public void read(LVar position, LVar output) {
         int index = position.numi();
-        if (index >= size) return;
+        if (index >= size) {
+            output.setobj(null);
+            return;
+        }
         if (get(index) instanceof Number n) {
             output.setnum(n.doubleValue());
         } else if (get(index) instanceof Boolean b) {
