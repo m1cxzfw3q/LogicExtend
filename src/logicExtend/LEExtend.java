@@ -197,7 +197,7 @@ public class LEExtend {
         if (effectMap == null){
             effectMap = new OrderedMap<>();
             effectMap.set(Reflect.<OrderedMap<String, LogicFx.EffectEntry>>get(LogicFx.class, "map"));
-            OrderedMap<String, Effect> map = (OrderedMap<String, Effect>) getKeyEntryMap(Effect.class, Fx.class);
+            ObjectMap<String, Effect> map = getKeyEntryMap(Effect.class, Fx.class);
             map.each((k, v) -> effectMap.put(k, new LogicFx.EffectEntry(v)));
         }
         return effectMap;
