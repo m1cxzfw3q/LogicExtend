@@ -16,7 +16,6 @@ import arc.scene.Scene;
 import arc.scene.event.*;
 import arc.scene.ui.Image;
 import arc.scene.ui.Label;
-import arc.scene.ui.ScrollPane;
 import arc.scene.ui.layout.Scl;
 import arc.struct.Seq;
 import arc.util.Time;
@@ -41,7 +40,6 @@ public class LELCanvas extends LCanvas {
     private static final boolean dynamicJumpHeights = true;
 
     public LEDragLayout statements;
-    public ScrollPane pane;
 
     public LEStatementElem hovered;
 
