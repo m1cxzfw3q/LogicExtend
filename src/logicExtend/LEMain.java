@@ -11,8 +11,8 @@ import static logicExtend.LEExtend.getEffectList;
 
 public class LEMain extends Mod {
     public static boolean mdtXMode = false;
-    public static EffectsDialog effects = new EffectsDialog(getEffectList());
-    public static SoundSelector sound = new SoundSelector();
+    public static EffectsDialog effects;
+    public static SoundSelector sound;
 
     public LEMain() {}
 
@@ -32,5 +32,8 @@ public class LEMain extends Mod {
             Class.forName("mindustryX.VarsX", true, Vars.mods.mainLoader());
             mdtXMode = true;
         } catch (Exception ignored) {}
+
+        effects = new EffectsDialog(getEffectList());
+        sound = new SoundSelector();
     }
 }
