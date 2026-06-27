@@ -26,14 +26,13 @@ public class LEMain extends Mod {
 
         Events.on(EventType.ClientLoadEvent.class, e -> {
             Vars.ui.logic = new LELogicDialog();
+            effects = new EffectsDialog(getEffectList());
+            sound = new SoundSelector();
         });
 
         try {
             Class.forName("mindustryX.VarsX", true, Vars.mods.mainLoader());
             mdtXMode = true;
         } catch (Exception ignored) {}
-
-        effects = new EffectsDialog(getEffectList());
-        sound = new SoundSelector();
     }
 }
