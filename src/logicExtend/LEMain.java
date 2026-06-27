@@ -38,10 +38,7 @@ public class LEMain extends Mod {
             sound = new SoundSelector();
             try {
                 if (mdtXMode) Reflect.invoke(Class.forName("mindustryX.features.ui.LogicSupport", true, Vars.mods.mainLoader()), "init");
-            } catch (ClassNotFoundException ignored) {
-                mdtXMode = false;
-                Log.warn("[LogicExtend] MDTX 模式已关闭");
-            }
+            } catch (ClassNotFoundException ignored) {}
         });
     }
 }
