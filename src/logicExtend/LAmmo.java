@@ -7,7 +7,10 @@ import arc.graphics.g2d.TextureRegion;
 import arc.math.Interp;
 import arc.math.geom.Vec2;
 import arc.scene.style.TextureRegionDrawable;
+import arc.scene.ui.Button;
+import arc.scene.ui.ButtonGroup;
 import arc.scene.ui.TextField;
+import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import arc.struct.IntMap;
 import arc.struct.ObjectMap;
@@ -37,6 +40,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static mindustry.Vars.*;
+import static mindustry.logic.LCanvas.tooltip;
 
 public class LAmmo {
     public static IntMap<BulletType> ammos = IntMap.of();
@@ -373,8 +377,8 @@ public class LAmmo {
                 b.clicked(() -> showSelect(b, fields.get(type).values().toSeq().toArray(Field.class), field, o -> {
                     field = o;
                     rebuild(parent);
-                }, 4, c -> c.width(220f)));
-            }, Styles.logict, () -> {}).size(220f, 40f).pad(4f).color(table.color);
+                }, 4, c -> c.width(300f)));
+            }, Styles.logict, () -> {}).size(300f, 40f).pad(4f).color(table.color);
         }
 
         @Override
@@ -383,6 +387,23 @@ public class LAmmo {
             write(build);
             Seq<LStatement> read = LAssembler.read(build.toString(), true);
             return read.size == 0 ? null : read.first();
+        }
+
+        protected void showSelect(Button b, Field[] values, Field current, Cons<Field> getter, int cols, Cons<Cell> sizer){
+            showSelectTable(b, (t, hide) -> {
+                ButtonGroup<Button> group = new ButtonGroup<>();
+                int i = 0;
+                t.defaults().size(60f, 38f);
+
+                for(Field p : values){
+                    sizer.get(t.button(p.getName(), Styles.logicTogglet, () -> {
+                        getter.get(p);
+                        hide.run();
+                    }).checked(current.equals(p)).group(group));
+
+                    if(++i % cols == 0) t.row();
+                }
+            });
         }
     }
 
