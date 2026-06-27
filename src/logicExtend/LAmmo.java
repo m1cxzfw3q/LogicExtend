@@ -322,7 +322,10 @@ public class LAmmo {
                 if (params.length >= 3) {
                     if (ammoClass.get(Integer.parseInt(params[3])) != null) {
                         stmt.field = fields.get(ammoClass.get(Integer.parseInt(params[3]))).get(params[2]);
-                    } else stmt.field = fields.get(BulletType.class).get(params[2]);
+                    } else {
+                        stmt.field = fields.get(BulletType.class).get(params[2]);
+                        ammoClass.put(Integer.parseInt(params[3]), BulletType.class);
+                    }
                 }
                 if (params.length >= 4) stmt.id = params[3];
                 if (params.length >= 5) stmt.value = params[4];
@@ -358,9 +361,16 @@ public class LAmmo {
         }
 
         void KButton(Table table, Table parent){
+            Class<? extends BulletType> type;
+            if (ammoClass.get(Integer.parseInt(id)) != null) {
+                type = ammoClass.get(Integer.parseInt(id));
+            } else {
+                type = BulletType.class;
+                ammoClass.put(Integer.parseInt(id), BulletType.class);
+            }
             table.button(b -> {
                 b.label(() -> field.getName());
-                b.clicked(() -> showSelect(b, fields.get(ammoClass.get(Integer.parseInt(id))).values().toSeq().toArray(Field.class), field, o -> {
+                b.clicked(() -> showSelect(b, fields.get(type).values().toSeq().toArray(Field.class), field, o -> {
                     field = o;
                     rebuild(parent);
                 }, 4, c -> c.width(220f)));
