@@ -410,7 +410,7 @@ public class LELogicDialog extends LogicDialog{
         this.forceRestart = false;
         canvas.statements.clearChildren();
         canvas.rebuild();
-        Reflect.set(canvas, "privileged", privileged);
+        canvas.privileged = privileged;
         try{
             canvas.load(code);
         }catch(Throwable t){

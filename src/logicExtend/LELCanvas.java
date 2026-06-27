@@ -2,15 +2,31 @@ package logicExtend;
 
 import arc.scene.Element;
 import arc.struct.Seq;
-import arc.util.Reflect;
-import mindustry.logic.LAssembler;
-import mindustry.logic.LCanvas;
-import mindustry.logic.LStatement;
-import mindustry.logic.LStatements;
+import mindustry.logic.*;
 import mindustryX.MindustryXApi;
 import mindustryX.features.UIExt;
 
 public class LELCanvas extends LCanvas {
+    public boolean privileged;
+
+    @Override
+    public void load(String asm){
+        statements.jumps.clear();
+
+        Seq<LStatement> statements = LAssembler.read(asm, privileged);
+        statements.truncate(LExecutor.maxInstructions);
+        this.statements.clearChildren();
+        for(LStatement st : statements){
+            add(st);
+        }
+
+        for(LStatement st : statements){
+            st.setupUI();
+        }
+
+        this.statements.updateJumpHeights = true;
+    }
+
     public class LEStatementElem extends StatementElem {
         public LEStatementElem(LStatement st) {
             super(st);
@@ -23,7 +39,7 @@ public class LELCanvas extends LCanvas {
             StatementElem newElem;
             if(st instanceof LStatements.PrintStatement pst && !pst.value.isEmpty()){ //print->代码
                 String code = pst.value.replace("_", " ");
-                Seq<LStatement> lsStatement = LAssembler.read(code, Reflect.get(LELCanvas.this, "privileged"));
+                Seq<LStatement> lsStatement = LAssembler.read(code, privileged);
                 LStatement stNew = lsStatement.first();
                 if(stNew instanceof LStatements.InvalidStatement){
                     UIExt.announce("[orange]警告：转换失败，请输入正确格式");
