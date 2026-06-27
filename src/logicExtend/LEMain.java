@@ -32,8 +32,8 @@ public class LEMain extends Mod {
 
         Events.on(EventType.ClientLoadEvent.class, e -> {
             Vars.ui.logic = new LELogicDialog();
-            effects = new EffectsDialog(LEExtend.getEffectList().orderedKeys().map(s -> LEExtend.effectMap.get(s)));
             sound = new SoundSelector();
+            effects = EffectsDialog.withAllEffects();
             if (mdtXMode) LELogicSupport.init();
         });
     }

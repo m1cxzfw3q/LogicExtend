@@ -33,6 +33,7 @@ import mindustry.type.Liquid;
 import mindustry.type.StatusEffect;
 import mindustry.type.UnitType;
 import mindustry.ui.Styles;
+import mindustry.ui.dialogs.EffectsDialog;
 import mindustry.world.blocks.defense.turrets.*;
 
 import java.lang.reflect.Field;
