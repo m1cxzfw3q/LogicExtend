@@ -44,7 +44,7 @@ public class LAmmo {
 
     public static final ObjectMap<Class<? extends BulletType>, ObjectMap<String, Field>> fields = new ObjectMap<>();
 
-    {
+    public static void init() {
         // basic types
         fields.put(BulletType.class, getFields(BulletType.class));
         fields.put(BasicBulletType.class, getFields(BasicBulletType.class).merge(fields.get(BulletType.class)));
