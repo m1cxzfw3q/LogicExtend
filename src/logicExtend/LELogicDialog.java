@@ -28,7 +28,7 @@ import static mindustry.Vars.*;
 import static mindustry.logic.LCanvas.*;
 
 public class LELogicDialog extends LogicDialog{
-    public LELCanvas canvas;
+    public LCanvas canvas;
     public Cons<String> consumer = s -> {};
     public boolean privileged;
     public @Nullable LExecutor executor;
@@ -41,7 +41,7 @@ public class LELogicDialog extends LogicDialog{
     public LELogicDialog(){
         clearChildren();
 
-        canvas = new LELCanvas();
+        canvas = new LCanvas();
         shouldPause = true;
 
         addCloseListener();
@@ -410,7 +410,8 @@ public class LELogicDialog extends LogicDialog{
         this.forceRestart = false;
         canvas.statements.clearChildren();
         canvas.rebuild();
-        canvas.privileged = privileged;
+        //canvas.privileged = privileged;
+        Reflect.set(canvas, "privileged", privileged);
         try{
             canvas.load(code);
         }catch(Throwable t){
