@@ -125,6 +125,26 @@ public class LELogicDialog extends LogicDialog{
                         typeName(s);
     }
 
+    public static String overrideVarString(Object obj){
+        return
+                obj instanceof Bullet b ? b.toString() :
+                        obj instanceof LogicSeq seq ? seq.getSeq() :
+                                varString(obj);
+    }
+
+    public static String varString(Object obj){
+        return
+                obj == null ? "null" :
+                        obj instanceof String s ? s :
+                                obj instanceof MappableContent content ? content.name :
+                                        obj instanceof Content ? "[content]" :
+                                                obj instanceof Building build ? build.block.name :
+                                                        obj instanceof Unit unit ? unit.type.name :
+                                                                obj instanceof Enum<?> e ? e.name() :
+                                                                        obj instanceof Team team ? team.name :
+                                                                                "[object]";
+    }
+
     private void setup(){
         buttons.clearChildren();
         buttons.defaults().size(160f, 64f);
@@ -236,7 +256,7 @@ public class LELogicDialog extends LogicDialog{
                             Label label = out.add("").style(Styles.outlineLabel).padLeft(4).padRight(4).width(140f).wrap().get();
                             label.update(() -> {
                                 if(counter[0] < 0 || (counter[0] += Time.delta) >= period){
-                                    String text = s.isobj ? PrintI.toString(s.objval) : Math.abs(s.numval - Math.round(s.numval)) < 0.00001 ? Math.round(s.numval) + "" : s.numval + "";
+                                    String text = s.isobj ? overrideVarString(s.objval) : Math.abs(s.numval - Math.round(s.numval)) < 0.00001 ? Math.round(s.numval) + "" : s.numval + "";
                                     if(!label.textEquals(text)){
                                         label.setText(text);
                                         if(counter[0] >= 0f){

@@ -39,4 +39,17 @@ public class LogicSeq extends Seq<Object> implements LReadable, LWritable {
     public void write(LVar position, LVar value) {
         set(position.numi(), value.obj() != null ? value.objval : value.num());
     }
+
+    public String getSeq() {
+        if(size == 0) return "[]";
+        StringBuilder buffer = new StringBuilder(32);
+        buffer.append('[');
+        buffer.append(items[0]);
+        for(int i = 1; i < size; i++){
+            buffer.append(", ");
+            buffer.append(LELogicDialog.overrideVarString(items[i]));
+        }
+        buffer.append(']');
+        return buffer.toString();
+    }
 }
