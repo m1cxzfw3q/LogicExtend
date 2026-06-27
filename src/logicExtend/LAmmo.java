@@ -1,5 +1,6 @@
 package logicExtend;
 
+import arc.Core;
 import arc.audio.Sound;
 import arc.func.*;
 import arc.graphics.Color;
@@ -42,6 +43,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static mindustry.Vars.*;
+import static mindustry.logic.LCanvas.tooltip;
 
 public class LAmmo {
     public static IntMap<BulletType> ammos = IntMap.of();
@@ -241,7 +243,6 @@ public class LAmmo {
                         }));
                     }, Styles.logict, () -> {}).size(40f).padLeft(-2).color(table.color);
                 } else if (field.getType() == Effect.class) {
-                    // object
                     value = "none";
                     table.button(b -> {
                         b.label(() -> value).growX().wrap().labelAlign(Align.center);
@@ -372,7 +373,7 @@ public class LAmmo {
                 b.clicked(() -> showSelect(b, fields.get(type).values().toSeq().toArray(Field.class), field, o -> {
                     field = o;
                     build(parent);
-                }, 4, c -> c.width(300f)));
+                }, 4, c -> c.width(300f), LEExtend.bundleStr));
             }, Styles.logict, () -> {}).size(300f, 40f).pad(4f).color(table.color);
         }
 
@@ -384,7 +385,7 @@ public class LAmmo {
             return read.size == 0 ? null : read.first();
         }
 
-        protected void showSelect(Button b, Field[] values, Field current, Cons<Field> getter, int cols, Cons<Cell> sizer){
+        protected void showSelect(Button b, Field[] values, Field current, Cons<Field> getter, int cols, Cons<Cell> sizer, Func<Field, String> str){
             showSelectTable(b, (t, hide) -> {
                 ButtonGroup<Button> group = new ButtonGroup<>();
                 int i = 0;
@@ -394,8 +395,7 @@ public class LAmmo {
                     sizer.get(t.button(p.getName(), Styles.logicTogglet, () -> {
                         getter.get(p);
                         hide.run();
-                    }).checked(current.equals(p)).group(group));
-
+                    }).self(c -> tooltip(c, str.get(p))).checked(current.equals(p)).group(group));
                     if(++i % cols == 0) t.row();
                 }
             });

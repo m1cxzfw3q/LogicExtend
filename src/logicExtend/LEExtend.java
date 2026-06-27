@@ -3,6 +3,7 @@ package logicExtend;
 import arc.Core;
 import arc.audio.Sound;
 import arc.func.Cons;
+import arc.func.Func;
 import arc.graphics.g2d.TextureRegion;
 import arc.math.Interp;
 import arc.scene.ui.TextField;
@@ -24,6 +25,7 @@ import mindustry.ui.Styles;
 
 import java.awt.*;
 import java.lang.reflect.Field;
+import java.util.Locale;
 import java.util.Objects;
 
 import static mindustry.Vars.mods;
@@ -183,7 +185,6 @@ public class LEExtend {
     );
 
     public static Seq<Sound> soundList;
-    public static OrderedMap<String, LogicFx.EffectEntry> effectMap;
 
     public static Seq<Sound> getSoundList() {
         if (soundList == null){
@@ -191,16 +192,6 @@ public class LEExtend {
             soundList = map.keys().toSeq().sort().map(map::get);
         }
         return soundList;
-    }
-
-    public static OrderedMap<String, LogicFx.EffectEntry> getEffectList() {
-        if (effectMap == null){
-            effectMap = new OrderedMap<>();
-            effectMap.set(Reflect.<OrderedMap<String, LogicFx.EffectEntry>>get(LogicFx.class, "map"));
-            ObjectMap<String, Effect> map = getKeyEntryMap(Effect.class, Fx.class);
-            map.each((k, v) -> effectMap.put(k, new LogicFx.EffectEntry(v)));
-        }
-        return effectMap;
     }
 
     @SuppressWarnings("unchecked")
@@ -214,4 +205,6 @@ public class LEExtend {
         objectNameMap.put(declare, map);
         return (ObjectMap<String, T>)map;
     }
+
+    public static Func<Field, String> bundleStr = f -> Core.bundle.get("field.le."+f.getName());
 }
