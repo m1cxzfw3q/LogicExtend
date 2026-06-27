@@ -1,19 +1,30 @@
 package logicExtend;
 
+import arc.Core;
+import arc.func.Cons;
+import arc.func.Prov;
+import arc.graphics.Color;
+import arc.graphics.g2d.Draw;
+import arc.graphics.g2d.Lines;
 import arc.input.KeyCode;
+import arc.math.Mathf;
+import arc.math.geom.Intersector;
 import arc.math.geom.Vec2;
 import arc.scene.Element;
-import arc.scene.event.HandCursorListener;
-import arc.scene.event.InputEvent;
-import arc.scene.event.InputListener;
-import arc.scene.event.Touchable;
+import arc.scene.Group;
+import arc.scene.Scene;
+import arc.scene.event.*;
 import arc.scene.ui.Image;
 import arc.scene.ui.Label;
+import arc.scene.ui.ScrollPane;
+import arc.scene.ui.layout.Scl;
 import arc.struct.Seq;
+import arc.util.Time;
 import arc.util.Tmp;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
+import mindustry.graphics.Pal;
 import mindustry.logic.*;
 import mindustry.ui.Styles;
 import mindustryX.MindustryXApi;
@@ -23,9 +34,16 @@ public class LELCanvas extends LCanvas {
     public LEStatementElem dragging;
     public boolean privileged;
     public float targetWidth;
-    public static LCanvas canvas;
+    public static LELCanvas canvas;
+
+    private static final int invalidJump = Integer.MAX_VALUE; // terrible hack
+    //ew static variables
+    private static final boolean dynamicJumpHeights = true;
 
     public LEDragLayout statements;
+    public ScrollPane pane;
+
+    public StatementElem hovered;
 
     public LELCanvas() {
         super();
@@ -263,6 +281,197 @@ public class LELCanvas extends LCanvas {
                 }
             }
             newElem.st.setupUI();
+        }
+    }
+
+    public static class LEJumpButton extends JumpButton {
+        Color hoverColor = Pal.place;
+        Prov<StatementElem> to;
+        boolean selecting;
+        float mx, my;
+        ClickListener listener;
+
+        public LEJumpCurve curve;
+        public LEStatementElem elem;
+
+        public LEJumpButton(Prov<StatementElem> getter, Cons<StatementElem> setter, LEStatementElem elem){
+            super(getter, setter, elem);
+
+            this.elem = elem;
+            to = getter;
+            addListener(listener = new ClickListener());
+
+            addListener(new InputListener(){
+                @Override
+                public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode code){
+                    selecting = true;
+                    setter.get(null);
+                    mx = x;
+                    my = y;
+                    canvas.statements.updateJumpHeights = true;
+                    return true;
+                }
+
+                @Override
+                public void touchDragged(InputEvent event, float x, float y, int pointer){
+                    mx = x;
+                    my = y;
+                }
+
+                @Override
+                public void touchUp(InputEvent event, float x, float y, int pointer, KeyCode code){
+                    localToStageCoordinates(Tmp.v1.set(x, y));
+                    StatementElem elem = canvas.hovered;
+
+                    if(elem != null && !isDescendantOf(elem)){
+                        setter.get(elem);
+                    }else{
+                        setter.get(null);
+                    }
+                    selecting = false;
+                    canvas.statements.updateJumpHeights = true;
+                }
+            });
+
+            update(() -> {
+                if(to.get() != null && to.get().parent == null){
+                    setter.get(null);
+                }
+
+                setColor(listener.isOver() ? hoverColor : Color.white);
+                getStyle().imageUpColor = this.color;
+            });
+
+            curve = new LEJumpCurve(this);
+        }
+
+        @Override
+        protected void setScene(Scene stage){
+            super.setScene(stage);
+
+            if(stage == null){
+                curve.remove();
+            }else{
+                canvas.statements.jumps.addChild(curve);
+            }
+        }
+    }
+
+    public static class LEJumpCurve extends JumpCurve{
+        public LEJumpButton button;
+        private boolean invertedHeight;
+
+        // for jump prediction; see DragLayout
+        public int predHeight = 0;
+        public boolean markedDone = false;
+        public int jumpUIBegin = 0, jumpUIEnd = 0;
+        public boolean flipped = false;
+
+        private float uiHeight = 60f;
+
+        public LEJumpCurve(LEJumpButton button){
+            super(button);
+        }
+
+        @Override
+        public void setSize(float width, float height){
+            if(height < 0){
+                y += height;
+                height = -height;
+                invertedHeight = true;
+            }
+            super.setSize(width, height);
+        }
+
+        @Override
+        public void act(float delta){
+            super.act(delta);
+
+            //MDTX(WayZer, 2024/8/6) Support Cull
+            invertedHeight = false;
+            Group desc = canvas.statements.jumps.parent;
+            Vec2 t = Tmp.v1.set(button.getWidth() / 2f, button.getHeight() / 2f);
+            button.localToAscendantCoordinates(desc, t);
+            setPosition(t.x, t.y);
+            Element hover = button.to.get() == null && button.selecting ? canvas.hovered : button.to.get();
+            if(hover != null){
+                t.set(hover.getWidth(), hover.getHeight() / 2f);
+                hover.localToAscendantCoordinates(desc, t);
+                setSize(t.x - x, t.y - y);
+            }else if(button.selecting){
+                setSize(button.mx, button.my);
+            }else{
+                setSize(0, 0);
+            }
+
+            if(button.listener.isOver()){
+                toFront();
+            }
+        }
+
+        @Override
+        public void draw(){
+            if(height == 0) return;
+            Vec2 t = Tmp.v1.set(width, !invertedHeight ? height : 0), r = Tmp.v2.set(0, !invertedHeight ? 0 : height);
+
+            Group desc = canvas.pane;
+            localToAscendantCoordinates(desc, r);
+            localToAscendantCoordinates(desc, t);
+
+            drawCurve(r.x, r.y, t.x, t.y);
+
+            float s = button.getWidth();
+            Draw.color(button.color, parentAlpha);
+            Tex.logicNode.draw(t.x + s * 0.75f, t.y - s / 2f, -s, s);
+            Draw.reset();
+        }
+
+        public void drawCurve(float x, float y, float x2, float y2){
+            Lines.stroke(Scl.scl(4f), button.color);
+            Draw.alpha(parentAlpha);
+
+            // exponential smoothing
+            uiHeight = Mathf.lerp(
+                    Scl.scl(Core.graphics.isPortrait() ? 20f : 40f) + Scl.scl(Core.graphics.isPortrait() ? 8f : 10f) * (float) predHeight,
+                    uiHeight,
+                    dynamicJumpHeights ? Mathf.pow(0.9f, Time.delta) : 0
+            );
+
+            //trapezoidal jumps
+            float dy = (y2 == y ? 0f : y2 > y ? 1f : -1f) * uiHeight * 0.5f;
+            //there's absolutely a better way to detect invalid trapezoids, but this probably isn't *that* slow and I don't care to fix it right now
+            if(Intersector.intersectSegments(x, y, x + uiHeight, y + dy, x2, y2, x + uiHeight, y2 - dy, Tmp.v3)){
+                Lines.beginLine();
+                Lines.linePoint(x, y);
+                Lines.linePoint(Tmp.v3.x, Tmp.v3.y);
+                Lines.linePoint(x2, y2);
+                Lines.endLine();
+            }else{
+                Lines.beginLine();
+                Lines.linePoint(x, y);
+                Lines.linePoint(x + uiHeight, y + dy);
+                Lines.linePoint(x + uiHeight, y2 - dy);
+                Lines.linePoint(x2, y2);
+                Lines.endLine();
+            }
+        }
+
+        @Override
+        public void prepareHeight(){
+            if(this.button.to.get() == null){
+                this.markedDone = true;
+                this.predHeight = 0;
+                this.flipped = false;
+                this.jumpUIBegin = this.jumpUIEnd = invalidJump;
+            }else{
+                this.markedDone = false;
+                int i = this.button.elem.index;
+                int j = this.button.to.get().index;
+                this.flipped = i >= j;
+                this.jumpUIBegin = Math.min(i,j);
+                this.jumpUIEnd = Math.max(i,j);
+                // height will be recalculated later
+            }
         }
     }
 }
