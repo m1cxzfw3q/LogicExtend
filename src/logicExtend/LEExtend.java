@@ -8,6 +8,7 @@ import arc.math.Interp;
 import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
+import arc.struct.OrderedMap;
 import arc.struct.Seq;
 import arc.util.Reflect;
 import mindustry.Vars;
@@ -178,7 +179,7 @@ public class LEExtend {
     );
 
     public static Seq<Sound> soundList;
-    public static Seq<LogicFx.EffectEntry> effectList;
+    public static OrderedMap<String, LogicFx.EffectEntry> effectMap;
 
     public static Seq<Sound> getSoundList() {
         if (soundList == null){
@@ -188,14 +189,14 @@ public class LEExtend {
         return soundList;
     }
 
-    public static Seq<LogicFx.EffectEntry> getEffectList() {
-        if (effectList == null){
-            effectList = new Seq<>();
-            effectList.add((Seq<? extends LogicFx.EffectEntry>) LogicFx.entries());
-            ObjectMap<String, Effect> map = getKeyEntryMap(Effect.class, Fx.class);
-            map.each((k, v) -> effectList.add(new LogicFx.EffectEntry(v)));
+    public static OrderedMap<String, LogicFx.EffectEntry> getEffectList() {
+        if (effectMap == null){
+            effectMap = new OrderedMap<>();
+            effectMap.set(Reflect.<OrderedMap<String, LogicFx.EffectEntry>>get(LogicFx.class, "map"));
+            OrderedMap<String, Effect> map = (OrderedMap<String, Effect>) getKeyEntryMap(Effect.class, Fx.class);
+            map.each((k, v) -> effectMap.put(k, new LogicFx.EffectEntry(v)));
         }
-        return effectList;
+        return effectMap;
     }
 
     @SuppressWarnings("unchecked")

@@ -7,9 +7,6 @@ import mindustry.Vars;
 import mindustry.game.EventType;
 import mindustry.mod.Mod;
 import mindustry.ui.dialogs.EffectsDialog;
-import mindustryX.features.ui.LogicSupport;
-
-import static logicExtend.LEExtend.getEffectList;
 
 public class LEMain extends Mod {
     public static boolean mdtXMode = false;
@@ -35,7 +32,7 @@ public class LEMain extends Mod {
 
         Events.on(EventType.ClientLoadEvent.class, e -> {
             Vars.ui.logic = new LELogicDialog();
-            effects = new EffectsDialog(getEffectList());
+            effects = new EffectsDialog(LEExtend.getEffectList().orderedKeys().map(s -> LEExtend.effectMap.get(s)));
             sound = new SoundSelector();
             if (mdtXMode) LELogicSupport.init();
         });
