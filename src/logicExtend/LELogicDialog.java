@@ -409,7 +409,7 @@ public class LELogicDialog extends LogicDialog{
                 Reflect.invoke(
                         clazz, "build",
                         Seq.with(canvas, executor, modified).toArray(),
-                        LCanvas.class, LExecutor.class, Cons.class
+                        LCanvas.class, LExecutor.class, modified.getClass()
                 );
             } else {
                 throw new RuntimeException("你这X端什么鬼，怎么能没有LogicSupport的，是不是你爆改过了");

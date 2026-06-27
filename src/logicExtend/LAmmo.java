@@ -356,7 +356,7 @@ public class LAmmo {
         void KButton(Table table, Table parent){
             table.button(b -> {
                 b.label(() -> field.getName());
-                b.clicked(() -> showSelect(b, fields.get(ammoClass.get(Integer.parseInt(id))).values().toSeq().toArray(), field, o -> {
+                b.clicked(() -> showSelect(b, fields.get(ammoClass.get(Integer.parseInt(id))).values().toSeq().toArray(Field.class), field, o -> {
                     field = o;
                     rebuild(parent);
                 }, 4, c -> c.width(220f)));
