@@ -43,7 +43,7 @@ public class LELCanvas extends LCanvas {
     public LEDragLayout statements;
     public ScrollPane pane;
 
-    public StatementElem hovered;
+    public LEStatementElem hovered;
 
     public LELCanvas() {
         super();
@@ -78,19 +78,46 @@ public class LELCanvas extends LCanvas {
         }
     }
 
+    LEStatementElem checkHovered(){
+        Element e = Core.scene.getHoverElement();
+        if(e != null){
+            while(e != null && !(e instanceof StatementElem)){
+                e = e.parent;
+            }
+        }
+        if(e == null || isDescendantOf(e)) return null;
+        return (LEStatementElem)e;
+    }
+
+    @Override
+    public void act(float delta){
+        super.act(delta);
+
+        hovered = checkHovered();
+
+        if(Core.input.isTouched()){
+            float y = Core.input.mouseY();
+            float dst = Math.min(y - this.y, Core.graphics.getHeight() - y);
+            if(dst < Scl.scl(100f)){ //scroll margin
+                int sign = Mathf.sign(Core.graphics.getHeight()/2f - y);
+                pane.setScrollY(pane.getScrollY() + sign * Scl.scl(15f) * Time.delta);
+            }
+        }
+    }
+
     @Override
     public void add(LStatement statement){
-        statements.addChild(new StatementElem(statement));
+        statements.addChild(new LEStatementElem(statement));
     }
 
     @Override
     public void addAt(int at, LStatement statement){
-        statements.addChildAt(at, new StatementElem(statement));
+        statements.addChildAt(at, new LEStatementElem(statement));
     }
 
     @Override
     public String save(){
-        Seq<LStatement> st = statements.getChildren().<StatementElem>as().map(s -> s.st);
+        Seq<LStatement> st = statements.getChildren().<LEStatementElem>as().map(s -> s.st);
         st.each(LStatement::saveUI);
 
         return LAssembler.write(st);
