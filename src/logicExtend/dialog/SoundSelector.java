@@ -5,6 +5,7 @@ import arc.audio.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
+import logicExtend.LEExtend;
 import logicExtend.LEMain;
 import mindustry.*;
 import mindustry.gen.*;
@@ -33,7 +34,7 @@ public class SoundSelector extends SelectorDialog<Sound>{
 
     @Override
     protected void setupItemTable(Table table, Sound item){
-        String name = LEMain.getKeyEntryMap(Sound.class, Sounds.class).findKey(item, true);
+        String name = LEExtend.getKeyEntryMap(Sound.class, Sounds.class).findKey(item, true);
         table.add(name).pad(4f).expandX().left();
         table.button(b -> {
             b.image(Icon.play).pad(4f);
@@ -48,13 +49,13 @@ public class SoundSelector extends SelectorDialog<Sound>{
 
     @Override
     protected boolean matchQuery(Sound item){
-        String name = LEMain.getKeyEntryMap(Sound.class, Sounds.class).findKey(item, true);
+        String name = LEExtend.getKeyEntryMap(Sound.class, Sounds.class).findKey(item, true);
         return Strings.matches(query, name);
     }
 
     @Override
     protected Seq<Sound> getItems(){
-        return LEMain.getSoundList();
+        return LEExtend.getSoundList();
     }
 
     public static class SoloudAssessor{
