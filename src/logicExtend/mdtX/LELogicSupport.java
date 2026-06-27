@@ -28,19 +28,14 @@ import mindustryX.features.ui.LogicSupport;
 import static mindustry.Vars.*;
 
 public class LELogicSupport extends LogicSupport {
-    public static final CheckPref visible = new CheckPref("logicSupport.visible", true);
-    public static final CheckPref changeSplash = new CheckPref("logicSupport.changeSplash", true);
-    public static final SliderPref memoryColumns = new SliderPref("logicSupport.memoryColumns", 10, 2, 15);
-    public static final SliderPref memoryDecimal = new SliderPref("logicSupport.memoryDecimal", 0, 0, 8);
+    public static float refreshTime = 15f;
+    public static final Table varsTable = new Table();
 
-    private static float refreshTime = 15f;
-    private static final Table varsTable = new Table();
+    public static boolean refresh;
+    public static boolean autoRefresh = true;
 
-    private static boolean refresh;
-    private static boolean autoRefresh = true;
-
-    private static @Nullable Runnable refreshExecutor;
-    private static @Nullable LExecutor executor;
+    public static @Nullable Runnable refreshExecutor;
+    public static @Nullable LExecutor executor;
 
     static{
         visible.addFallbackName("gameUI.logicSupport");
