@@ -22,6 +22,7 @@ import mindustryX.features.UIExt;
 public class LELCanvas extends LCanvas {
     public LEStatementElem dragging;
     public boolean privileged;
+    public float targetWidth;
     public static LCanvas canvas;
 
     public LEDragLayout statements;
@@ -30,6 +31,33 @@ public class LELCanvas extends LCanvas {
         super();
 
         canvas = this;
+    }
+
+    @Override
+    public void rebuild(){
+        targetWidth = useRows() ? 400f : 900f;
+        float s = pane != null ? pane.getVisualScrollY() : 0f;
+        String toLoad = statements != null ? save() : null;
+
+        clear();
+
+        statements = new LEDragLayout();
+
+        pane = pane(t -> {
+            t.center();
+            t.add(statements).pad(2f).center().width(targetWidth);
+            t.addChild(statements.jumps);
+
+            statements.jumps.touchable = Touchable.disabled;
+            statements.jumps.update(() -> statements.jumps.setCullingArea(t.getCullingArea()));
+            statements.jumps.cullable = false;
+        }).grow().get();
+        pane.setFlickScroll(false);
+        pane.setScrollYForce(s);
+
+        if(toLoad != null){
+            load(toLoad);
+        }
     }
 
     @Override
