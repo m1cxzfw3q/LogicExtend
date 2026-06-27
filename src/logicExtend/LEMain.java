@@ -2,6 +2,7 @@ package logicExtend;
 
 import arc.Events;
 import logicExtend.dialog.SoundSelector;
+import logicExtend.mdtX.LELogicSupport;
 import mindustry.Vars;
 import mindustry.game.EventType;
 import mindustry.mod.Mod;
@@ -36,7 +37,7 @@ public class LEMain extends Mod {
             Vars.ui.logic = new LELogicDialog();
             effects = new EffectsDialog(getEffectList());
             sound = new SoundSelector();
-            if (mdtXMode) LogicSupport.init();
+            if (mdtXMode) LELogicSupport.init();
         });
     }
 }
