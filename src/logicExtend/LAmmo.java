@@ -23,10 +23,10 @@ import mindustry.Vars;
 import mindustry.content.Fx;
 import mindustry.entities.Effect;
 import mindustry.entities.bullet.*;
-import mindustry.entities.part.DrawPart;
 import mindustry.entities.pattern.ShootPattern;
 import mindustry.game.Team;
 import mindustry.gen.*;
+import mindustry.io.TypeIO;
 import mindustry.logic.*;
 import mindustry.type.Item;
 import mindustry.type.Liquid;
@@ -41,7 +41,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static mindustry.Vars.*;
-import static mindustry.logic.LCanvas.tooltip;
 
 public class LAmmo {
     public static IntMap<BulletType> ammos = IntMap.of();
@@ -180,7 +179,6 @@ public class LAmmo {
         public String id = "0", value = "20",
         x = "0", y = "0", rot = "0", team = "@sharded";
         static Class<? extends BulletType> catched;
-        public Object objVar;
 
         private static final String[] statusNames = content.statusEffects().select(s -> !s.isHidden()).map(s -> s.name).toArray(String.class);;
 
@@ -252,29 +250,17 @@ public class LAmmo {
                         }));
                     }, Styles.logict, () -> {}).size(150f, 40f).margin(5f).pad(4f).color(table.color).colspan(2);
                 } else if (field.getType() == Sound.class) {
-                    objVar = Sounds.none;
+                    value = String.valueOf(Sounds.getSoundId(Sounds.none));
                     table.button(Icon.book, Styles.clearNonei, () -> LEMain.sound.select(s -> {
-                        objVar = s;
+                        value = String.valueOf(Sounds.getSoundId(s));
                         return true;
                     })).pad(4f).width(48f).growY();
                 } else if (field.getType() == StatusEffect.class) {
                     value = "wet";
-                    table.button(b -> {
-                        b.label(() -> value).grow().wrap().labelAlign(Align.center).center();
-                        b.clicked(() -> showSelect(b, statusNames, value, o -> {
-                            value = o;
-                            build(table);
-                        }, 2, c -> c.size(120f, 38f)));
-                    }, Styles.logict, () -> {}).size(120f, 40f).pad(4f).color(table.color);
+                    buttonFunc(table, statusNames);
                 } else if (field.getType() == Interp.class) {
                     value = "linear";
-                    table.button(b -> {
-                        b.label(() -> value).grow().wrap().labelAlign(Align.center).center();
-                        b.clicked(() -> showSelect(b, interpNames, value, o -> {
-                            value = o;
-                            build(table);
-                        }, 2, c -> c.size(120f, 38f)));
-                    }, Styles.logict, () -> {}).size(120f, 40f).pad(4f).color(table.color);
+                    buttonFunc(table, interpNames);
                 } else {
                     value = "20";
                     table.add(" value ");
@@ -306,6 +292,16 @@ public class LAmmo {
             }
         }
 
+        private void buttonFunc(Table table, String[] names) {
+            table.button(b -> {
+                b.label(() -> value).grow().wrap().labelAlign(Align.center).center();
+                b.clicked(() -> showSelect(b, names, value, o -> {
+                    value = o;
+                    build(table);
+                }, 2, c -> c.size(120f, 38f)));
+            }, Styles.logict, () -> {}).size(120f, 40f).pad(4f).color(table.color);
+        }
+
         @Override
         public boolean privileged(){
             return true;
@@ -319,7 +315,7 @@ public class LAmmo {
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
             return new SetAmmoI(op, field, builder.var(id), builder.var(value),
-                    builder.var(x), builder.var(y), builder.var(rot), builder.var(team), objVar);
+                    builder.var(x), builder.var(y), builder.var(rot), builder.var(team));
         }
 
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
@@ -341,7 +337,6 @@ public class LAmmo {
                 if (params.length >= 7) stmt.x = params[6];
                 if (params.length >= 8) stmt.y = params[7];
                 if (params.length >= 9) stmt.rot = params[8];
-                if (params.length >= 10) stmt.objVar = LEExtend.unserialization(params[9]);
                 stmt.afterRead();
                 return stmt;
             });
@@ -350,7 +345,7 @@ public class LAmmo {
 
         @Override
         public void write(StringBuilder builder) {
-            LEExtend.appendLStmt(builder, "setammo", op.name, field.getName(), id, value, team, x, y, rot, LEExtend.serialization(objVar));
+            LEExtend.appendLStmt(builder, "setammo", op.name, field.getName(), id, value, team, x, y, rot);
         }
 
         void OpButton(Table table, Table parent){
@@ -426,9 +421,8 @@ public class LAmmo {
         public AmmoOp op;
         public Field field;
         public LVar id, value, x, y, rot, team;
-        public Object objVar;
 
-        public SetAmmoI(AmmoOp op, Field field, LVar id, LVar value, LVar x, LVar y, LVar rot, LVar team, Object obj) {
+        public SetAmmoI(AmmoOp op, Field field, LVar id, LVar value, LVar x, LVar y, LVar rot, LVar team) {
             this.op = op;
             this.field = field;
             this.id = id;
@@ -437,7 +431,6 @@ public class LAmmo {
             this.y = y;
             this.rot = rot;
             this.team = team;
-            objVar = obj;
         }
 
         @Override
@@ -445,7 +438,7 @@ public class LAmmo {
             switch (op) {
                 case remove -> op.c.get(id.num());
                 case create -> op.c5.get(value.building(), id.num(), Team.get(team.numi()), new Vec2(x.numf(), y.numf()), rot.num());
-                case set -> op.c4.get(field, id.num(), value, objVar);
+                case set -> op.c3.get(field, id.num(), value);
                 case has -> value.setbool((boolean) op.f.get(id.num()));
                 case load -> {
                     Object fromVal = value.obj();
@@ -533,9 +526,9 @@ public class LAmmo {
 
     public enum AmmoOp {
         remove("remove", (Cons<Double>) a -> ammos.remove(a.intValue())),
-        set("set", (f, d, v, obj) -> {
+        set("set", (f, d, v) -> {
             if (ammos.containsKey(d.intValue())) try {
-                TypeSet.set(ammos.get(d.intValue()), f, v, obj);
+                TypeSet.set(ammos.get(d.intValue()), f, v);
             } catch (Exception ignored) {}
         }),
         create("create", (a, b, c, d, e) -> {
@@ -557,7 +550,7 @@ public class LAmmo {
         public final String name;
         public Cons<Double> c = null;
         public Cons2<Double, BulletType> c2 = null;
-        public Cons4<Field, Double, LVar, Object> c4 = null;
+        public Cons3<Field, Double, LVar> c3 = null;
         public Cons5<Entityc, Double, Team, Vec2, Double> c5 = null;
         public Func<Double, Object> f = null;
 
@@ -571,9 +564,9 @@ public class LAmmo {
             this.c2 = c2;
         }
 
-        AmmoOp(String name, Cons4<Field, Double, LVar, Object> c4) {
+        AmmoOp(String name, Cons3<Field, Double, LVar> c3) {
             this.name = name;
-            this.c4 = c4;
+            this.c3 = c3;
         }
 
         AmmoOp(String name, Cons5<Entityc, Double, Team, Vec2, Double> c5) {
@@ -588,98 +581,60 @@ public class LAmmo {
     }
 
     public enum TypeSet {
-        intF((b, f, v) -> {
-            if (v instanceof LVar var) f.set(b, var.numi());
-        }),
-        doubleF((b, f, v) -> {
-            if (v instanceof LVar var) f.set(b, var.num());
-        }),
-        floatF((b, f, v) -> {
-            if (v instanceof LVar var) f.set(b, var.numf());
-        }),
-        booleanF((b, f, v) -> {
-            if (v instanceof LVar var) f.set(b, var.bool());
-        }),
+        intF((b, f, var) -> f.set(b, var.numi())),
+        doubleF((b, f, var) -> f.set(b, var.num())),
+        floatF((b, f, var) -> f.set(b, var.numf())),
+        booleanF((b, f, var) -> f.set(b, var.bool())),
 
-        effectF((b, f, v) -> {
-            if (v instanceof LVar var) {
-                f.set(b, Reflect.get(Fx.class, LEExtend.safeToString(var)));
-            } else if (v instanceof Effect eff) f.set(b, eff);
-        }),
-        soundF((b, f, v) -> {
-            if (v instanceof LVar var) {
-                f.set(b, Reflect.get(Sounds.class, LEExtend.safeToString(var)));
-            } else if (v instanceof Sound s) f.set(b, s);
-        }),
-        statusF((b, f, v) -> {
-            if (v instanceof LVar var) {
-                f.set(b, Vars.content.statusEffect(LEExtend.safeToString(var)));
-            } else if (v instanceof StatusEffect effect) f.set(b, effect);
-        }),
-        bulletF((b, f, v) -> {
-            if (v instanceof LVar var) {
-                if (ammos.containsKey(var.numi())) {
-                    f.set(b, ammos.get(var.numi()));
-                } else if (var.obj() instanceof Bullet bullet) {
-                    f.set(b, bullet.type);
-                }
+        effectF((b, f, var) -> f.set(b, Reflect.get(Fx.class, LEExtend.safeToString(var)))),
+        soundF((b, f, var) -> f.set(b, Reflect.get(Sounds.class, LEExtend.safeToString(var)))),
+        statusF((b, f, var) -> f.set(b, Vars.content.statusEffect(LEExtend.safeToString(var)))),
+        bulletF((b, f, var) -> {
+            if (ammos.containsKey(var.numi())) {
+                f.set(b, ammos.get(var.numi()));
+            } else if (var.obj() instanceof Bullet bullet) {
+                f.set(b, bullet.type);
             }
         }),
-        colorF((b, f, v) -> {
-            if (v instanceof LVar var) {
-                double packed = var.num();
+        colorF((b, f, var) -> {
+            double packed = var.num();
 
-                int value = (int)(Double.doubleToRawLongBits(packed)),
-                        r = ((value & 0xff000000) >>> 24),
-                        g = ((value & 0x00ff0000) >>> 16),
-                        blue = ((value & 0x0000ff00) >>> 8),
-                        a = ((value & 0x000000ff));
+            int value = (int)(Double.doubleToRawLongBits(packed)),
+                    r = ((value & 0xff000000) >>> 24),
+                    g = ((value & 0x00ff0000) >>> 16),
+                    blue = ((value & 0x0000ff00) >>> 8),
+                    a = ((value & 0x000000ff));
 
-                f.set(b, Color.abgr(r, g, blue, a));
-            } else if (v instanceof Color col) f.set(b, col);
+            f.set(b, Color.abgr(r, g, blue, a));
         }),
-        unitF((b, f, v) -> {
-            if (v instanceof LVar var) {
-                if (var.obj() instanceof UnitType unit){
-                    f.set(b, unit);
-                } else f.set(b, Vars.content.unit(LEExtend.safeToString(var)));
-            } else if (v instanceof UnitType type) f.set(b, type);
+        unitF((b, f, var) -> {
+            if (var.obj() instanceof UnitType unit){
+                f.set(b, unit);
+            } else f.set(b, Vars.content.unit(LEExtend.safeToString(var)));
         }),
-        interpF((b, f, v) -> {
-            if (v instanceof LVar var) {
-                f.set(b, Reflect.get(Interp.class, LEExtend.safeToString(var)));
-            } else if (v instanceof Interp interp) f.set(b, interp);
+        interpF((b, f, var) -> f.set(b, Reflect.get(Interp.class, LEExtend.safeToString(var)))),
+        liquidF((b, f, var) -> {
+            if (var.obj() instanceof Liquid l){
+                f.set(b, l);
+            } else if (var.obj() instanceof String s) {
+                f.set(b, Vars.content.liquid(s));
+            } else {
+                f.set(b, Vars.content.liquid(var.numi()));
+            }
         }),
-        liquidF((b, f, v) -> {
-            if (v instanceof LVar var) {
-                if (var.obj() instanceof Liquid l){
-                    f.set(b, l);
-                } else if (var.obj() instanceof String s) {
-                    f.set(b, Vars.content.liquid(s));
-                } else {
-                    f.set(b, Vars.content.liquid(var.numi()));
-                }
-            } else if (v instanceof Liquid liquid) f.set(b, liquid);
-        }),
-        stringF((b, f, v) -> {
-            if (v instanceof LVar var) {
-                f.set(b, LEExtend.safeToString(var));
-            } else if (v instanceof String s) f.set(b, s);
-        }),
-        bullerArrayF((b, f, v) -> {
-            if (v instanceof LVar var) {
-                if (ammos.containsKey(var.numi())){
-                    BulletType[] old = Reflect.get(f);
-                    BulletType[] add = Arrays.copyOf(old, old.length + 1);
-                    add[add.length - 1] = ammos.get(var.numi());
-                    f.set(b, add);
-                }
-            } else if (v instanceof Bullet s) {
+        stringF((b, f, var) -> f.set(b, LEExtend.safeToString(var))),
+        bullerArrayF((b, f, var) -> {
+            if (ammos.containsKey(var.numi())){
+                BulletType[] old = Reflect.get(f);
+                BulletType[] add = Arrays.copyOf(old, old.length + 1);
+                add[add.length - 1] = ammos.get(var.numi());
+                f.set(b, add);
+            } else if (var.obj() instanceof Bullet s) {
                 BulletType[] old = Reflect.get(f);
                 BulletType[] add = Arrays.copyOf(old, old.length + 1);
                 add[add.length - 1] = s.type;
                 f.set(b, add);
-            } else if (v instanceof LogicSeq seq) {
+            } else if (var.obj() instanceof LogicSeq seq) {
                 BulletType[] add = new BulletType[seq.size];
                 for (int i = 0; i < seq.size; i++) {
                     add[i] = ((Bullet)seq.get(i)).type;
@@ -689,13 +644,13 @@ public class LAmmo {
         })
         ;
 
-        public final UnsafeCons3<BulletType, Field, Object> obj;
+        public final UnsafeCons3<BulletType, Field, LVar> obj;
 
-        TypeSet(UnsafeCons3<BulletType, Field, Object> c) {
+        TypeSet(UnsafeCons3<BulletType, Field, LVar> c) {
             obj = c;
         }
 
-        public static void set(BulletType bullet, Field field, LVar var, Object obj) {
+        public static void set(BulletType bullet, Field field, LVar var) {
             if (bullet != null) {
                 field.setAccessible(true);
                 Class<?> clazz = field.getType();
@@ -709,13 +664,13 @@ public class LAmmo {
 
                     if (clazz == BulletType.class) TypeSet.bulletF.obj.get(bullet, field, var);
 
-                    if (clazz == StatusEffect.class) TypeSet.statusF.obj.get(bullet, field, obj);
+                    if (clazz == StatusEffect.class) TypeSet.statusF.obj.get(bullet, field, var);
                     if (clazz == UnitType.class) TypeSet.unitF.obj.get(bullet, field, var);
 
-                    if (clazz == Effect.class) TypeSet.effectF.obj.get(bullet, field, obj);
-                    if (clazz == Sound.class) TypeSet.soundF.obj.get(bullet, field, obj);
+                    if (clazz == Effect.class) TypeSet.effectF.obj.get(bullet, field, var);
+                    if (clazz == Sound.class) TypeSet.soundF.obj.get(bullet, field, var);
                     if (clazz == Color.class) TypeSet.colorF.obj.get(bullet, field, var);
-                    if (clazz == Interp.class) TypeSet.interpF.obj.get(bullet, field, obj);
+                    if (clazz == Interp.class) TypeSet.interpF.obj.get(bullet, field, var);
                     if (clazz == BulletType[].class) TypeSet.bullerArrayF.obj.get(bullet, field, var);
                 } catch (Exception ignored) {}
             }

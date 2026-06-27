@@ -126,7 +126,7 @@ public class LEExtend {
             str.append("#");
         }
         if (obj instanceof Content c) {
-            str.append(c.getContentType().ordinal()).append(c.id);
+            str.append(c.getContentType().ordinal()).append(",").append(c.id);
         } if (obj instanceof Sound s) {
             str.append(Sounds.getSoundId(s));
         } if (obj instanceof Effect e) {
@@ -155,7 +155,11 @@ public class LEExtend {
         String[] split = str.split("#");
         switch (Integer.parseInt(split[0])) {
             case 1 -> {
-                return Vars.content.getByID(ContentType.values()[Integer.parseInt(String.valueOf(split[1].charAt(0)))], Integer.parseInt(split[1].substring(1)));
+                String[] asplit = split[1].split(",");
+                return Vars.content.getByID(
+                        ContentType.values()[Integer.parseInt(asplit[0])],
+                        Integer.parseInt(asplit[1])
+                );
             }
             case 2 -> {
                 return Sounds.getSound(Integer.parseInt(split[1]));
