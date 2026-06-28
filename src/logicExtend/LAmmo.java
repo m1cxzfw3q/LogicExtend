@@ -591,7 +591,13 @@ public class LAmmo {
         booleanF((b, f, var) -> f.set(b, var.bool())),
 
         effectF((b, f, var) -> f.set(b, Reflect.get(Fx.class, LEExtend.safeToString(var)))),
-        soundF((b, f, var) -> f.set(b, Reflect.get(Sounds.class, LEExtend.safeToString(var)))),
+        soundF((b, f, var) -> {
+            if (var.obj() != null) {
+                f.set(b, Reflect.get(Sounds.class, LEExtend.safeToString(var)));
+            } else {
+                f.set(b, Sounds.getSound(var.numi()));
+            }
+        }),
         statusF((b, f, var) -> f.set(b, Vars.content.statusEffect(LEExtend.safeToString(var)))),
         bulletF((b, f, var) -> {
             if (ammos.containsKey(var.numi())) {
