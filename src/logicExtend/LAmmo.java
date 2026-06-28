@@ -1,6 +1,5 @@
 package logicExtend;
 
-import arc.Core;
 import arc.audio.Sound;
 import arc.func.*;
 import arc.graphics.Color;
@@ -20,21 +19,18 @@ import arc.util.Align;
 import arc.util.Reflect;
 import logicExtend.func.Cons5;
 import logicExtend.func.UnsafeCons3;
-import mindustry.Vars;
 import mindustry.content.Fx;
 import mindustry.entities.Effect;
 import mindustry.entities.bullet.*;
 import mindustry.entities.pattern.ShootPattern;
 import mindustry.game.Team;
 import mindustry.gen.*;
-import mindustry.io.TypeIO;
 import mindustry.logic.*;
 import mindustry.type.Item;
 import mindustry.type.Liquid;
 import mindustry.type.StatusEffect;
 import mindustry.type.UnitType;
 import mindustry.ui.Styles;
-import mindustry.ui.dialogs.EffectsDialog;
 import mindustry.world.blocks.defense.turrets.*;
 
 import java.lang.reflect.Field;
@@ -213,16 +209,16 @@ public class LAmmo {
             if (op == AmmoOp.set) {
 
                 if (field.getType() == Color.class) {
-                    //value;
-                    fields(table, " color ", value = "%ffffff", v -> value = v).width(144f);
+                    value = "%ffffff";
+                    fields(table, " color ", value, v -> value = v).width(144f);
                     col(table, value, res -> {
                         value = "%" + res.toString().substring(0, res.a >= 1f ? 6 : 8);
                         build(table);
                     });
                 } else if (field.getType() == UnitType.class) {
-                    //value;
+                    value = "@dagger";
                     table.add(" unit ");
-                    TextField fielda = field(table, value = "@dagger", str -> value = str).get();
+                    TextField fielda = field(table, value, str -> value = str).get();
                     table.button(b -> {
                         b.image(Icon.pencilSmall);
                         b.clicked(() -> showSelectTable(b, (t, hide) -> {
@@ -244,17 +240,17 @@ public class LAmmo {
                         }));
                     }, Styles.logict, () -> {}).size(40f).padLeft(-2).color(table.color);
                 } else if (field.getType() == Effect.class) {
-                    //value;
+                    value = "none";
                     table.button(b -> {
-                        b.label(() -> value = "none").growX().wrap().labelAlign(Align.center);
+                        b.label(() -> value).growX().wrap().labelAlign(Align.center);
                         b.clicked(() -> LEMain.effects.show(entry -> {
                             value = entry.name;
                             build(table);
                         }));
                     }, Styles.logict, () -> {}).size(150f, 40f).margin(5f).pad(4f).color(table.color).colspan(2);
                 } else if (field.getType() == Sound.class) {
-                    //value;
-                    TextField fielda = field(table, value = String.valueOf(Sounds.getSoundId(Sounds.none)), str -> value = str).get();
+                    value = String.valueOf(Sounds.getSoundId(Sounds.none));
+                    TextField fielda = field(table, value, str -> value = str).get();
                     table.button(Icon.book, Styles.clearNonei, () -> LEMain.sound.select(s -> {
                         value = String.valueOf(Sounds.getSoundId(s));
                         fielda.setText(value);
@@ -262,18 +258,18 @@ public class LAmmo {
                         return true;
                     })).pad(4f).width(48f).growY();
                 } else if (field.getType() == StatusEffect.class) {
-                    //value;
-                    buttonFunc(table, statusNames, "wet");
+                    value = "wet";
+                    buttonFunc(table, statusNames);
                 } else if (field.getType() == Interp.class) {
-                    //value;
-                    buttonFunc(table, interpNames, "linear");
+                    value = "linear";
+                    buttonFunc(table, interpNames);
                 } else {
-                    //value;
+                    value = "20";
                     table.add(" value ");
-                    LEExtend.field(table, value = "20", str -> value = str, 90f);
+                    LEExtend.field(table, value, str -> value = str, 90f);
                 }
             } else if (op == AmmoOp.create) {
-                //value = "@this";
+                value = "@this";
                 table.add(" team ");
                 LEExtend.field(table, team, str -> team = str, 90f);
                 table.add(" owner ");
@@ -298,9 +294,9 @@ public class LAmmo {
             }
         }
 
-        private void buttonFunc(Table table, String[] names, String init) {
+        private void buttonFunc(Table table, String[] names) {
             table.button(b -> {
-                b.label(() -> value = init).grow().wrap().labelAlign(Align.center).center();
+                b.label(() -> value).grow().wrap().labelAlign(Align.center).center();
                 b.clicked(() -> showSelect(b, names, value, o -> {
                     value = o;
                     build(table);
