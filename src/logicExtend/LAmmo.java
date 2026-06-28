@@ -253,8 +253,11 @@ public class LAmmo {
                     }, Styles.logict, () -> {}).size(150f, 40f).margin(5f).pad(4f).color(table.color).colspan(2);
                 } else if (field.getType() == Sound.class) {
                     value = String.valueOf(Sounds.getSoundId(Sounds.none));
+                    TextField fielda = field(table, value, str -> value = str).get();
                     table.button(Icon.book, Styles.clearNonei, () -> LEMain.sound.select(s -> {
                         value = String.valueOf(Sounds.getSoundId(s));
+                        fielda.setText(value);
+                        build(table);
                         return true;
                     })).pad(4f).width(48f).growY();
                 } else if (field.getType() == StatusEffect.class) {
