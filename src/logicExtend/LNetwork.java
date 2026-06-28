@@ -36,16 +36,16 @@ public class LNetwork {
             int rows = 0;
             for (int i = 0;i < func.argsLen;i++) {
                 rows++;
-                if (rows >= 6) {
+                if (rows >= 4) {
                     rows = 0;
                     table.row();
                 }
                 int fI = i;
-                table.add(func.display[i]).left();
-                field(table, args[i], str -> args[fI] = str).left();
+                table.add(func.display[i]);
+                field(table, args[i], str -> args[fI] = str);
             }
             table.row();
-            table.add("]").left();
+            table.add("]");
         }
 
         @Override
@@ -115,8 +115,8 @@ public class LNetwork {
         AdminRequest(4, new String[]{"player", "other", "action", "params"}, in -> {
             if (Vars.net.server() || !Vars.net.active()) {
                 NetServer.adminRequest(
-                        in[0].obj() != null && in[0].obj() instanceof Unit u ? u.getPlayer() : placeholder,
-                        in[1].obj() != null && in[1].obj() instanceof Unit u ? u.getPlayer() : null,
+                        in[0].obj() instanceof Unit u ? u.getPlayer() : placeholder,
+                        in[1].obj() instanceof Unit u ? u.getPlayer() : null,
                         Packets.AdminAction.valueOf(LEExtend.safeToString(in[2])),
                         in[3].obj()
                 );
@@ -124,7 +124,7 @@ public class LNetwork {
 
             if (Vars.net.client()) {
                 AdminRequestCallPacket packet = new AdminRequestCallPacket();
-                packet.other = in[1].obj() != null && in[1].obj() instanceof Unit u ? u.getPlayer() : null;
+                packet.other = in[1].obj() instanceof Unit u ? u.getPlayer() : null;
                 packet.action = Packets.AdminAction.valueOf(LEExtend.safeToString(in[2]));
                 packet.params = in[3].obj();
                 Vars.net.send(packet, true);
