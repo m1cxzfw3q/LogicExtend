@@ -207,7 +207,6 @@ public class LAmmo {
                 } catch (NumberFormatException ignore) {}
             }, 75f);
             if (op == AmmoOp.set) {
-
                 if (field.getType() == Color.class) {
                     value = "%ffffff";
                     fields(table, " color ", value, v -> value = v).width(144f);
@@ -254,7 +253,6 @@ public class LAmmo {
                     table.button(Icon.book, Styles.clearNonei, () -> LEMain.sound.select(s -> {
                         value = String.valueOf(Sounds.getSoundId(s));
                         fielda.setText(value);
-                        build(table);
                         return true;
                     })).pad(4f).width(48f).growY();
                 } else if (field.getType() == StatusEffect.class) {
@@ -291,6 +289,37 @@ public class LAmmo {
                 LEExtend.field(table, value, str -> value = str, 90f);
                 table.add(" index ");
                 LEExtend.field(table, x, str -> x = str, 90f);
+            }
+        }
+
+        public void rebuild(Table table) {
+            build(table);
+            resetValue();
+        }
+
+        public void resetValue() {
+            if (op == AmmoOp.set) {
+                if (field.getType() == Color.class) {
+                    value = "%ffffff";
+                } else if (field.getType() == UnitType.class) {
+                    value = "@dagger";
+                } else if (field.getType() == Effect.class) {
+                    value = "none";
+                } else if (field.getType() == Sound.class) {
+                    value = String.valueOf(Sounds.getSoundId(Sounds.none));
+                } else if (field.getType() == StatusEffect.class) {
+                    value = "wet";
+                } else if (field.getType() == Interp.class) {
+                    value = "linear";
+                } else {
+                    value = "20";
+                }
+            } else if (op == AmmoOp.create) {
+                value = "@this";
+            } else if (op == AmmoOp.has) {
+                value = "result";
+            } else if (op == AmmoOp.load) {
+                value = "@dagger";
             }
         }
 
@@ -355,7 +384,7 @@ public class LAmmo {
                 b.label(() -> op.name);
                 b.clicked(() -> showSelect(b, AmmoOp.all, op, o -> {
                     op = o;
-                    build(parent);
+                    rebuild(parent);
                 }, 4, c -> c.width(75f)));
             }, Styles.logict, () -> {}).size(75f, 40f).pad(4f).color(table.color);
         }
@@ -372,7 +401,7 @@ public class LAmmo {
                 b.label(() -> field.getName());
                 b.clicked(() -> showSelect(b, fields.get(type).values().toSeq().toArray(Field.class), field, o -> {
                     field = o;
-                    build(parent);
+                    rebuild(parent);
                 }, 4, c -> c.width(300f), LEExtend.bulletField));
             }, Styles.logict, () -> {}).size(300f, 40f).pad(4f).color(table.color);
         }
