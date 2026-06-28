@@ -125,7 +125,7 @@ public class LEExtend {
             str.append(4);
         }
         if (obj != null){
-            str.append("#");
+            str.append("-");
         }
         if (obj instanceof Content c) {
             str.append(c.getContentType().ordinal()).append(",").append(c.id);
@@ -154,7 +154,7 @@ public class LEExtend {
 
     public static Object unserialization(String str) {
         if (str.charAt(0) == '0') return null;
-        String[] split = str.split("#");
+        String[] split = str.split("-");
         switch (Integer.parseInt(split[0])) {
             case 1 -> {
                 String[] asplit = split[1].split(",");
