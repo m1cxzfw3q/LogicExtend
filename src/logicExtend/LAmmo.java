@@ -211,17 +211,18 @@ public class LAmmo {
                 } catch (NumberFormatException ignore) {}
             }, 75f);
             if (op == AmmoOp.set) {
+
                 if (field.getType() == Color.class) {
-                    value = "%ffffff";
-                    fields(table, " color ", value, v -> value = v).width(144f);
+                    //value;
+                    fields(table, " color ", value = "%ffffff", v -> value = v).width(144f);
                     col(table, value, res -> {
                         value = "%" + res.toString().substring(0, res.a >= 1f ? 6 : 8);
                         build(table);
                     });
                 } else if (field.getType() == UnitType.class) {
-                    value = "@dagger";
+                    //value;
                     table.add(" unit ");
-                    TextField fielda = field(table, value, str -> value = str).get();
+                    TextField fielda = field(table, value = "@dagger", str -> value = str).get();
                     table.button(b -> {
                         b.image(Icon.pencilSmall);
                         b.clicked(() -> showSelectTable(b, (t, hide) -> {
@@ -229,7 +230,7 @@ public class LAmmo {
                             t.table(i -> {
                                 i.left();
                                 int c = 0;
-                                for(UnitType item : Vars.content.units()){
+                                for(UnitType item : content.units()){
                                     if(!item.unlockedNow() || item.isHidden() || !item.logicControllable) continue;
                                     i.button(new TextureRegionDrawable(item.uiIcon), Styles.flati, iconSmall, () -> {
                                         value = "@" + item.name;
@@ -243,17 +244,17 @@ public class LAmmo {
                         }));
                     }, Styles.logict, () -> {}).size(40f).padLeft(-2).color(table.color);
                 } else if (field.getType() == Effect.class) {
-                    value = "none";
+                    //value;
                     table.button(b -> {
-                        b.label(() -> value).growX().wrap().labelAlign(Align.center);
+                        b.label(() -> value = "none").growX().wrap().labelAlign(Align.center);
                         b.clicked(() -> LEMain.effects.show(entry -> {
                             value = entry.name;
                             build(table);
                         }));
                     }, Styles.logict, () -> {}).size(150f, 40f).margin(5f).pad(4f).color(table.color).colspan(2);
                 } else if (field.getType() == Sound.class) {
-                    value = String.valueOf(Sounds.getSoundId(Sounds.none));
-                    TextField fielda = field(table, value, str -> value = str).get();
+                    //value;
+                    TextField fielda = field(table, value = String.valueOf(Sounds.getSoundId(Sounds.none)), str -> value = str).get();
                     table.button(Icon.book, Styles.clearNonei, () -> LEMain.sound.select(s -> {
                         value = String.valueOf(Sounds.getSoundId(s));
                         fielda.setText(value);
@@ -261,18 +262,18 @@ public class LAmmo {
                         return true;
                     })).pad(4f).width(48f).growY();
                 } else if (field.getType() == StatusEffect.class) {
-                    value = "wet";
-                    buttonFunc(table, statusNames);
+                    //value;
+                    buttonFunc(table, statusNames, "wet");
                 } else if (field.getType() == Interp.class) {
-                    value = "linear";
-                    buttonFunc(table, interpNames);
+                    //value;
+                    buttonFunc(table, interpNames, "linear");
                 } else {
-                    value = "20";
+                    //value;
                     table.add(" value ");
-                    LEExtend.field(table, value, str -> value = str, 90f);
+                    LEExtend.field(table, value = "20", str -> value = str, 90f);
                 }
             } else if (op == AmmoOp.create) {
-                value = "@this";
+                //value = "@this";
                 table.add(" team ");
                 LEExtend.field(table, team, str -> team = str, 90f);
                 table.add(" owner ");
@@ -297,9 +298,9 @@ public class LAmmo {
             }
         }
 
-        private void buttonFunc(Table table, String[] names) {
+        private void buttonFunc(Table table, String[] names, String init) {
             table.button(b -> {
-                b.label(() -> value).grow().wrap().labelAlign(Align.center).center();
+                b.label(() -> value = init).grow().wrap().labelAlign(Align.center).center();
                 b.clicked(() -> showSelect(b, names, value, o -> {
                     value = o;
                     build(table);
@@ -598,7 +599,7 @@ public class LAmmo {
                 f.set(b, Sounds.getSound(var.numi()));
             }
         }),
-        statusF((b, f, var) -> f.set(b, Vars.content.statusEffect(LEExtend.safeToString(var)))),
+        statusF((b, f, var) -> f.set(b, content.statusEffect(LEExtend.safeToString(var)))),
         bulletF((b, f, var) -> {
             if (ammos.containsKey(var.numi())) {
                 f.set(b, ammos.get(var.numi()));
@@ -620,16 +621,16 @@ public class LAmmo {
         unitF((b, f, var) -> {
             if (var.obj() instanceof UnitType unit){
                 f.set(b, unit);
-            } else f.set(b, Vars.content.unit(LEExtend.safeToString(var)));
+            } else f.set(b, content.unit(LEExtend.safeToString(var)));
         }),
         interpF((b, f, var) -> f.set(b, Reflect.get(Interp.class, LEExtend.safeToString(var)))),
         liquidF((b, f, var) -> {
             if (var.obj() instanceof Liquid l){
                 f.set(b, l);
             } else if (var.obj() instanceof String s) {
-                f.set(b, Vars.content.liquid(s));
+                f.set(b, content.liquid(s));
             } else {
-                f.set(b, Vars.content.liquid(var.numi()));
+                f.set(b, content.liquid(var.numi()));
             }
         }),
         stringF((b, f, var) -> f.set(b, LEExtend.safeToString(var))),
