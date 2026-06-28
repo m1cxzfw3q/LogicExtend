@@ -215,7 +215,7 @@ public class LAmmo {
             OpButton(table);
             if (op == AmmoOp.set) {
                 try{
-                    selectedType = getAmmoType(ammoClass.put(Integer.parseInt(id), BulletType.class));
+                    selectedType = getAmmoType(ammoClass.get(Integer.parseInt(id), BulletType.class));
                 } catch (NumberFormatException ignored) {}
                 table.add(" type");
                 TypeButton(table);
