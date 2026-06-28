@@ -208,14 +208,12 @@ public class LAmmo {
             }, 75f);
             if (op == AmmoOp.set) {
                 if (field.getType() == Color.class) {
-                    value = "%ffffff";
                     fields(table, " color ", value, v -> value = v).width(144f);
                     col(table, value, res -> {
                         value = "%" + res.toString().substring(0, res.a >= 1f ? 6 : 8);
                         build(table);
                     });
                 } else if (field.getType() == UnitType.class) {
-                    value = "@dagger";
                     table.add(" unit ");
                     TextField fielda = field(table, value, str -> value = str).get();
                     table.button(b -> {
@@ -239,7 +237,6 @@ public class LAmmo {
                         }));
                     }, Styles.logict, () -> {}).size(40f).padLeft(-2).color(table.color);
                 } else if (field.getType() == Effect.class) {
-                    value = "none";
                     table.button(b -> {
                         b.label(() -> value).growX().wrap().labelAlign(Align.center);
                         b.clicked(() -> LEMain.effects.show(entry -> {
@@ -248,7 +245,6 @@ public class LAmmo {
                         }));
                     }, Styles.logict, () -> {}).size(150f, 40f).margin(5f).pad(4f).color(table.color).colspan(2);
                 } else if (field.getType() == Sound.class) {
-                    value = String.valueOf(Sounds.getSoundId(Sounds.none));
                     TextField fielda = field(table, value, str -> value = str).get();
                     table.button(Icon.book, Styles.clearNonei, () -> LEMain.sound.select(s -> {
                         value = String.valueOf(Sounds.getSoundId(s));
@@ -256,18 +252,14 @@ public class LAmmo {
                         return true;
                     })).pad(4f).width(48f).growY();
                 } else if (field.getType() == StatusEffect.class) {
-                    value = "wet";
                     buttonFunc(table, statusNames);
                 } else if (field.getType() == Interp.class) {
-                    value = "linear";
                     buttonFunc(table, interpNames);
                 } else {
-                    value = "20";
                     table.add(" value ");
                     LEExtend.field(table, value, str -> value = str, 90f);
                 }
             } else if (op == AmmoOp.create) {
-                value = "@this";
                 table.add(" team ");
                 LEExtend.field(table, team, str -> team = str, 90f);
                 table.add(" owner ");
@@ -280,11 +272,9 @@ public class LAmmo {
                 table.add(" rotation ");
                 LEExtend.field(table, rot, str -> rot = str, 75f);
             } else if (op == AmmoOp.has) {
-                value = "result";
                 table.add(" -> ");
                 LEExtend.field(table, value, str -> value = str, 90f);
             } else if (op == AmmoOp.load) {
-                value = "@dagger";
                 table.add(" from ");
                 LEExtend.field(table, value, str -> value = str, 90f);
                 table.add(" index ");
