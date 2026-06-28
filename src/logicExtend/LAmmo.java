@@ -242,7 +242,6 @@ public class LAmmo {
                                 i.left();
                                 int c = 0;
                                 for(UnitType item : content.units()){
-                                    if(!item.unlockedNow() || item.isHidden() || !item.logicControllable) continue;
                                     i.button(new TextureRegionDrawable(item.uiIcon), Styles.flati, iconSmall, () -> {
                                         value = "@" + item.name;
                                         fielda.setText(value);
