@@ -20,7 +20,6 @@ import arc.util.Align;
 import arc.util.Reflect;
 import logicExtend.func.Cons5;
 import logicExtend.func.UnsafeCons3;
-import mindustry.Vars;
 import mindustry.content.Fx;
 import mindustry.content.UnitTypes;
 import mindustry.entities.Effect;
