@@ -206,5 +206,5 @@ public class LEExtend {
         return (ObjectMap<String, T>)map;
     }
 
-    public static Func<Field, String> bundleStr = f -> Core.bundle.get("field.le."+f.getName());
+    public static Func<Field, String> bulletField = f -> "field.le."+f.getName();
 }

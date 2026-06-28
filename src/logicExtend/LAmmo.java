@@ -373,7 +373,7 @@ public class LAmmo {
                 b.clicked(() -> showSelect(b, fields.get(type).values().toSeq().toArray(Field.class), field, o -> {
                     field = o;
                     build(parent);
-                }, 4, c -> c.width(300f), LEExtend.bundleStr));
+                }, 4, c -> c.width(300f), LEExtend.bulletField));
             }, Styles.logict, () -> {}).size(300f, 40f).pad(4f).color(table.color);
         }
 
