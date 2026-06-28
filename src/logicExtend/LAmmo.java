@@ -1,5 +1,6 @@
 package logicExtend;
 
+import arc.Events;
 import arc.audio.Sound;
 import arc.func.*;
 import arc.graphics.Color;
@@ -23,6 +24,7 @@ import mindustry.content.Fx;
 import mindustry.entities.Effect;
 import mindustry.entities.bullet.*;
 import mindustry.entities.pattern.ShootPattern;
+import mindustry.game.EventType;
 import mindustry.game.Team;
 import mindustry.gen.*;
 import mindustry.logic.*;
@@ -82,20 +84,30 @@ public class LAmmo {
         fields.put(InterceptorBulletType.class, getFields(InterceptorBulletType.class).merge(fields.get(BasicBulletType.class)));
         fields.put(LaserBoltBulletType.class, getFields(LaserBoltBulletType.class).merge(fields.get(BasicBulletType.class)));
         fields.put(MissileBulletType.class, getFields(MissileBulletType.class).merge(fields.get(BasicBulletType.class)));
+
+        Events.on(EventType.WorldLoadEvent.class, e -> {
+            ammos.clear();
+            ammoClass.clear();
+        });
     }
 
+    static ObjectMap<String, Field> catched = new ObjectMap<>();
+    static Seq<String> removeCatched = new Seq<>();
+
     public static ObjectMap<String, Field> getFields(Class<?> clazz) {
-        ObjectMap<String, Field> result = new ObjectMap<>();
+        catched.clear();
+        removeCatched.clear();
         for (Field field : clazz.getDeclaredFields()) {
             if (!Modifier.isPublic(field.getModifiers())) continue;
-            result.put(field.getName(), field);
+            catched.put(field.getName(), field);
         }
-        result.each((string, field) -> {
+        catched.each((string, field) -> {
             if (field.getType() == ShootPattern.class || field.getType() == TextureRegion.class ||
                     (field.getType() == Seq.class && !field.getName().equals("spawnBullets"))
-            ) result.remove(string);
+            ) removeCatched.add(string);
         });
-        return result;
+        removeCatched.each(catched::remove);
+        return catched;
     }
 
     public static class CreateAmmoStatement extends LStatement {
@@ -174,13 +186,12 @@ public class LAmmo {
 
     public static class SetAmmoStatement extends LStatement {
         public AmmoOp op = AmmoOp.set;
+        public LogicAmmoType selectedType = LogicAmmoType.BaseBullet;
         public Field field = fields.get(BulletType.class).get("damage");
         public String id = "0", value = "20",
         x = "0", y = "0", rot = "0", team = "@sharded";
 
-        public Class<? extends BulletType> selectedClass;
-
-        private static final String[] statusNames = content.statusEffects().select(s -> !s.isHidden()).map(s -> s.name).toArray(String.class);;
+        private static final String[] statusNames = content.statusEffects().select(s -> !s.isHidden()).map(s -> s.name).toArray(String.class);
 
         private static final String[] interpNames = getInterpNames();
 
@@ -191,12 +202,21 @@ public class LAmmo {
             return outSeq.toArray(String.class);
         }
 
+        public LogicAmmoType getAmmoType(Class<? extends BulletType> type) {
+            for (LogicAmmoType ammoType : LogicAmmoType.all) {
+                if (catchedList.containsKey(type)) return ammoType;
+            }
+            return LogicAmmoType.BaseBullet;
+        }
+
         @Override
         public void build(Table table) {
             table.clearChildren();
             OpButton(table);
             if (op == AmmoOp.set) {
-                selectedClass = ammoClass.put(Integer.parseInt(id), BulletType.class);
+                try{
+                    selectedType = getAmmoType(ammoClass.put(Integer.parseInt(id), BulletType.class));
+                } catch (NumberFormatException ignored) {}
                 table.add(" type");
                 TypeButton(table);
                 table.add(" field");
@@ -333,8 +353,12 @@ public class LAmmo {
 
         @Override
         public LExecutor.LInstruction build(LAssembler builder) {
-            return new SetAmmoI(op, field, builder.var(id), builder.var(value),
+            return new SetAmmoI(op, selectedType, field, builder.var(id), builder.var(value),
                     builder.var(x), builder.var(y), builder.var(rot), builder.var(team));
+        }
+
+        public static Class<? extends BulletType> getType(SetAmmoStatement stmt, int id, Class<? extends BulletType> def) {
+            return stmt.selectedType != null ? stmt.selectedType.bulletFunc.get().getClass() : ammoClass.get(id) != null ? ammoClass.get(id) : def;
         }
 
         /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
@@ -342,20 +366,18 @@ public class LAmmo {
             LAssembler.customParsers.put("setammo", params -> {
                 SetAmmoStatement stmt = new SetAmmoStatement();
                 if (params.length >= 2) stmt.op = AmmoOp.valueOf(params[1]);
-                if (params.length >= 3) {
-                    if (ammoClass.get(Integer.parseInt(params[3])) != null) {
-                        stmt.field = fields.get(ammoClass.get(Integer.parseInt(params[3]))).get(params[2]);
-                    } else {
-                        stmt.field = fields.get(BulletType.class).get(params[2]);
-                        ammoClass.put(Integer.parseInt(params[3]), BulletType.class);
-                    }
+                if (params.length >= 3) stmt.selectedType = LogicAmmoType.valueOf(params[2]);
+                if (params.length >= 4) {
+                    Class<? extends BulletType> type = getType(stmt, Integer.parseInt(params[4]), BulletType.class);
+                    stmt.field = fields.get(type).get(params[3]);
+                    ammoClass.put(Integer.parseInt(params[4]), type);
                 }
-                if (params.length >= 4) stmt.id = params[3];
-                if (params.length >= 5) stmt.value = params[4];
-                if (params.length >= 6) stmt.team = params[5];
-                if (params.length >= 7) stmt.x = params[6];
-                if (params.length >= 8) stmt.y = params[7];
-                if (params.length >= 9) stmt.rot = params[8];
+                if (params.length >= 5) stmt.id = params[4];
+                if (params.length >= 6) stmt.value = params[5];
+                if (params.length >= 7) stmt.team = params[6];
+                if (params.length >= 8) stmt.x = params[7];
+                if (params.length >= 9) stmt.y = params[8];
+                if (params.length >= 10) stmt.rot = params[9];
                 stmt.afterRead();
                 return stmt;
             });
@@ -364,7 +386,7 @@ public class LAmmo {
 
         @Override
         public void write(StringBuilder builder) {
-            LEExtend.appendLStmt(builder, "setammo", op.name, field.getName(), id, value, team, x, y, rot);
+            LEExtend.appendLStmt(builder, "setammo", op.name, selectedType.name, field.getName(), id, value, team, x, y, rot);
         }
 
         void OpButton(Table table){
@@ -379,9 +401,9 @@ public class LAmmo {
 
         void TypeButton(Table table){
             table.button(b -> {
-                b.label(() -> LogicAmmoType.get(selectedClass).name);
-                b.clicked(() -> showSelect(b, LogicAmmoType.all, LogicAmmoType.get(selectedClass), o -> {
-                    selectedClass = o.bulletFunc.get().getClass();
+                b.label(() -> selectedType.name);
+                b.clicked(() -> showSelect(b, LogicAmmoType.all, selectedType, o -> {
+                    selectedType = o;
                     build(table);
                 }, 4, c -> c.width(120f)));
             }, Styles.logict, () -> {}).size(120f, 40f).pad(4f).color(table.color);
@@ -389,14 +411,8 @@ public class LAmmo {
 
         void KButton(Table table){
             Class<? extends BulletType> type;
-            if (selectedClass != null) {
-                type = selectedClass;
-            } else if (ammoClass.get(Integer.parseInt(id)) != null) {
-                type = ammoClass.get(Integer.parseInt(id));
-            } else {
-                type = BulletType.class;
-                ammoClass.put(Integer.parseInt(id), BulletType.class);
-            }
+            type = getType(this, Integer.parseInt(id), BulletType.class);
+            ammoClass.put(Integer.parseInt(id), type);
             table.button(b -> {
                 b.label(() -> field.getName());
                 b.clicked(() -> showSelect(b, fields.get(type).values().toSeq().toArray(Field.class), field, o -> {
@@ -450,10 +466,12 @@ public class LAmmo {
     public static class SetAmmoI implements LExecutor.LInstruction {
         public AmmoOp op;
         public Field field;
+        public LogicAmmoType type;
         public LVar id, value, x, y, rot, team;
 
-        public SetAmmoI(AmmoOp op, Field field, LVar id, LVar value, LVar x, LVar y, LVar rot, LVar team) {
+        public SetAmmoI(AmmoOp op, LogicAmmoType type, Field field, LVar id, LVar value, LVar x, LVar y, LVar rot, LVar team) {
             this.op = op;
+            this.type = type;
             this.field = field;
             this.id = id;
             this.value = value;
@@ -501,9 +519,11 @@ public class LAmmo {
         }
     }
 
+    static final ObjectMap<Class<? extends BulletType>, LogicAmmoType> catchedList = new ObjectMap<>();
+
     public enum LogicAmmoType {
         // basic types
-        BaseBullet("BaseBullet", () -> LEExtend.load(new BulletType())),
+        BaseBullet("BaseBullet", new BulletType()),
         BasicBullet(new BasicBulletType()),
         ContinuousBullet(new ContinuousBulletType()),
 
@@ -543,22 +563,17 @@ public class LAmmo {
         public final String name;
         public final Prov<BulletType> bulletFunc;
 
-        LogicAmmoType(String name, Prov<BulletType> bulletFunc) {
+        LogicAmmoType(String name, BulletType type) {
             this.name = name;
-            this.bulletFunc = bulletFunc;
+            bulletFunc = () -> LEExtend.load(type.copy());
+            catchedList.put(type.getClass(), this);
         }
 
         LogicAmmoType(BulletType type) {
-            this.name = type.getClass().getSimpleName().replace("Type", "");
-            this.bulletFunc = () -> LEExtend.load(type.copy());
+            name = type.getClass().getSimpleName().replace("Type", "");
+            bulletFunc = () -> LEExtend.load(type.copy());
+            catchedList.put(type.getClass(), this);
         }
-
-        public static LogicAmmoType get(Class<? extends BulletType> type) {
-            for (LogicAmmoType ammoType : all) {
-                if (ammoType.bulletFunc.get().getClass() == type) return ammoType;
-            }
-            return BaseBullet;
-        };
     }
 
     public enum AmmoOp {
@@ -699,22 +714,22 @@ public class LAmmo {
                 Class<?> clazz = field.getType();
                 try {
                     if (clazz == int.class || clazz == Integer.class) TypeSet.intF.obj.get(bullet, field, var);
-                    if (clazz == float.class || clazz == Float.class) TypeSet.floatF.obj.get(bullet, field, var);
-                    if (clazz == double.class || clazz == Double.class) TypeSet.doubleF.obj.get(bullet, field, var);
-                    if (clazz == boolean.class || clazz == Boolean.class) TypeSet.booleanF.obj.get(bullet, field, var);
+                    else if (clazz == float.class || clazz == Float.class) TypeSet.floatF.obj.get(bullet, field, var);
+                    else if (clazz == double.class || clazz == Double.class) TypeSet.doubleF.obj.get(bullet, field, var);
+                    else if (clazz == boolean.class || clazz == Boolean.class) TypeSet.booleanF.obj.get(bullet, field, var);
 
-                    if (clazz == String.class) TypeSet.stringF.obj.get(bullet, field, var);
+                    else if (clazz == String.class) TypeSet.stringF.obj.get(bullet, field, var);
 
-                    if (clazz == BulletType.class) TypeSet.bulletF.obj.get(bullet, field, var);
+                    else if (clazz == BulletType.class) TypeSet.bulletF.obj.get(bullet, field, var);
 
-                    if (clazz == StatusEffect.class) TypeSet.statusF.obj.get(bullet, field, var);
-                    if (clazz == UnitType.class) TypeSet.unitF.obj.get(bullet, field, var);
+                    else if (clazz == StatusEffect.class) TypeSet.statusF.obj.get(bullet, field, var);
+                    else if (clazz == UnitType.class) TypeSet.unitF.obj.get(bullet, field, var);
 
-                    if (clazz == Effect.class) TypeSet.effectF.obj.get(bullet, field, var);
-                    if (clazz == Sound.class) TypeSet.soundF.obj.get(bullet, field, var);
-                    if (clazz == Color.class) TypeSet.colorF.obj.get(bullet, field, var);
-                    if (clazz == Interp.class) TypeSet.interpF.obj.get(bullet, field, var);
-                    if (clazz == BulletType[].class) TypeSet.bullerArrayF.obj.get(bullet, field, var);
+                    else if (clazz == Effect.class) TypeSet.effectF.obj.get(bullet, field, var);
+                    else if (clazz == Sound.class) TypeSet.soundF.obj.get(bullet, field, var);
+                    else if (clazz == Color.class) TypeSet.colorF.obj.get(bullet, field, var);
+                    else if (clazz == Interp.class) TypeSet.interpF.obj.get(bullet, field, var);
+                    else if (clazz == BulletType[].class) TypeSet.bullerArrayF.obj.get(bullet, field, var);
                 } catch (Exception ignored) {}
             }
         }
