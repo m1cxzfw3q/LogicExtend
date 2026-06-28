@@ -213,7 +213,7 @@ public class LAmmo {
             if (op == AmmoOp.set) {
                 if (field.getType() == Color.class) {
                     value = "%ffffff";
-                    fields(table, " color ", x, v -> x = v).width(144f);
+                    fields(table, " color ", value, v -> value = v).width(144f);
                     col(table, value, res -> {
                         value = "%" + res.toString().substring(0, res.a >= 1f ? 6 : 8);
                         build(table);
