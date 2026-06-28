@@ -177,7 +177,8 @@ public class LAmmo {
         public Field field = fields.get(BulletType.class).get("damage");
         public String id = "0", value = "20",
         x = "0", y = "0", rot = "0", team = "@sharded";
-        static Class<? extends BulletType> catched;
+
+        public Class<? extends BulletType> selectedClass;
 
         private static final String[] statusNames = content.statusEffects().select(s -> !s.isHidden()).map(s -> s.name).toArray(String.class);;
 
@@ -193,19 +194,16 @@ public class LAmmo {
         @Override
         public void build(Table table) {
             table.clearChildren();
-            OpButton(table, table);
+            OpButton(table);
             if (op == AmmoOp.set) {
-                KButton(table, table);
+                selectedClass = ammoClass.put(Integer.parseInt(id), BulletType.class);
+                table.add(" type");
+                TypeButton(table);
+                table.add(" field");
+                KButton(table);
             }
             table.add(" id#");
-            LEExtend.field(table, id, str -> {
-                id = str;
-                try{
-                    if (ammoClass.get(Integer.parseInt(id)) != catched) {
-                        catched = ammoClass.get(Integer.parseInt(str));
-                    }
-                } catch (NumberFormatException ignore) {}
-            }, 75f);
+            LEExtend.field(table, id, str -> id = str, 75f);
             if (op == AmmoOp.set) {
                 if (field.getType() == Color.class) {
                     fields(table, " color ", value, v -> value = v).width(144f);
@@ -283,8 +281,8 @@ public class LAmmo {
         }
 
         public void rebuild(Table table) {
-            build(table);
             resetValue();
+            build(table);
         }
 
         public void resetValue() {
@@ -369,19 +367,31 @@ public class LAmmo {
             LEExtend.appendLStmt(builder, "setammo", op.name, field.getName(), id, value, team, x, y, rot);
         }
 
-        void OpButton(Table table, Table parent){
+        void OpButton(Table table){
             table.button(b -> {
                 b.label(() -> op.name);
                 b.clicked(() -> showSelect(b, AmmoOp.all, op, o -> {
                     op = o;
-                    rebuild(parent);
+                    rebuild(table);
                 }, 4, c -> c.width(75f)));
             }, Styles.logict, () -> {}).size(75f, 40f).pad(4f).color(table.color);
         }
 
-        void KButton(Table table, Table parent){
+        void TypeButton(Table table){
+            table.button(b -> {
+                b.label(() -> LogicAmmoType.get(selectedClass).name);
+                b.clicked(() -> showSelect(b, LogicAmmoType.all, LogicAmmoType.get(selectedClass), o -> {
+                    selectedClass = o.bulletFunc.get().getClass();
+                    build(table);
+                }, 4, c -> c.width(120f)));
+            }, Styles.logict, () -> {}).size(120f, 40f).pad(4f).color(table.color);
+        }
+
+        void KButton(Table table){
             Class<? extends BulletType> type;
-            if (ammoClass.get(Integer.parseInt(id)) != null) {
+            if (selectedClass != null) {
+                type = selectedClass;
+            } else if (ammoClass.get(Integer.parseInt(id)) != null) {
                 type = ammoClass.get(Integer.parseInt(id));
             } else {
                 type = BulletType.class;
@@ -391,7 +401,7 @@ public class LAmmo {
                 b.label(() -> field.getName());
                 b.clicked(() -> showSelect(b, fields.get(type).values().toSeq().toArray(Field.class), field, o -> {
                     field = o;
-                    rebuild(parent);
+                    rebuild(table);
                 }, 4, c -> c.width(300f), LEExtend.bulletField));
             }, Styles.logict, () -> {}).size(300f, 40f).pad(4f).color(table.color);
         }
@@ -542,6 +552,13 @@ public class LAmmo {
             this.name = type.getClass().getSimpleName().replace("Type", "");
             this.bulletFunc = () -> LEExtend.load(type.copy());
         }
+
+        public static LogicAmmoType get(Class<? extends BulletType> type) {
+            for (LogicAmmoType ammoType : all) {
+                if (ammoType.bulletFunc.get().getClass() == type) return ammoType;
+            }
+            return BaseBullet;
+        };
     }
 
     public enum AmmoOp {
