@@ -20,7 +20,9 @@ import arc.util.Align;
 import arc.util.Reflect;
 import logicExtend.func.Cons5;
 import logicExtend.func.UnsafeCons3;
+import mindustry.Vars;
 import mindustry.content.Fx;
+import mindustry.content.UnitTypes;
 import mindustry.entities.Effect;
 import mindustry.entities.bullet.*;
 import mindustry.entities.pattern.ShootPattern;
@@ -48,6 +50,9 @@ public class LAmmo {
     public static IntMap<Class<? extends BulletType>> ammoClass = IntMap.of();
 
     public static final ObjectMap<Class<? extends BulletType>, ObjectMap<String, Field>> fields = new ObjectMap<>();
+    public static final Seq<UnitType> unitFilter = Seq.with(
+            UnitTypes.block, UnitTypes.manifold, UnitTypes.assemblyDrone, content.unit("turret-unit-build-tower")
+    );
 
     public static void init() {
         // basic types
@@ -242,6 +247,7 @@ public class LAmmo {
                                 i.left();
                                 int c = 0;
                                 for(UnitType item : content.units()){
+                                    if (unitFilter.contains(item)) continue;
                                     i.button(new TextureRegionDrawable(item.uiIcon), Styles.flati, iconSmall, () -> {
                                         value = "@" + item.name;
                                         fielda.setText(value);
