@@ -18,6 +18,7 @@ import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Align;
 import arc.util.Reflect;
+import arc.util.Strings;
 import logicExtend.func.Cons5;
 import logicExtend.func.UnsafeCons3;
 import mindustry.content.Fx;
@@ -125,8 +126,8 @@ public class LAmmo {
             field(table, id, str -> {
                 id = str;
                 try{
-                    if (ammoClass.get(Integer.parseInt(str)) != type.bulletFunc.get().getClass()) {
-                        ammoClass.put(Integer.parseInt(str), type.bulletFunc.get().getClass());
+                    if (ammoClass.get(Strings.parseInt(str)) != type.bulletFunc.get().getClass()) {
+                        ammoClass.put(Strings.parseInt(str), type.bulletFunc.get().getClass());
                     }
                 } catch (NumberFormatException ignore) {}
             });
@@ -219,7 +220,7 @@ public class LAmmo {
             OpButton(table);
             if (op == AmmoOp.set) {
                 try{
-                    selectedType = getAmmoType(ammoClass.get(Integer.parseInt(id), BulletType.class));
+                    selectedType = getAmmoType(ammoClass.get(Strings.parseInt(id), BulletType.class));
                 } catch (NumberFormatException ignored) {}
                 table.add(" type");
                 TypeButton(table);
@@ -294,7 +295,7 @@ public class LAmmo {
                 table.add(" rotation ");
                 LEExtend.field(table, rot, str -> rot = str, 75f);
             } else if (op == AmmoOp.has) {
-                table.add(" -> ");
+                table.add(" to ");
                 LEExtend.field(table, value, str -> value = str, 90f);
             } else if (op == AmmoOp.load) {
                 table.add(" from ");
@@ -372,9 +373,9 @@ public class LAmmo {
                 if (params.length >= 2) stmt.op = AmmoOp.valueOf(params[1]);
                 if (params.length >= 3) stmt.selectedType = LogicAmmoType.valueOf(params[2]);
                 if (params.length >= 4) {
-                    Class<? extends BulletType> type = getType(stmt, Integer.parseInt(params[4]), BulletType.class);
+                    Class<? extends BulletType> type = getType(stmt, Strings.parseInt(params[4]), BulletType.class);
                     stmt.field = fields.get(type).get(params[3]);
-                    ammoClass.put(Integer.parseInt(params[4]), type);
+                    ammoClass.put(Strings.parseInt(params[4]), type);
                 }
                 if (params.length >= 5) stmt.id = params[4];
                 if (params.length >= 6) stmt.value = params[5];
@@ -415,8 +416,8 @@ public class LAmmo {
 
         void KButton(Table table){
             Class<? extends BulletType> type;
-            type = getType(this, Integer.parseInt(id), BulletType.class);
-            ammoClass.put(Integer.parseInt(id), type);
+            type = getType(this, Strings.parseInt(id), BulletType.class);
+            ammoClass.put(Strings.parseInt(id), type);
             table.button(b -> {
                 b.label(() -> field.getName());
                 b.clicked(() -> showSelect(b, fields.get(type).values().toSeq().toArray(Field.class), field, o -> {
@@ -489,7 +490,7 @@ public class LAmmo {
         public void run(LExecutor exec) {
             switch (op) {
                 case remove -> op.c.get(id.num());
-                case create -> op.c5.get(value.building(), id.num(), Team.get(team.numi()), new Vec2(x.numf(), y.numf()), rot.num());
+                case create -> op.c5.get(value.building(), id.num(), team.team() == null ? Team.sharded : team.team(), new Vec2(x.numf(), y.numf()), rot.num());
                 case set -> op.c3.get(field, id.num(), value);
                 case has -> value.setbool((boolean) op.f.get(id.num()));
                 case load -> {
@@ -697,11 +698,11 @@ public class LAmmo {
                 add[add.length - 1] = s.type;
                 f.set(b, add);
             } else if (var.obj() instanceof LogicSeq seq) {
-                BulletType[] add = new BulletType[seq.size];
+                Seq<BulletType> add = new Seq<>(seq.size);
                 for (int i = 0; i < seq.size; i++) {
-                    add[i] = ((Bullet)seq.get(i)).type;
+                    if (seq.get(i) instanceof Bullet) add.add(((Bullet)seq.get(i)).type);
                 }
-                f.set(b, add);
+                f.set(b, add.toArray(BulletType.class));
             }
         })
         ;

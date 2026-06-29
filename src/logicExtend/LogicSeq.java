@@ -1,33 +1,34 @@
 package logicExtend;
 
+import arc.struct.IntMap;
 import arc.struct.Seq;
 import mindustry.logic.*;
 
-public class LogicSeq extends Seq<Object> implements LReadable, LWritable {
+public class LogicSeq extends IntMap<Object> implements LReadable, LWritable, Senseable {
     public LogicSeq(Object[] array) {
-        super(array);
+        super(array.length);
+        for (int i = 0; i < array.length; i++) {
+            put(i, array[i]);
+        }
     }
 
     public LogicSeq(Seq<Object> seq) {
-        super(seq);
+        super(seq.size);
+        for (int i = 0; i < seq.size; i++) {
+            put(i, seq.items[i]);
+        }
     }
 
     @Override
     public boolean readable(LExecutor exec) {
-        return !isEmpty();
+        return true;
     }
 
     @Override
     public void read(LVar position, LVar output) {
         int index = position.numi();
-        if (index >= size) {
-            output.setobj(null);
-            return;
-        }
         if (get(index) instanceof Number n) {
             output.setnum(n.doubleValue());
-        } else if (get(index) instanceof Boolean b) {
-            output.setbool(b);
         } else {
             output.setobj(get(index));
         }
@@ -40,19 +41,24 @@ public class LogicSeq extends Seq<Object> implements LReadable, LWritable {
 
     @Override
     public void write(LVar position, LVar value) {
-        set(position.numi(), value.obj() != null ? value.objval : value.num());
+        put(position.numi(), value.obj() != null ? value.objval : value.num());
     }
 
     public String getSeq() {
         if(size == 0) return "[]";
         StringBuilder buffer = new StringBuilder(32);
         buffer.append('[');
-        buffer.append(items[0]);
+        buffer.append(get(0));
         for(int i = 1; i < size; i++){
             buffer.append(", ");
-            buffer.append(LELogicDialog.overrideVarString(items[i]));
+            buffer.append(LELogicDialog.overrideVarString(get(i)));
         }
         buffer.append(']');
         return buffer.toString();
+    }
+
+    @Override
+    public double sense(LAccess sensor) {
+        return sensor == LAccess.size ? size : Double.NaN;
     }
 }

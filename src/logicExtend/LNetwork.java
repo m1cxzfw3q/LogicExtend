@@ -1,5 +1,6 @@
 package logicExtend;
 
+import arc.func.Cons;
 import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
 import mindustry.Vars;
@@ -8,6 +9,9 @@ import mindustry.gen.*;
 import mindustry.logic.*;
 import mindustry.net.Packets;
 import mindustry.ui.Styles;
+import mindustry.world.blocks.ControlBlock;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 // TODO
 public class LNetwork {
@@ -97,7 +101,7 @@ public class LNetwork {
 
             @Override
             public void run(LExecutor exec) {
-
+                func.func.get(args);
             }
 
             public CallPacketI(CallPacketEnum func, LVar[] args) {
@@ -111,12 +115,18 @@ public class LNetwork {
         CallPacketStatement.create();
     }
 
+    @Nullable
+    public static Player getPlayer(@NotNull LVar var) {
+        return var.obj() instanceof Unit u ? u.getPlayer() :
+                var.building() instanceof ControlBlock b ? b.unit().getPlayer() : null;
+    }
+
     public enum CallPacketEnum {
         AdminRequest(4, new String[]{"player", "other", "action", "params"}, in -> {
             if (Vars.net.server() || !Vars.net.active()) {
                 NetServer.adminRequest(
-                        in[0].obj() instanceof Unit u ? u.getPlayer() : placeholder,
-                        in[1].obj() instanceof Unit u ? u.getPlayer() : null,
+                        getPlayer(in[0]),
+                        getPlayer(in[1]),
                         Packets.AdminAction.valueOf(LEExtend.safeToString(in[2])),
                         in[3].obj()
                 );
@@ -135,17 +145,13 @@ public class LNetwork {
         public static final CallPacketEnum[] all = values();
 
         public final int argsLen;
-        public final CallPacketFunc func;
+        public final Cons<LVar[]> func;
         public final String[] display;
 
-        CallPacketEnum(int len, String[] paramsText, CallPacketFunc func) {
+        CallPacketEnum(int len, String[] paramsText, Cons<LVar[]> func) {
             argsLen = len;
             this.func = func;
             display = paramsText;
-        }
-
-        public interface CallPacketFunc {
-            void run(LVar[] in);
         }
     }
 }
