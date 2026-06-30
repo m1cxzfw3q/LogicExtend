@@ -19,6 +19,26 @@ public class LogicSeq extends IntMap<Object> implements LReadable, LWritable, Se
         }
     }
 
+    public LogicSeq() {
+        super();
+    }
+
+    public Seq<Object> toSeq() {
+        Seq<Object> returnV = new Seq<>(size);
+        for (int i = 0; i < size; i++) {
+            returnV.set(i, get(i));
+        }
+        return returnV;
+    }
+
+    public <T> Seq<T> toSeq(Class<T> clazz) {
+        Seq<T> returnV = new Seq<>(size);
+        for (int i = 0; i < size; i++) {
+            returnV.set(i, (T) get(i));
+        }
+        return returnV;
+    }
+
     @Override
     public boolean readable(LExecutor exec) {
         return true;

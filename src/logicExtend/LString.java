@@ -43,7 +43,6 @@ public class LString {
             return LCategory.operation;
         }
 
-        /** Anuken, if you see this, you can replace it with your own @RegisterStatement, because this is my last resort... **/
         public static void create() {
             LAssembler.customParsers.put("stringop", params -> {
                 StringOpStatement stmt = new StringOpStatement();
