@@ -23,6 +23,7 @@ public class LEMain extends Mod {
         LAmmo.SetAmmoStatement.create();
         //LNetwork.load();
         LContentPatchOp.PatchOpStatement.create();
+        LLogicOperation.OperationLogicStatement.create();
 
         try {
             Class.forName("mindustryX.VarsX", true, Vars.mods.mainLoader());
