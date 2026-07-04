@@ -230,6 +230,7 @@ public class LAmmo {
             table.add(" id#");
             LEExtend.field(table, id, str -> id = str, 75f);
             if (op == AmmoOp.set) {
+                if (field == null) field = fields.get(BulletType.class).get("damage");
                 if (field.getType() == Color.class) {
                     fields(table, " color ", value, v -> value = v).width(144f);
                     col(table, value, res -> {
