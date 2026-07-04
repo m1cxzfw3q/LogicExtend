@@ -54,6 +54,10 @@ public class LAmmo {
             UnitTypes.block, UnitTypes.manifold, UnitTypes.assemblyDrone, content.unit("turret-unit-build-tower")
     );
 
+    {
+        init();
+    }
+
     public static void init() {
         // basic types
         fields.put(BulletType.class, getFields(BulletType.class));
