@@ -1,12 +1,12 @@
 package logicExtend.dialog;
 
-import arc.*;
-import arc.func.*;
-import arc.graphics.*;
 import arc.scene.Element;
 import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
 import arc.scene.style.TextureRegionDrawable;
+import arc.*;
+import arc.func.*;
+import arc.graphics.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
@@ -15,14 +15,15 @@ import mindustry.graphics.Pal;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 
-import static mindustry.ui.Styles.cleari;
-
-/**
- * 来自PatchEditor(我没有自主设计优秀UI的能力)
- */
 public abstract class SelectorDialog<T> extends BaseDialog{
-    ImageButton.ImageButtonStyle cardButtoni = new ImageButton.ImageButtonStyle(cleari){{
-        up = colored(Color.valueOf("#767676"));
+    protected Boolf<T> consumer;
+    protected String query = "";
+
+    private Table itemCont;
+    private ScrollPane pane;
+
+    public static ImageButton.ImageButtonStyle cardButtoni = new ImageButton.ImageButtonStyle(Styles.cleari){{
+        up = colored(Color.valueOf("767676"));
         down = over = colored(Pal.lightishGray);
         disabled = colored(Pal.darkerGray);
     }};
@@ -32,11 +33,7 @@ public abstract class SelectorDialog<T> extends BaseDialog{
         return ((TextureRegionDrawable)whiteui.tint(color));
     }
 
-    protected Boolf<T> consumer;
-    protected String query = "";
-
-    private Table itemCont;
-    private ScrollPane pane;
+    protected float itemWidth = 360f;
 
     public SelectorDialog(String title){
         super(title);
@@ -54,6 +51,7 @@ public abstract class SelectorDialog<T> extends BaseDialog{
     protected void rebuild(){
         if(itemCont == null) itemCont = new Table();
         if(pane == null) pane = new ScrollPane(itemCont);
+        if(!cont.hasChildren()) setupButtons();
 
         cont.clearChildren();
         cont.table(this::setupSearchTable).growX().row();
@@ -63,10 +61,12 @@ public abstract class SelectorDialog<T> extends BaseDialog{
         setupCont(itemCont);
     }
 
+    protected void setupButtons(){}
+
     protected void setupCont(Table cont){
         float width = layoutWidth();
 
-        int index = 0, columns = Math.max(1, (int)(width / 360f));
+        int index = 0, columns = Math.max(1, (int)(width / itemWidth));
         for(T item : getItems()){
             if(!query.isEmpty() && !matchQuery(item)) continue;
 
@@ -80,9 +80,7 @@ public abstract class SelectorDialog<T> extends BaseDialog{
             }, cardButtoni, () -> {}).pad(8f).growX().get();
 
             backButtonClick(btn, () -> {
-                if(consumer.get(item)){
-                    hide();
-                }
+                if(consumer.get(item)) hide();
             });
 
             if(++index % columns == 0){
@@ -116,7 +114,7 @@ public abstract class SelectorDialog<T> extends BaseDialog{
             itemCont.clearChildren();
             setupCont(itemCont);
         }).growX().get();
-        table.button(Icon.cancel, cleari, () -> {
+        table.button(Icon.cancel, Styles.cleari, () -> {
             query = "";
             itemCont.clearChildren();
             setupCont(itemCont);

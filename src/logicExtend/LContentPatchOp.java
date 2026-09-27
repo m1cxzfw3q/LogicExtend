@@ -8,16 +8,16 @@ import arc.util.Log;
 import mindustry.Vars;
 import mindustry.gen.LogicIO;
 import mindustry.logic.*;
-import mindustry.mod.DataPatcher;
+import mindustry.mod.data.PatchAsset;
 import mindustry.ui.Styles;
 
 import java.util.Objects;
 
 import static mindustry.Vars.net;
 
-//TODO 159
 public class LContentPatchOp {
     public static ObjectMap<String, Seq<String>> patches = new ObjectMap<>();
+    public static final Seq<String> empty = Seq.with("");
 
     public static class PatchOpStatement extends LStatement {
         public SetOp op = SetOp.create;
@@ -113,28 +113,32 @@ public class LContentPatchOp {
     }
 
     public enum SetOp {
-        create("create", (str, s) -> patches.put(str, new Seq<>())),
-        addPatch("addPatch", (str, s) -> (patches.containsKey(str) ? patches.get(str) : new Seq<String>()).add(s)),
+        create("create", (str, s) -> patches.put(str, empty)),
+        addPatch("addPatch", (str, s) ->  patches.get(str, empty).add(s)),
         apply("apply", (str, s) -> {
-            patches.get(str).remove(string -> Objects.equals(string.split(":")[0], "name"));
-            patches.get(str).add("name: \"Processor#"+str+"\"");
-            StringBuilder builder = new StringBuilder();
-            for (String content : patches.get(str)) {
-                builder.append(content).append("\n");
+            Seq<String> lines = patches.get(str).copy().select(line -> !(line.startsWith("name") || line.startsWith("\"name\"")));
+            lines.add("name: \"Processor#"+str+"\"\n");
+            StringBuilder content = new StringBuilder();
+            for (String line : lines) {
+                content.append(line);
             }
             try {
-                Vars.state.patcher.apply(new Seq<>(new String[]{builder.toString()}));
+                Seq<PatchAsset> patches = Vars.state.data.getPatches().copy().select(
+                        patch -> !patch.json.has("name") || !patch.json.getString("name").equals("Processor#"+str));
+                patches.add(new PatchAsset(content.toString()));
+                Vars.state.data.reloadPatches(patches);
             } catch (Exception e) {
                 Log.warn(String.valueOf(e));
             }
         }),
         remove("remove", (str, s) -> {
-            Vars.state.patcher.patches.removeAll(cp -> Objects.equals(cp.name, "Processor#" + str));
+            Vars.state.data.reloadPatches(Vars.state.data.getPatches().removeAll(
+                    cp -> Objects.equals(cp.json.getString("name"), "Processor#" + str)));
             patches.remove(str);
         }),
         clone("clone", (str, s) -> {
-            DataPatcher.PatchSet p = Vars.state.patcher.patches.select(patch -> Objects.equals(patch.name, str)).get(0);
-            patches.put(s, new Seq<>(new String[]{p.patch}));
+            PatchAsset p = Vars.state.data.getPatches().select(patch -> Objects.equals(patch.json.getString("name"), str)).first();
+            patches.put(s, Seq.with(p.patch.split("\n")));
         })
         ;
 

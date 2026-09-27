@@ -1,5 +1,7 @@
 package logicExtend.dialog;
 
+import arc.math.*;
+import arc.scene.ui.*;
 import arc.*;
 import arc.audio.*;
 import arc.scene.ui.layout.*;
@@ -12,9 +14,7 @@ import mindustry.ui.*;
 
 import java.lang.reflect.*;
 
-/**
- * 来自PatchEditor(我没有自主设计优秀UI的能力)
- */
+// TODO: add specified UI for sound asset.
 public class SoundSelector extends SelectorDialog<Sound>{
     private final IntSeq playingSounds = new IntSeq();
 
@@ -32,12 +32,32 @@ public class SoundSelector extends SelectorDialog<Sound>{
     }
 
     @Override
+    protected void setupButtons(){
+        buttons.button("@selector.sound.loadAll", Icon.download, () -> {
+            for(Sound item : getItems()){
+                long handle = Reflect.get(AudioSource.class, item, "handle");
+                if(handle == 0 && item.file != null){
+                    item.load(item.file);
+                }
+            }
+            rebuild();
+        }).tooltip("@selector.sound.loadAll.tooltip");
+    }
+
+    @Override
     protected void setupItemTable(Table table, Sound item){
-        String name = LEExtend.getKeyEntryMap(Sound.class, Sounds.class).findKey(item, true);
+        String name = LEExtend.getKeyEntryMap(Sound.class).findKey(item, true);
         table.add(name).pad(4f).expandX().left();
+
+        Label label = new Label(Strings.autoFixed(item.getLength(), 2) + "s");
         table.button(b -> {
             b.image(Icon.play).pad(4f);
-            b.add(Strings.autoFixed(item.getLength(), 2) + "s").width(64f);
+            b.add("@selector.sound.unloaded").width(64f).update(l -> {
+                if(!Mathf.zero(item.getLength())){
+                    l.setText(Strings.autoFixed(item.getLength(), 2) + "s");
+                    l.update(null);
+                }
+            });
         }, Styles.clearNonei, () -> {
             AudioBus lastBus = item.bus;
             item.setBus(Vars.control.sound.uiBus);
@@ -48,13 +68,17 @@ public class SoundSelector extends SelectorDialog<Sound>{
 
     @Override
     protected boolean matchQuery(Sound item){
-        String name = LEExtend.getKeyEntryMap(Sound.class, Sounds.class).findKey(item, true);
+        String name = LEExtend.getKeyEntryMap(Sound.class).findKey(item, true);
         return Strings.matches(query, name);
     }
 
     @Override
     protected Seq<Sound> getItems(){
-        return LEExtend.getSoundList();
+        ObjectMap<String, Sound> map = LEExtend.getKeyEntryMap(Sound.class);
+        for(var entry : Core.assets.getAllEntries(Sound.class, new Seq<>())){
+            map.put(Strings.getFileNameWithoutExtension(entry.key), entry.value);
+        }
+        return map.keys().toSeq().sort().map(map::get);
     }
 
     public static class SoloudAssessor{

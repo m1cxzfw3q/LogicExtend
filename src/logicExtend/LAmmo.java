@@ -51,7 +51,7 @@ public class LAmmo {
 
     public static final ObjectMap<Class<? extends BulletType>, ObjectMap<String, Field>> fields = new ObjectMap<>();
     public static final Seq<UnitType> unitFilter = Seq.with(
-            UnitTypes.block, UnitTypes.manifold, UnitTypes.assemblyDrone, content.unit("turret-unit-build-tower")
+            UnitTypes.block, UnitTypes.manifold, UnitTypes.assemblyDrone, content.unit("turret-unit-build-tower"), UnitTypes.dummy
     );
 
     public static void init() {

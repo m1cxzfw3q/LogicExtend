@@ -20,12 +20,14 @@ import mindustry.ui.dialogs.*;
 import mindustry.world.blocks.logic.*;
 import mindustry.world.blocks.logic.LogicBlock.*;
 import mindustry.world.blocks.logic.MemoryBlock.*;
+import mindustryX.VarsX;
 import mindustryX.features.SettingsV2.*;
 import mindustryX.features.*;
 import mindustryX.features.ui.Format;
 import mindustryX.features.ui.LogicSupport;
 
 import static mindustry.Vars.*;
+import static mindustryX.features.UIExt.i;
 
 public class LELogicSupport extends LogicSupport {
     public static float refreshTime = 15f;
@@ -207,10 +209,10 @@ public class LELogicSupport extends LogicSupport {
             t.add(LELogicSupport.memoryDecimal.uiElement()).minWidth(200f).padLeft(4f);
             t.button(Icon.refresh, Styles.clearNonei, () -> {
                 vars.clearChildren();
-                buildMemoryPane(vars, build.memory);
+                buildMemoryPane(vars, build);
             });
         }).row();
-        buildMemoryPane(vars, build.memory);
+        buildMemoryPane(vars, build);
         table.pane(Styles.noBarPane, vars).touchable(Touchable.disabled).maxHeight(500f).fillX().pad(4).get().setScrollingDisabledX(true);
         vars.update(() -> {
             vars.getCells().each(cell -> {
@@ -223,16 +225,25 @@ public class LELogicSupport extends LogicSupport {
         });
     }
 
-    public static void buildMemoryPane(Table t, double[] memory){
+    public static void buildMemoryPane(Table t, MemoryBuild build){
         Format format = new Format(LELogicSupport.memoryDecimal.get());
-        for(int i = 0; i < memory.length; i++){
+        int length = ((MemoryBlock)build.block).memoryCapacity;
+        LVar pos = new LVar(""), out = new LVar("");
+        pos.isobj = false;
+        for(int i = 0; i < length; i++){
             int finalI = i;
             t.add("[" + i + "]").color(Color.lightGray).align(Align.left);
             t.add().width(8);
-            t.label(() -> format.format((float)memory[finalI])).growX().align(Align.right).labelAlign(Align.right)
+            t.label(() -> {
+                        pos.numval = finalI;
+                        build.read(pos, out);
+                        return out.isobj ? String.valueOf(out.objval) : format.format((float)out.numval);
+                    }).growX().align(Align.right).labelAlign(Align.right)
                     .touchable(Touchable.enabled).get().tapped(() -> {
-                        Core.app.setClipboardText(memory[finalI] + "");
-                        UIExt.announce("[cyan]复制内存[white]\n " + memory[finalI]);
+                        pos.numval = finalI;
+                        build.read(pos, out);
+                        Core.app.setClipboardText(out.isobj ? String.valueOf(out.objval) : format.format((float)out.numval));
+                        UIExt.announce(VarsX.bundle.copiedMemory(out.isobj ? 0.0 : out.numval));
                     });
             if((i + 1) % LELogicSupport.memoryColumns.get() == 0) t.row();
             else t.add("|").color(((i % LELogicSupport.memoryColumns.get()) % 2 == 0) ? Color.cyan : Color.acid)
@@ -253,7 +264,7 @@ public class LELogicSupport extends LogicSupport {
             t.defaults().size(40);
             t.button(Icon.pencil, Styles.cleari, () -> {
                 if(!block.accessible())
-                    UIExt.announce("[yellow]当前无权编辑，仅供查阅");
+                    UIExt.announce(i("[yellow]当前无权编辑，仅供查阅"));
                 build.showEditDialog();
             });
             t.button(Icon.info, Styles.cleari, () -> {
@@ -264,8 +275,8 @@ public class LELogicSupport extends LogicSupport {
             t.button(Icon.trash, Styles.cleari, () -> {
                 build.links.clear();
                 build.updateCode(build.code, true, null);
-            }).disabled(b -> net.client()).tooltip("重置所有链接");
-            t.button(Icon.paste, Styles.cleari, () -> showLogicCodePickDialog(block, build)).tooltip("从蓝图中选择代码");
+            }).disabled(b -> net.client()).tooltip(i("重置所有链接"));
+            t.button(Icon.paste, Styles.cleari, () -> showLogicCodePickDialog(block, build)).tooltip(i("从蓝图中选择代码"));
         });
         table.row().pane(Styles.noBarPane, vars).pad(4).maxHeight(400f).touchable(Touchable.disabled).get().setScrollingDisabledX(true);
         if(showVars) buildLogicVarTable(vars, build.executor);

@@ -4,6 +4,7 @@ import arc.Core;
 import arc.audio.Sound;
 import arc.func.Cons;
 import arc.func.Func;
+import arc.graphics.Blending;
 import arc.graphics.g2d.TextureRegion;
 import arc.math.Interp;
 import arc.scene.ui.TextField;
@@ -13,15 +14,23 @@ import arc.struct.OrderedMap;
 import arc.struct.Seq;
 import arc.util.Reflect;
 import mindustry.Vars;
+import mindustry.content.Bullets;
 import mindustry.content.Fx;
 import mindustry.ctype.Content;
 import mindustry.ctype.ContentType;
+import mindustry.ctype.MappableContent;
 import mindustry.entities.Effect;
+import mindustry.entities.UnitSorts;
+import mindustry.entities.Units;
 import mindustry.entities.bullet.BulletType;
+import mindustry.entities.part.DrawPart;
 import mindustry.gen.Sounds;
+import mindustry.graphics.CacheLayer;
 import mindustry.logic.LVar;
 import mindustry.logic.LogicFx;
 import mindustry.ui.Styles;
+import mindustry.world.meta.BlockFlag;
+import mindustry.world.meta.BuildVisibility;
 
 import java.awt.*;
 import java.lang.reflect.Field;
@@ -194,6 +203,39 @@ public class LEExtend {
         return soundList;
     }
 
+    public static final ObjectMap<Class<?>, Class<?>> keyFieldsClasses = ObjectMap.of(
+            Effect.class, Fx.class,
+            BulletType.class, Bullets.class,
+            BlockFlag.class, BlockFlag.class,
+            BuildVisibility.class, BuildVisibility.class,
+            Sound.class, Sounds.class,
+            Units.Sortf.class, UnitSorts.class,
+            Interp.class, Interp.class,
+            DrawPart.PartProgress.class, DrawPart.PartProgress.class,
+            Blending.class, Blending.class,
+            CacheLayer.class, CacheLayer.class
+    );
+
+    // internal key name
+    public static String getKeyName(Object object){
+        if(object == null) return "null";
+        if(object instanceof MappableContent mc) return mc.name;
+        if(object instanceof Enum<?> e) return e.name();
+        if(object instanceof Class<?> clazz) return clazz.getName();
+        if(object instanceof TextureRegion region){
+            String key = Core.atlas.getRegionMap().findKey(region, true);
+            return key == null ? "error" : key;
+        }
+
+        Class<?> type = keyFieldsClasses.keys().toSeq().find(c -> c.isAssignableFrom(object.getClass()));
+        if(type != null){
+            String buildIn = getKeyEntryMap(type).findKey(object, true);
+            if(buildIn != null) return buildIn;
+        }
+
+        return String.valueOf(object);
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> ObjectMap<String, T> getKeyEntryMap(Class<T> type, Class<?> declare){
         if(declare == null) return null;
@@ -204,6 +246,10 @@ public class LEExtend {
         map = Seq.select(declare.getFields(), f -> f.getType() == type).asMap(Field::getName, Reflect::get);
         objectNameMap.put(declare, map);
         return (ObjectMap<String, T>)map;
+    }
+
+    public static <T> ObjectMap<String, T> getKeyEntryMap(Class<T> type){
+        return getKeyEntryMap(type, keyFieldsClasses.get(type));
     }
 
     public static Func<Field, String> bulletField = f -> "field.le."+f.getName();
