@@ -32,21 +32,21 @@ public class LLogicOperation {
                     table.add(" lines ");
                     LEExtend.field(table, lines, s -> lines = s, 90f);
                     table.add(" contents ");
-                    LEExtend.field(table, var, s -> var = s, 90f);
+                    LEExtend.field(table, var, s -> var = s, 500f);
                 }
                 case write -> {
                     table.add(" content ");
-                    LEExtend.field(table, var, s -> var = s, 90f);
+                    LEExtend.field(table, var, s -> var = s, 500f);
                 }
                 case read -> {
                     table.add(" return ");
-                    LEExtend.field(table, var, s -> var = s, 90f);
+                    LEExtend.field(table, var, s -> var = s, 120f);
                 }
                 case reads -> {
                     table.add(" lines ");
                     LEExtend.field(table, lines, s -> lines = s, 90f);
                     table.add(" returns ");
-                    LEExtend.field(table, var, s -> var = s, 90f);
+                    LEExtend.field(table, var, s -> var = s, 120f);
                 }
                 case removes -> {
                     table.add(" lines ");
