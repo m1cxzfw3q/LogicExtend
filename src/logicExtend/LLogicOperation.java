@@ -114,7 +114,7 @@ public class LLogicOperation {
                 int start = Math.min(index, lines);
                 int end = Math.max(index, lines);
                 for (int i = end - 1; i >= start; i--) {
-                    catched.add(seq.get(i));
+                    if (seq.get(i) != null) catched.add(seq.get(i));
                 }
                 seq.addAll(lseq.toSeq(String.class)).addAll(catched);
                 seq.each(s -> sb.append(s).append("\n"));
