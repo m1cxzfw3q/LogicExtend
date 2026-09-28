@@ -107,9 +107,9 @@ public class LLogicOperation {
 
     public enum OperationType {
         inserts("inserts", (build, index, lines, var) -> {
+            StringBuilder sb = new StringBuilder();
+            Seq<String> seq = Seq.with(build.code.split("\n"));
             if (var.obj() instanceof LogicSeq lseq){
-                StringBuilder sb = new StringBuilder();
-                Seq<String> seq = Seq.with(build.code.split("\n"));
                 Seq<String> catched = new Seq<>();
                 int start = Math.min(index, lines);
                 int end = Math.max(index, lines);
@@ -117,18 +117,14 @@ public class LLogicOperation {
                     if (seq.get(i) != null) catched.add(seq.get(i));
                 }
                 seq.addAll(lseq.toSeq(String.class)).addAll(catched);
-                seq.each(s -> sb.append(s).append("\n"));
-                build.code = sb.toString();
             } else {
-                StringBuilder sb = new StringBuilder();
-                Seq<String> seq = Seq.with(build.code.split("\n"));
                 if (index >= seq.size) {
                     return;
                 }
                 seq.insert(index, LEExtend.safeToString(var));
-                seq.each(s -> sb.append(s).append("\n"));
-                build.code = sb.toString();
             }
+            seq.each(s -> sb.append(s).append("\n"));
+            build.updateCode(sb.toString());
         }),
         write("write", (build, index, lines, var) -> {
             StringBuilder sb = new StringBuilder();
@@ -138,7 +134,7 @@ public class LLogicOperation {
             }
             seq.set(index, LEExtend.safeToString(var));
             seq.each(s -> sb.append(s).append("\n"));
-            build.code = sb.toString();
+            build.updateCode(sb.toString());
         }),
         writes("writes", (build, index, lines, var) -> {
             StringBuilder sb = new StringBuilder();
@@ -149,16 +145,14 @@ public class LLogicOperation {
                 for (int i = end - 1; i >= start; i--) {
                     seq.set(i, (String) lseq.get(i - index));
                 }
-                seq.each(s -> sb.append(s).append("\n"));
-                build.code = sb.toString();
             } else if (var.obj() instanceof String) {
                 if (index >= seq.size) {
                     return;
                 }
                 seq.set(index, LEExtend.safeToString(var));
-                seq.each(s -> sb.append(s).append("\n"));
-                build.code = sb.toString();
             }
+            seq.each(s -> sb.append(s).append("\n"));
+            build.updateCode(sb.toString());
         }),
         read("read", (build, index, lines, var) -> {
             Seq<String> seq = Seq.with(build.code.split("\n"));
@@ -185,7 +179,7 @@ public class LLogicOperation {
                 seq.remove(index);
             }
             seq.each(s -> sb.append(s).append("\n"));
-            build.code = sb.toString();
+            build.updateCode(sb.toString());
         }),
         removes("removes", (build, index, lines, var) -> {
             StringBuilder sb = new StringBuilder();
@@ -196,7 +190,7 @@ public class LLogicOperation {
                 seq.remove(i);
             }
             seq.each(s -> sb.append(s).append("\n"));
-            build.code = sb.toString();
+            build.updateCode(sb.toString());
         })
 
         ;
