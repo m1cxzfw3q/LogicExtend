@@ -143,7 +143,10 @@ public class LLogicOperation {
                 int start = Math.min(index, lines);
                 int end = Math.max(index, lines);
                 for (int i = end - 1; i >= start; i--) {
-                    seq.set(i, (String) lseq.get(i - index));
+                    if (i >= seq.size) {
+                        seq.add(lseq.get(i - index).toString());
+                    }
+                    seq.set(i, lseq.get(i - index).toString());
                 }
             } else if (var.obj() instanceof String) {
                 if (index >= seq.size) {
